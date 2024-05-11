@@ -1,4 +1,4 @@
-type Words64 = Span<u64>;
+pub type Words64 = Span<u64>;
 
 #[derive(Default, Drop, Serde, starknet::Store)]
 pub struct Keccak256Hash {
