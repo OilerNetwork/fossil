@@ -14,7 +14,7 @@ pub fn to_rlp_array(rlp: Words64Sequence) -> Array<RLPItem> {
 
     while (next_element_pos < payload_end) {
         let new_element = get_element(rlp, next_element_pos);
-        next_element_pos = element.position + element.length.try_into().unwrap();
+        next_element_pos = new_element.position + new_element.length.try_into().unwrap();
         rlp_array.append(new_element);
     };
     rlp_array
@@ -35,7 +35,9 @@ fn get_element(rlp: Words64Sequence, position: usize) -> RLPItem {
     if first_byte <= 191 {
         let length_of_len = first_byte - 183;
         let length = *extract_data(rlp, position + 1, length_of_len).values.at(0);
-        return RLPItem { first_byte, position, length };
+        return RLPItem {
+            first_byte, position: position + 1 + length_of_len.try_into().unwrap(), length
+        };
     }
 
     if first_byte <= 247 {
@@ -44,6 +46,7 @@ fn get_element(rlp: Words64Sequence, position: usize) -> RLPItem {
     }
 
     let length_of_len = first_byte - 247;
+    assert!(length_of_len <= 8, "Length of length cannot exceed 8 bytes");
     let length = *extract_data(rlp, position + 1, length_of_len).values.at(0);
     return RLPItem {
         first_byte, position: position + 1 + length_of_len.try_into().unwrap(), length
@@ -69,7 +72,11 @@ pub fn extract_data(rlp: Words64Sequence, start: usize, size: u64) -> Words64Seq
     };
 
     let right_shift = 8 - left_shift;
-    let lastword_right_shift = last_rlp_word_len - left_shift;
+    let lastword_right_shift = if last_rlp_word_len > left_shift {
+        last_rlp_word_len - left_shift
+    } else {
+        8 - (left_shift - last_rlp_word_len)
+    };
     let rlp_values = rlp.values;
     let rlp_values_len: u64 = rlp_values.len().into();
 
@@ -84,22 +91,26 @@ pub fn extract_data(rlp: Words64Sequence, start: usize, size: u64) -> Words64Seq
         let value: u128 = (*rlp_values.at(i)).into();
         left_part = BitShift::shl(value, left_shift.into() * 8);
 
-        if i.into() == rlp_values_len - 2 {
+        if i == rlp_values_len.try_into().unwrap() - 2 {
             let value_i_add1: u128 = (*rlp_values.at(i + 1)).into();
-            if lastword_right_shift < 0 {
-                right_part = BitShift::shl(value_i_add1, lastword_right_shift.into() * 8);
+            if lastword_right_shift < left_shift {
+                right_part =
+                    BitShift::shl(
+                        value_i_add1,
+                        (8 - (left_shift - lastword_right_shift)).try_into().unwrap() * 8
+                    );
             } else {
-                right_part = BitShift::shr(value_i_add1, right_shift.into() * 8);
+                right_part =
+                    BitShift::shr(value_i_add1, lastword_right_shift.try_into().unwrap() * 8);
             }
         } else {
-            if i.into() == rlp_values_len - 1 {
+            if i == rlp_values_len.try_into().unwrap() - 1 {
                 right_part = 0;
             } else {
                 let value_i_add1: u128 = (*rlp_values.at(i + 1)).into();
-                right_part = BitShift::shr(value_i_add1, right_shift.into() * 8);
+                right_part = BitShift::shr(value_i_add1, right_shift.try_into().unwrap() * 8);
             }
         }
-
         let new_word: u64 = ((left_part + right_part) & TWO_POW_64_MIN_ONE).try_into().unwrap();
         new_words.append(new_word);
         i += 1;
@@ -109,18 +120,30 @@ pub fn extract_data(rlp: Words64Sequence, start: usize, size: u64) -> Words64Seq
     if remainder != 0 {
         let value_at_end_word: u128 = (*rlp_values.at(end_word.try_into().unwrap())).into();
         if remainder + left_shift > 8 {
-            left_part = BitShift::shl(value_at_end_word - 1, left_shift.into() * 8);
+            let value_at_end_word_min_one = *rlp_values.at(end_word.try_into().unwrap() - 1);
+            left_part =
+                BitShift::shl(value_at_end_word_min_one.try_into().unwrap(), left_shift.into() * 8);
 
             if end_word == rlp_values_len - 1 {
-                right_part = BitShift::shr(value_at_end_word, ((8 - remainder) * 8).into());
+                // right_part = BitShift::shr(value_at_end_word, ((8 - remainder) * 8).into());
+                if lastword_right_shift < left_shift {
+                    right_part =
+                        BitShift::shl(
+                            value_at_end_word, (left_shift - lastword_right_shift).into() * 8
+                        );
+                } else {
+                    right_part =
+                        BitShift::shr(
+                            value_at_end_word, (lastword_right_shift - left_shift).into() * 8
+                        );
+                }
             } else {
                 right_part = value_at_end_word;
             }
 
             let final_word = left_part + right_part;
 
-            final_word_shifted =
-                BitShift::shr(final_word, ((16 - remainder - left_shift) * 8).into());
+            final_word_shifted = BitShift::shr(final_word, ((8 - remainder) * 8).into());
             let final_word_mask: u128 = (pow(2, remainder * 8) - 1).into();
             new_words.append((final_word_shifted & final_word_mask).try_into().unwrap());
         } else {
@@ -134,7 +157,13 @@ pub fn extract_data(rlp: Words64Sequence, start: usize, size: u64) -> Words64Seq
             new_words.append((final_word_shifted & final_word_mask).try_into().unwrap());
         }
     }
-    Words64Sequence { values: new_words.span(), len_bytes: size.try_into().unwrap() }
+    let res = Words64Sequence { values: new_words.span(), len_bytes: size.try_into().unwrap() };
+    res
+}
+
+pub fn is_rlp_item(item: RLPItem) -> bool {
+    let first_byte = item.first_byte;
+    first_byte >= 192
 }
 
 #[cfg(test)]
@@ -143,10 +172,36 @@ mod tests {
 
     #[test]
     fn test_to_rlp_array() {
-        let rlp = Words64Sequence { values: array![192].span(), len_bytes: 1 };
+        let rlp = Words64Sequence {
+            values: array![
+                17899166613764872570,
+                9377938528222421349,
+                9284578564931001247,
+                895019019097261264,
+                13278573522315157529,
+                11254050738018229226,
+                16872101704597074970,
+                8839885802225769251,
+                17633069546125622176,
+                5635966238324062822,
+                4466071473455465888,
+                16386808635744847773,
+                5287805632665950919
+            ]
+                .span(),
+            len_bytes: 104
+        };
         let result = super::to_rlp_array(rlp);
 
-        assert_eq!(result.len(), 0);
+        let first_element = *result.at(0);
+        assert_eq!(first_element.first_byte, 157);
+        assert_eq!(first_element.position, 3);
+        assert_eq!(first_element.length, 29);
+
+        let second_element = *result.at(1);
+        assert_eq!(second_element.first_byte, 184);
+        assert_eq!(second_element.position, 34);
+        assert_eq!(second_element.length, 70);
     }
 
     #[test]
@@ -190,13 +245,43 @@ mod tests {
     #[test]
     fn test_extract_data() {
         let mut rlp = Words64Sequence {
-            values: array![1234567890, 9876543210].span(), len_bytes: 16
+            values: array![
+                17899166613764872570,
+                9377938528222421349,
+                9284578564931001247,
+                895019019097261264,
+                13278573522315157529,
+                11254050738018229226,
+                16872101704597074970,
+                8839885802225769251,
+                17633069546125622176,
+                5635966238324062822,
+                4466071473455465888,
+                16386808635744847773,
+                5287805632665950919
+            ]
+                .span(),
+            len_bytes: 104
         };
-        let start_pos = 0;
-        let size = 8;
+        let start_pos = 34;
+        let size = 70;
         let result = super::extract_data(rlp, start_pos, size);
-        assert_eq!(result.values, array![1234567890].span());
-
+        assert_eq!(result.len_bytes, 70);
+        assert_eq!(
+            result.values,
+            array![
+                17889425271775927342,
+                7747611707377904165,
+                13770790249671850669,
+                10758299819545195701,
+                4563277353913962038,
+                17973550993138662906,
+                12418610901666554729,
+                11791013025377241442,
+                16720179567303
+            ]
+                .span()
+        );
         let mut rlp = Words64Sequence {
             values: array![1234567890, 9876543210].span(), len_bytes: 16
         };

@@ -29,7 +29,7 @@ pub fn words64_to_nibbles(input: Words64Sequence, skip_nibbles: usize) -> Array<
     let input_values_len = input.values.len();
     let mut i = 0;
     while i < input_values_len {
-        let mut word = *input.values.at(i);
+        let word = *input.values.at(i);
         let mut nibbles_len = 16;
         if i == input_values_len - 1 {
             if remainder == 0 {
@@ -51,15 +51,15 @@ pub fn words64_to_nibbles(input: Words64Sequence, skip_nibbles: usize) -> Array<
     acc
 }
 
-fn words64_to_nibbles_rec(mut word: u64, mut nibbles_len: usize, acc: Array<u64>) -> Array<u64> {
-    let mut acc_cp = acc.clone();
+fn words64_to_nibbles_rec(word: u64, nibbles_len: usize, mut acc: Array<u64>) -> Array<u64> {
     assert!(nibbles_len > 0, "nibbles_len must be greater than 0");
-    let word = word & 0xF;
-    acc_cp.append(word);
     if nibbles_len == 1 {
-        return acc_cp.reverse();
+        acc.append(word & 0xF);
+        return acc;
     }
-    words64_to_nibbles_rec(BitShift::shr(word, 4), nibbles_len - 1, acc_cp)
+    acc = words64_to_nibbles_rec(BitShift::shr(word, 4), nibbles_len - 1, acc);
+    acc.append(word & 0xF);
+    acc
 }
 
 #[cfg(test)]
@@ -84,61 +84,81 @@ mod tests {
 
     #[test]
     fn test_words64_to_nibbles() {
-        let input = super::Words64Sequence { values: array![3, 2, 3, 4].span(), len_bytes: 1 };
+        let input = super::Words64Sequence {
+            values: array![
+                16242634080300865914, 9377938528222421349, 9284578564931001247, 895019019097261264
+            ]
+                .span(),
+            len_bytes: 32
+        };
         let result = super::words64_to_nibbles(input, 0);
         assert_eq!(
             result,
             array![
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
+                14,
+                1,
+                6,
+                9,
+                6,
+                13,
+                10,
                 3,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
+                8,
+                12,
+                15,
+                12,
+                9,
+                9,
+                7,
+                10,
+                8,
                 2,
+                2,
+                5,
+                2,
+                1,
+                6,
+                7,
+                10,
+                12,
+                2,
+                5,
+                10,
+                1,
+                6,
+                5,
+                8,
                 0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
+                13,
+                9,
+                7,
                 3,
                 0,
-                4
+                3,
+                5,
+                3,
+                14,
+                11,
+                1,
+                11,
+                9,
+                15,
+                0,
+                12,
+                6,
+                11,
+                11,
+                15,
+                0,
+                14,
+                4,
+                12,
+                8,
+                2,
+                12,
+                4,
+                13,
+                0
             ]
         );
     }

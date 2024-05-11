@@ -43,3 +43,13 @@ pub enum ProcessBlockOptions {
     TimeStamp,
     BaseFee
 }
+
+
+impl Words64SequencePartialEq of PartialEq<Words64Sequence> {
+    fn eq(lhs: @Words64Sequence, rhs: @Words64Sequence) -> bool {
+        *lhs.values == *rhs.values
+    }
+    fn ne(lhs: @Words64Sequence, rhs: @Words64Sequence) -> bool {
+        *lhs.values != *rhs.values
+    }
+}
