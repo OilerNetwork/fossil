@@ -42,7 +42,7 @@ mod tests {
     #[test]
     fn test_keccak_words64() {
         let mut input = super::Words64Sequence {
-            values: array![87348,73246,90859,343, 87348,73246,90859,343].span(), len_bytes: 64
+            values: array![87348, 73246, 90859, 343, 87348, 73246, 90859, 343].span(), len_bytes: 64
         };
         let result = super::keccak_words64(input);
         assert_eq!(result.len_bytes, 32);
