@@ -1,3 +1,4 @@
+jobs:
 name: Test
 on:
   push:
