@@ -1,4 +1,4 @@
-use fossil::types::{OptionsSet, StorageSlot};
+use fossil::types::{OptionsSet, Words64Sequence};
 
 #[starknet::interface]
 pub trait IFactRegistry<TState> {
@@ -15,18 +15,16 @@ pub trait IFactRegistry<TState> {
         ref self: TState,
         block: u64,
         account: starknet::EthAddress,
-        slot: StorageSlot,
+        slot: u256,
         proof_sizes_bytes: Array<usize>,
-        proof_sizes_words: Array<usize>,
         proofs_concat: Array<u64>,
-    ) -> (usize, Array<u64>);
+    ) -> Words64Sequence;
     fn get_storage_uint(
         ref self: TState,
         block: u64,
         account: starknet::EthAddress,
-        slot: StorageSlot,
+        slot: u256,
         proof_sizes_bytes: Array<usize>,
-        proof_sizes_words: Array<usize>,
         proofs_concat: Array<u64>,
     ) -> u256;
 

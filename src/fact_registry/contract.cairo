@@ -9,9 +9,9 @@ mod factregistry {
     use fossil::fact_registry::interface::IFactRegistry;
     use fossil::library::{
         trie_proof::verify_proof, words64_utils::Words64Trait,
-        rlp_utils::{to_rlp_array, extract_data}
+        rlp_utils::{to_rlp_array, extract_data, extract_element}
     };
-    use fossil::types::{OptionsSet, StorageSlot, Words64Sequence, RLPItem};
+    use fossil::types::{OptionsSet, Words64Sequence, RLPItem};
     use starknet::{ContractAddress, EthAddress, contract_address_const};
 
     #[storage]
@@ -80,24 +80,38 @@ mod factregistry {
             ref self: ContractState,
             block: u64,
             account: starknet::EthAddress,
-            slot: StorageSlot,
+            slot: u256,
             proof_sizes_bytes: Array<usize>,
-            proof_sizes_words: Array<usize>,
             proofs_concat: Array<u64>,
-        ) -> (usize, Array<u64>) {
-            (0, array![])
+        ) -> Words64Sequence {
+            let account_state_root = self.verified_account_storage_hash.read((account, block));
+            assert!(account_state_root != 0, "FactRegistry: account not found");
+
+            let result = verify_proof(
+                slot.to_words64(),
+                account_state_root.to_words64(),
+                self.reconstruct_ints_sequence_list(proofs_concat.span(), proof_sizes_bytes.span()).span()
+            );
+
+            let slot_value = match result {
+                Option::None => Words64Sequence { values: array![].span(), len_bytes: 0 },
+                Option::Some(result) => {
+                    extract_element(result, 0)
+                }
+            };
+            slot_value
         }
 
         fn get_storage_uint(
             ref self: ContractState,
             block: u64,
             account: starknet::EthAddress,
-            slot: StorageSlot,
+            slot: u256,
             proof_sizes_bytes: Array<usize>,
-            proof_sizes_words: Array<usize>,
             proofs_concat: Array<u64>,
         ) -> u256 {
-            0
+            let result = self.get_storage(block, account, slot, proof_sizes_bytes, proofs_concat);
+            result.from_words64()
         }
 
         fn get_initialized(self: @ContractState) -> bool {
