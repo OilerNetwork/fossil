@@ -90,14 +90,14 @@ mod factregistry {
             let result = verify_proof(
                 slot.to_words64(),
                 account_state_root.to_words64(),
-                self.reconstruct_ints_sequence_list(proofs_concat.span(), proof_sizes_bytes.span()).span()
+                self
+                    .reconstruct_ints_sequence_list(proofs_concat.span(), proof_sizes_bytes.span())
+                    .span()
             );
 
             let slot_value = match result {
                 Option::None => Words64Sequence { values: array![].span(), len_bytes: 0 },
-                Option::Some(result) => {
-                    extract_element(result, 0)
-                }
+                Option::Some(result) => { extract_element(result, 0) }
             };
             slot_value
         }

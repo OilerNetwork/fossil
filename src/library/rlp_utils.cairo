@@ -28,7 +28,7 @@ pub fn extract_element(rlp: Words64Sequence, position: usize) -> Words64Sequence
     if length == 0 {
         return Words64Sequence { values: array![].span(), len_bytes: 0 };
     }
-    
+
     extract_data(rlp, position, length)
 }
 

@@ -5,11 +5,6 @@ pub struct Keccak256Hash {
     pub value: u256
 }
 
-#[derive(Default, Drop, Serde)]
-pub struct StorageSlot {
-    value: u256,
-}
-
 #[derive(Drop, Serde)]
 pub enum OptionsSet {
     StorageHash,
