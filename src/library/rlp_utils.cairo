@@ -20,6 +20,18 @@ pub fn to_rlp_array(rlp: Words64Sequence) -> Array<RLPItem> {
     rlp_array
 }
 
+pub fn extract_element(rlp: Words64Sequence, position: usize) -> Words64Sequence {
+    let element = get_element(rlp, position);
+    let position = element.position;
+    let length = element.length;
+
+    if length == 0 {
+        return Words64Sequence { values: array![].span(), len_bytes: 0 };
+    }
+    
+    extract_data(rlp, position, length)
+}
+
 fn get_element(rlp: Words64Sequence, position: usize) -> RLPItem {
     let first_byte = *extract_data(rlp, position, 1).values.at(0);
 
