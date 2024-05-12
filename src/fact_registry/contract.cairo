@@ -1,11 +1,17 @@
 #[starknet::contract]
 mod factregistry {
+    use core::array::ArrayTrait;
+    use core::array::SpanTrait;
+    use core::option::OptionTrait;
     use fossil::L1_headers_store::interface::{
         IL1HeadersStore, IL1HeadersStoreDispatcher, IL1HeadersStoreDispatcherTrait
     };
     use fossil::fact_registry::interface::IFactRegistry;
-    use fossil::library::trie_proof::verify_proof;
-    use fossil::types::{OptionsSet, StorageSlot};
+    use fossil::library::{
+        trie_proof::verify_proof, words64_utils::Words64Trait,
+        rlp_utils::{to_rlp_array, extract_data}
+    };
+    use fossil::types::{OptionsSet, StorageSlot, Words64Sequence, RLPItem};
     use starknet::{ContractAddress, EthAddress, contract_address_const};
 
     #[storage]
@@ -15,7 +21,7 @@ mod factregistry {
         verified_account_storage_hash: LegacyMap::<(EthAddress, u64), u256>,
         verified_account_code_hash: LegacyMap::<(EthAddress, u64), u256>,
         verified_account_balance: LegacyMap::<(EthAddress, u64), u256>,
-        verified_account_nonce: LegacyMap::<(EthAddress, u64), felt252>,
+        verified_account_nonce: LegacyMap::<(EthAddress, u64), u64>,
     }
 
     #[abi(embed_v0)]
@@ -32,13 +38,42 @@ mod factregistry {
             option: OptionsSet,
             account: starknet::EthAddress,
             block: u64,
-            proof_sizes_bytes: Array<u16>,
-            proof_sizes_words: Array<u8>,
+            proof_sizes_bytes: Array<usize>,
             proofs_concat: Array<u64>,
         ) {
             let state_root = self.l1_headers_store.read().get_state_root(block);
             assert!(state_root != 0, "FactRegistry: block not found");
-        // let result = verify_proof(account, state_root, proofs_concat.span());
+            let proof = self
+                .reconstruct_ints_sequence_list(proofs_concat.span(), proof_sizes_bytes.span());
+
+            let result = verify_proof(account.to_words64(), state_root.to_words64(), proof.span());
+            match result {
+                Option::None => { panic!("FactRegistry: account not found"); },
+                Option::Some(result) => {
+                    let result_items = to_rlp_array(result);
+                    let result_values = self.extract_list_values(result, result_items.span());
+
+                    match option {
+                        OptionsSet::StorageHash => {},
+                        OptionsSet::CodeHash => {
+                            let code_hash = *result_values.at(3);
+                            self
+                                .verified_account_code_hash
+                                .write((account, block), code_hash.from_words64());
+                        },
+                        OptionsSet::Balance => {
+                            let balance = *result_values.at(1);
+                            self
+                                .verified_account_balance
+                                .write((account, block), balance.from_words64());
+                        },
+                        OptionsSet::Nonce => {
+                            let nonce = *(*result_values.at(0)).values.at(0);
+                            self.verified_account_nonce.write((account, block), nonce);
+                        },
+                    };
+                }
+            }
         }
 
         fn get_storage(
@@ -46,10 +81,10 @@ mod factregistry {
             block: u64,
             account: starknet::EthAddress,
             slot: StorageSlot,
-            proof_sizes_bytes: Array<felt252>,
-            proof_sizes_words: Array<felt252>,
-            proofs_concat: Array<felt252>,
-        ) -> (usize, Array<felt252>) {
+            proof_sizes_bytes: Array<usize>,
+            proof_sizes_words: Array<usize>,
+            proofs_concat: Array<u64>,
+        ) -> (usize, Array<u64>) {
             (0, array![])
         }
 
@@ -58,9 +93,9 @@ mod factregistry {
             block: u64,
             account: starknet::EthAddress,
             slot: StorageSlot,
-            proof_sizes_bytes: Array<felt252>,
-            proof_sizes_words: Array<felt252>,
-            proofs_concat: Array<felt252>,
+            proof_sizes_bytes: Array<usize>,
+            proof_sizes_words: Array<usize>,
+            proofs_concat: Array<u64>,
         ) -> u256 {
             0
         }
@@ -93,8 +128,64 @@ mod factregistry {
 
         fn get_verified_account_nonce(
             self: @ContractState, account: starknet::EthAddress, block: u64
-        ) -> felt252 {
+        ) -> u64 {
             self.verified_account_nonce.read((account, block))
+        }
+    }
+
+    #[generate_trait]
+    impl Private of PrivateTrait {
+        fn reconstruct_ints_sequence_list(
+            self: @ContractState, sequence: Span<u64>, sizes_bytes: Span<usize>
+        ) -> Array<Words64Sequence> {
+            let bytes_len = sizes_bytes.len();
+            let mut acc = array![];
+            let mut offset = 0_usize;
+            let mut current_index = 0;
+
+            while (current_index < bytes_len) {
+                let element_size_bytes = *sizes_bytes.at(current_index);
+                let len_words = (element_size_bytes + 7) / 8;
+                let current_element = self.concat_elements(sequence, offset, offset + len_words);
+
+                acc
+                    .append(
+                        Words64Sequence {
+                            values: current_element.span(), len_bytes: element_size_bytes
+                        }
+                    );
+
+                current_index += 1;
+            };
+            acc
+        }
+
+        fn concat_elements(
+            self: @ContractState, elements: Span<u64>, start: usize, end: usize
+        ) -> Array<u64> {
+            let mut acc = array![];
+            let mut i = start;
+
+            while (i < end) {
+                acc.append(*elements.at(i));
+                i += 1;
+            };
+            acc
+        }
+
+        fn extract_list_values(
+            self: @ContractState, words64: Words64Sequence, rlp_list: Span<RLPItem>
+        ) -> Array<Words64Sequence> {
+            let mut acc = array![];
+            let list_len = rlp_list.len();
+            let mut i = 0;
+
+            while (i < list_len) {
+                let current_element = *rlp_list.at(i);
+                acc.append(extract_data(words64, current_element.position, current_element.length));
+                i += 1;
+            };
+            acc
         }
     }
 }

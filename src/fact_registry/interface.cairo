@@ -8,8 +8,7 @@ pub trait IFactRegistry<TState> {
         option: OptionsSet,
         account: starknet::EthAddress,
         block: u64,
-        proof_sizes_bytes: Array<u16>,
-        proof_sizes_words: Array<u8>,
+        proof_sizes_bytes: Array<usize>,
         proofs_concat: Array<u64>,
     );
     fn get_storage(
@@ -17,18 +16,18 @@ pub trait IFactRegistry<TState> {
         block: u64,
         account: starknet::EthAddress,
         slot: StorageSlot,
-        proof_sizes_bytes: Array<felt252>,
-        proof_sizes_words: Array<felt252>,
-        proofs_concat: Array<felt252>,
-    ) -> (usize, Array<felt252>);
+        proof_sizes_bytes: Array<usize>,
+        proof_sizes_words: Array<usize>,
+        proofs_concat: Array<u64>,
+    ) -> (usize, Array<u64>);
     fn get_storage_uint(
         ref self: TState,
         block: u64,
         account: starknet::EthAddress,
         slot: StorageSlot,
-        proof_sizes_bytes: Array<felt252>,
-        proof_sizes_words: Array<felt252>,
-        proofs_concat: Array<felt252>,
+        proof_sizes_bytes: Array<usize>,
+        proof_sizes_words: Array<usize>,
+        proofs_concat: Array<u64>,
     ) -> u256;
 
 
@@ -43,7 +42,5 @@ pub trait IFactRegistry<TState> {
     fn get_verified_account_balance(
         self: @TState, account: starknet::EthAddress, block: u64
     ) -> u256;
-    fn get_verified_account_nonce(
-        self: @TState, account: starknet::EthAddress, block: u64
-    ) -> felt252;
+    fn get_verified_account_nonce(self: @TState, account: starknet::EthAddress, block: u64) -> u64;
 }

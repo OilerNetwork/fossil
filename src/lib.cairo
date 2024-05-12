@@ -21,7 +21,7 @@ mod library {
     mod keccak_utils;
     mod math_utils;
     mod merkle_patricia_utils;
-    mod rlp_utils;
+    pub mod rlp_utils;
     pub mod trie_proof;
-    mod words64_utils;
+    pub mod words64_utils;
 }
