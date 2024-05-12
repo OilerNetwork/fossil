@@ -1,8 +1,40 @@
 use core::integer::u32_safe_divmod;
-use fossil::library::{array_utils::ArrayTraitExt, bitshift::BitShift};
+use core::option::OptionTrait;
+use core::traits::Into;
+use fossil::library::{array_utils::ArrayTraitExt, bitshift::BitShift,};
 use fossil::types::Words64Sequence;
+use starknet::EthAddress;
 
 const U64_MASK: u256 = 0xFFFFFFFFFFFFFFFF;
+
+pub trait Words64Trait<T> {
+    fn to_words64(self: T) -> Words64Sequence;
+    fn from_words64(self: Words64Sequence) -> T;
+}
+
+impl U256Words64 of Words64Trait<u256> {
+    fn to_words64(self: u256) -> Words64Sequence {
+        let values = split_u256_to_u64_array(self);
+        Words64Sequence { values: values, len_bytes: 32, }
+    }
+
+    fn from_words64(self: Words64Sequence) -> u256 {
+        words64_to_u256(self.values)
+    }
+}
+
+impl EthAddressWords64 of Words64Trait<EthAddress> {
+    fn to_words64(self: EthAddress) -> Words64Sequence {
+        let address: felt252 = self.into();
+        let values = split_u256_to_u64_array(address.into());
+        Words64Sequence { values: values, len_bytes: 20, }
+    }
+
+    fn from_words64(self: Words64Sequence) -> EthAddress {
+        let address = words64_to_u256(self.values);
+        address.into()
+    }
+}
 
 fn words64_to_u256(input: Span<u64>) -> u256 {
     assert!(input.len() == 4, "input length must be less than or equal to 4");
@@ -14,6 +46,7 @@ fn words64_to_u256(input: Span<u64>) -> u256 {
 
     return (BitOr::bitor(BitOr::bitor(BitOr::bitor(l0, l1), l2), l3)).into();
 }
+
 
 pub fn split_u256_to_u64_array(value: u256) -> Span<u64> {
     let l0: u64 = (BitShift::shr(value, 192) & U64_MASK).try_into().unwrap();
