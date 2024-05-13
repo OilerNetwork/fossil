@@ -11,5 +11,5 @@ jobs:
       - uses: software-mansion/setup-scarb@v1
         with:
           scarb-version: "2.6.4"
-      - run: scarb fmt --check
-      - run: scarb build
+      - run: cd starknet && scarb fmt --check
+      - run: cd starknet && scarb build

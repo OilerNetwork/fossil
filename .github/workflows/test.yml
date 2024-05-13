@@ -11,4 +11,4 @@ jobs:
       - uses: software-mansion/setup-scarb@v1
         with:
           scarb-version: "2.6.4"
-      - run: snforge test
+      - run: cd starknet && snforge test
