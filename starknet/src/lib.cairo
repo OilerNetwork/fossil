@@ -17,6 +17,7 @@ mod L1_messages_proxy {
 mod library {
     pub mod array_utils;
     mod bitshift;
+    mod blockheader_rlp_extractor;
     mod keccak256;
     mod keccak_utils;
     mod math_utils;
