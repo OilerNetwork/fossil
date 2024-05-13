@@ -22,32 +22,32 @@ mod decoder {
     pub const BASE_FEE: usize = 15;
 }
 
-fn decode_parent_hash(block_rlp: Words64Sequence) -> u256 {
+pub fn decode_parent_hash(block_rlp: Words64Sequence) -> u256 {
     extract_data(block_rlp, PARENT_HASH_START, PARENT_HASH_START.into() + 32).from_words64()
 }
 
-fn decode_uncle_hash(block_rlp: Words64Sequence) -> u256 {
+pub fn decode_uncle_hash(block_rlp: Words64Sequence) -> u256 {
     extract_data(block_rlp, UNCLE_HASH_START, UNCLE_HASH_START.into() + 32).from_words64()
 }
 
-fn decode_beneficiary(block_rlp: Words64Sequence) -> EthAddress {
+pub fn decode_beneficiary(block_rlp: Words64Sequence) -> EthAddress {
     extract_data(block_rlp, BENEFICIARY_START, BENEFICIARY_START.into() + 20).from_words64()
 }
 
-fn decode_state_root(block_rlp: Words64Sequence) -> u256 {
+pub fn decode_state_root(block_rlp: Words64Sequence) -> u256 {
     extract_data(block_rlp, STATE_ROOT_START, STATE_ROOT_START.into() + 32).from_words64()
 }
 
-fn decode_transactions_root(block_rlp: Words64Sequence) -> u256 {
+pub fn decode_transactions_root(block_rlp: Words64Sequence) -> u256 {
     extract_data(block_rlp, TRANSACTIONS_ROOT_START, TRANSACTIONS_ROOT_START.into() + 32)
         .from_words64()
 }
 
-fn decode_receipts_root(block_rlp: Words64Sequence) -> u256 {
+pub fn decode_receipts_root(block_rlp: Words64Sequence) -> u256 {
     extract_data(block_rlp, RECEIPTS_ROOT_START, RECEIPTS_ROOT_START.into() + 32).from_words64()
 }
 
-fn decode_difficulty(block_rlp: Words64Sequence) -> u64 {
+pub fn decode_difficulty(block_rlp: Words64Sequence) -> u64 {
     let rlp_items = to_rlp_array(block_rlp);
     assert!(rlp_items.len() > decoder::DIFFICULTY, "Block RLP is too short");
     let data = *rlp_items.at(decoder::DIFFICULTY);
@@ -57,7 +57,7 @@ fn decode_difficulty(block_rlp: Words64Sequence) -> u64 {
     *difficulty_rlp_element.values.at(0)
 }
 
-fn decode_block_number(block_rlp: Words64Sequence) -> u64 {
+pub fn decode_block_number(block_rlp: Words64Sequence) -> u64 {
     let rlp_items = to_rlp_array(block_rlp);
     assert!(rlp_items.len() > decoder::BLOCK_NUMBER, "Block RLP is too short");
     let data = *rlp_items.at(decoder::BLOCK_NUMBER);
@@ -67,7 +67,7 @@ fn decode_block_number(block_rlp: Words64Sequence) -> u64 {
     *block_number_rlp_element.values.at(0)
 }
 
-fn decode_gas_limit(block_rlp: Words64Sequence) -> u64 {
+pub fn decode_gas_limit(block_rlp: Words64Sequence) -> u64 {
     let rlp_items = to_rlp_array(block_rlp);
     assert!(rlp_items.len() > decoder::GAS_LIMIT, "Block RLP is too short");
     let data = *rlp_items.at(decoder::GAS_LIMIT);
@@ -77,7 +77,7 @@ fn decode_gas_limit(block_rlp: Words64Sequence) -> u64 {
     *gas_limit_rlp_element.values.at(0)
 }
 
-fn decode_gas_used(block_rlp: Words64Sequence) -> u64 {
+pub fn decode_gas_used(block_rlp: Words64Sequence) -> u64 {
     let rlp_items = to_rlp_array(block_rlp);
     assert!(rlp_items.len() > decoder::GAS_USED, "Block RLP is too short");
     let data = *rlp_items.at(decoder::GAS_USED);
@@ -87,7 +87,7 @@ fn decode_gas_used(block_rlp: Words64Sequence) -> u64 {
     *gas_used_rlp_element.values.at(0)
 }
 
-fn decode_timestamp(block_rlp: Words64Sequence) -> u64 {
+pub fn decode_timestamp(block_rlp: Words64Sequence) -> u64 {
     let rlp_items = to_rlp_array(block_rlp);
     assert!(rlp_items.len() > decoder::TIMESTAMP, "Block RLP is too short");
     let data = *rlp_items.at(decoder::TIMESTAMP);
@@ -97,7 +97,7 @@ fn decode_timestamp(block_rlp: Words64Sequence) -> u64 {
     *timestamp_rlp_element.values.at(0)
 }
 
-fn decode_base_fee(block_rlp: Words64Sequence) -> u64 {
+pub fn decode_base_fee(block_rlp: Words64Sequence) -> u64 {
     let rlp_items = to_rlp_array(block_rlp);
     assert!(rlp_items.len() > decoder::BASE_FEE, "Block RLP is too short");
     let data = *rlp_items.at(decoder::BASE_FEE);

@@ -1,7 +1,7 @@
 #[starknet::contract]
 mod L1HeaderStore {
     use fossil::L1_headers_store::interface::IL1HeadersStore;
-    use fossil::library::array_utils::SpanTraitExt;
+    use fossil::library::blockheader_rlp_extractor as extractor;
     use fossil::types::ProcessBlockOptions;
     use starknet::{ContractAddress, EthAddress, get_caller_address};
 
