@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod L1HeaderStore {
+pub mod L1HeaderStore {
     use fossil::L1_headers_store::interface::IL1HeadersStore;
     use fossil::library::blockheader_rlp_extractor as extractor;
     use fossil::types::ProcessBlockOptions;
