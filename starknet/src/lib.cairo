@@ -1,17 +1,20 @@
 mod types;
+
+pub mod test_utils;
+
 mod fact_registry {
-    mod contract;
-    mod interface;
+    pub mod contract;
+    pub mod interface;
 }
 
 mod L1_headers_store {
-    mod contract;
+    pub mod contract;
     pub mod interface;
 }
 
 mod L1_messages_proxy {
-    mod contract;
-    mod interface;
+    pub mod contract;
+    pub mod interface;
 }
 
 mod library {
