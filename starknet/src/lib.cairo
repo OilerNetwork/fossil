@@ -19,7 +19,7 @@ mod library {
     mod bitshift;
     pub mod blockheader_rlp_extractor;
     mod keccak256;
-    mod keccak_utils;
+    pub mod keccak_utils;
     mod math_utils;
     mod merkle_patricia_utils;
     pub mod rlp_utils;
