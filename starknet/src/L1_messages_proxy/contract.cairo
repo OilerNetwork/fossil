@@ -10,6 +10,7 @@ mod L1MessagesProxy {
         hash_word2: felt252,
         hash_word3: felt252,
         hash_word4: felt252,
+        block_number: felt252,
     }
 
     #[storage]
