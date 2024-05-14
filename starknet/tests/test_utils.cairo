@@ -10,7 +10,7 @@ use fossil::fact_registry::{
 };
 use snforge_std::{declare, ContractClassTrait};
 
-fn L1_messege_origin() -> starknet::EthAddress {
+fn L1_ORIGIN() -> starknet::EthAddress {
     'L1_messege_origin'.try_into().unwrap()
 }
 
@@ -19,27 +19,27 @@ fn OWNER() -> starknet::ContractAddress {
 }
 #[derive(Drop, Copy)]
 struct Dispatchers {
-    fact_registry: IFactRegistryDispatcher,
-    l1_headers_store: IL1HeadersStoreDispatcher,
-    l1_messages_proxy: IL1MessagesProxyDispatcher,
+    registry: IFactRegistryDispatcher,
+    store: IL1HeadersStoreDispatcher,
+    proxy: IL1MessagesProxyDispatcher,
 }
 
 pub fn setup() -> Dispatchers {
     let contract = declare("FactRegistry").unwrap();
     let (contract_address, _) = contract.deploy(@array![]).unwrap();
-    let fact_registry = IFactRegistryDispatcher { contract_address };
+    let registry = IFactRegistryDispatcher { contract_address };
 
     let contract = declare("L1HeadersStore").unwrap();
     let (contract_address, _) = contract.deploy(@array![]).unwrap();
-    let l1_headers_store = IL1HeadersStoreDispatcher { contract_address };
+    let store = IL1HeadersStoreDispatcher { contract_address };
 
     let contract = declare("L1MessagesProxy").unwrap();
     let (contract_address, _) = contract.deploy(@array![]).unwrap();
-    let l1_messages_proxy = IL1MessagesProxyDispatcher { contract_address };
+    let proxy = IL1MessagesProxyDispatcher { contract_address };
 
-    fact_registry.initialize(l1_headers_store.contract_address);
-    l1_headers_store.initialize(l1_messages_proxy.contract_address);
-    l1_messages_proxy.initialize(L1_messege_origin(), l1_headers_store.contract_address, OWNER());
+    registry.initialize(store.contract_address);
+    store.initialize(proxy.contract_address);
+    proxy.initialize(L1_ORIGIN(), store.contract_address, OWNER());
 
-    Dispatchers { fact_registry, l1_headers_store, l1_messages_proxy }
+    Dispatchers { registry, store, proxy }
 }
