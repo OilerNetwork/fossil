@@ -1,6 +1,5 @@
 #[starknet::contract]
-mod L1HeaderStore {
-    use core::array::ArrayTrait;
+pub mod L1HeaderStore {
     use fossil::L1_headers_store::interface::IL1HeadersStore;
     use fossil::library::blockheader_rlp_extractor::{
         decode_parent_hash, decode_uncle_hash, decode_beneficiary, decode_state_root,

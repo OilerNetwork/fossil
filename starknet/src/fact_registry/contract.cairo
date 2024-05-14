@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod factregistry {
+pub mod FactRegistry {
     use core::array::ArrayTrait;
     use core::array::SpanTrait;
     use core::option::OptionTrait;

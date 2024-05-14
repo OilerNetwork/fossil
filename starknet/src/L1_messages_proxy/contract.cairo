@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod L1MessagesProxy {
+pub mod L1MessagesProxy {
     use fossil::L1_headers_store::interface::IL1HeadersStore;
     use fossil::L1_messages_proxy::interface::IL1MessagesProxy;
     use starknet::{ContractAddress, EthAddress};
@@ -16,14 +16,14 @@ mod L1MessagesProxy {
     #[storage]
     struct Storage {
         initialized: bool,
-        l1_messages_sender: felt252,
+        l1_messages_sender: EthAddress,
         l1_headers_store_addr: ContractAddress,
     }
 
     #[l1_handler]
     fn receive_from_l1(ref self: ContractState, from_address: felt252, data: L1Payload) {
         assert!(
-            from_address == self.get_l1_messages_sender(), "L1MessagesProxy: unauthorized sender"
+            from_address == self.get_l1_messages_sender().into(), "L1MessagesProxy: unauthorized sender"
         );
     }
 
@@ -31,7 +31,7 @@ mod L1MessagesProxy {
     impl L1MessagesProxyImpl of IL1MessagesProxy<ContractState> {
         fn initialize(
             ref self: ContractState,
-            l1_messages_sender: felt252,
+            l1_messages_sender: EthAddress,
             l1_headers_store_address: starknet::ContractAddress,
             owner: starknet::ContractAddress,
         ) {
@@ -43,7 +43,7 @@ mod L1MessagesProxy {
 
         fn change_contract_addresses(
             ref self: ContractState,
-            l1_messages_sender: felt252,
+            l1_messages_sender: EthAddress,
             l1_headers_store_address: starknet::ContractAddress
         ) {
             self.l1_messages_sender.write(l1_messages_sender);
@@ -54,7 +54,7 @@ mod L1MessagesProxy {
             self.initialized.read()
         }
 
-        fn get_l1_messages_sender(self: @ContractState) -> felt252 {
+        fn get_l1_messages_sender(self: @ContractState) -> EthAddress {
             self.l1_messages_sender.read()
         }
 
