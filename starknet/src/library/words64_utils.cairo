@@ -36,7 +36,7 @@ impl EthAddressWords64 of Words64Trait<EthAddress> {
     }
 }
 
-fn words64_to_u256(input: Span<u64>) -> u256 {
+pub fn words64_to_u256(input: Span<u64>) -> u256 {
     assert!(input.len() == 4, "input length must be less than or equal to 4");
 
     let l0: u256 = BitShift::shl((*input.at(0)).into(), 192_u256);
