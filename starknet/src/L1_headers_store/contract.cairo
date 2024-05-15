@@ -1,9 +1,9 @@
 #[starknet::contract]
 pub mod L1HeaderStore {
+    use core::array::ArrayTrait;
     use core::clone::Clone;
-use core::traits::Into;
-use core::array::ArrayTrait;
-use fossil::L1_headers_store::interface::IL1HeadersStore;
+    use core::traits::Into;
+    use fossil::L1_headers_store::interface::IL1HeadersStore;
     use fossil::library::blockheader_rlp_extractor::{
         decode_parent_hash, decode_uncle_hash, decode_beneficiary, decode_state_root,
         decode_transactions_root, decode_receipts_root, decode_difficulty, decode_base_fee,
@@ -66,7 +66,7 @@ use fossil::L1_headers_store::interface::IL1HeadersStore;
         ) {
             let child_block_parent_hash = self.get_parent_hash(block_number + 1);
 
-            let (block_header_rlp, len) = self
+            let (block_header_rlp, _) = self
                 .validate_provided_header_rlp(
                     child_block_parent_hash,
                     block_number,
@@ -134,31 +134,29 @@ use fossil::L1_headers_store::interface::IL1HeadersStore;
             );
             let mut parent_hash = self.get_parent_hash(start_block_number);
 
-            let mut current_index:u32 = 0;
+            let mut current_index: u32 = 0;
             let mut save_block_number = start_block_number + current_index.into();
-            while current_index < block_header_words.len() {
-                
-                let (block_header_rlp_bytes, len) = self.validate_provided_header_rlp(
-                    parent_hash,
-                    save_block_number,
-                    block_header_concat.at(current_index).clone(),
-                    block_header_words.at(current_index).clone(),
-                );
-
-                current_index += 1;
-                save_block_number = start_block_number + current_index.into();
-                parent_hash = self.get_parent_hash(save_block_number);
-                if current_index == block_header_words.len() {
-                    // Process the last block based on options and header data
-                    self
-                        .process_block(
-                            options_set,
-                            save_block_number - 1,
-                            len,
-                            block_header_rlp_bytes,
+            while current_index < block_header_words
+                .len() {
+                    let (block_header_rlp_bytes, len) = self
+                        .validate_provided_header_rlp(
+                            parent_hash,
+                            save_block_number,
+                            block_header_concat.at(current_index).clone(),
+                            block_header_words.at(current_index).clone(),
                         );
-                }
-            };
+
+                    current_index += 1;
+                    save_block_number = start_block_number + current_index.into();
+                    parent_hash = self.get_parent_hash(save_block_number);
+                    if current_index == block_header_words.len() {
+                        // Process the last block based on options and header data
+                        self
+                            .process_block(
+                                options_set, save_block_number - 1, len, block_header_rlp_bytes,
+                            );
+                    }
+                };
 
             self.block_parent_hash.write(save_block_number, parent_hash);
         }
