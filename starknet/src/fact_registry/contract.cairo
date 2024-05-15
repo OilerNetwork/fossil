@@ -54,7 +54,6 @@ pub mod FactRegistry {
                     let result_values = self.extract_list_values(result, result_items.span());
 
                     match option {
-                        OptionsSet::StorageHash => {},
                         OptionsSet::CodeHash => {
                             let code_hash = *result_values.at(3);
                             self
@@ -71,6 +70,7 @@ pub mod FactRegistry {
                             let nonce = *(*result_values.at(0)).values.at(0);
                             self.verified_account_nonce.write((account, block), nonce);
                         },
+                        OptionsSet::StorageHash => {},
                     };
                 }
             }

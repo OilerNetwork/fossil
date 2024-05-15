@@ -23,7 +23,8 @@ pub mod L1MessagesProxy {
     #[l1_handler]
     fn receive_from_l1(ref self: ContractState, from_address: felt252, data: L1Payload) {
         assert!(
-            from_address == self.get_l1_messages_sender().into(), "L1MessagesProxy: unauthorized sender"
+            from_address == self.get_l1_messages_sender().into(),
+            "L1MessagesProxy: unauthorized sender"
         );
     }
 

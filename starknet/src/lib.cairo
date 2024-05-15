@@ -1,18 +1,18 @@
+// pub mod test_utils;
+
 mod types;
 
-pub mod test_utils;
-
-mod fact_registry {
+pub mod fact_registry {
     pub mod contract;
     pub mod interface;
 }
 
-mod L1_headers_store {
+pub mod L1_headers_store {
     pub mod contract;
     pub mod interface;
 }
 
-mod L1_messages_proxy {
+pub mod L1_messages_proxy {
     pub mod contract;
     pub mod interface;
 }
