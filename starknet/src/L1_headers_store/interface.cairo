@@ -12,15 +12,14 @@ pub trait IL1HeadersStore<TState> {
         option: ProcessBlockOptions,
         block_number: u64,
         block_header_rlp_bytes_len: usize,
-        block_header_bytes: Array<usize>,
         block_header_rlp: Array<u64>,
     );
     fn process_till_block(
         ref self: TState,
+        options_set: ProcessBlockOptions,
         start_block_number: u64,
-        block_header_bytes: Array<usize>,
-        block_header_words: Array<u64>,
-        block_header_concat: Array<u64>,
+        block_header_concat: Array<usize>,
+        block_header_words: Array<Array<u64>>,
     );
     fn get_initialized(self: @TState, block_number: u64) -> bool;
     fn get_parent_hash(self: @TState, block_number: u64) -> u256;

@@ -1,6 +1,9 @@
 #[starknet::contract]
 pub mod L1HeaderStore {
-    use fossil::L1_headers_store::interface::IL1HeadersStore;
+    use core::clone::Clone;
+use core::traits::Into;
+use core::array::ArrayTrait;
+use fossil::L1_headers_store::interface::IL1HeadersStore;
     use fossil::library::blockheader_rlp_extractor::{
         decode_parent_hash, decode_uncle_hash, decode_beneficiary, decode_state_root,
         decode_transactions_root, decode_receipts_root, decode_difficulty, decode_base_fee,
@@ -17,7 +20,7 @@ pub mod L1HeaderStore {
         initialized: bool,
         l1_messages_origin: ContractAddress,
         latest_l1_block: u64,
-        block_parent_hash: LegacyMap::<u64, u2d56>,
+        block_parent_hash: LegacyMap::<u64, u256>,
         block_state_root: LegacyMap::<u64, u256>,
         block_transactions_root: LegacyMap::<u64, u256>,
         block_receipts_root: LegacyMap::<u64, u256>,
@@ -59,22 +62,21 @@ pub mod L1HeaderStore {
             option: ProcessBlockOptions,
             block_number: u64,
             block_header_rlp_bytes_len: usize,
-            block_header_bytes: Array<usize>,
             block_header_rlp: Array<u64>,
         ) {
             let child_block_parent_hash = self.get_parent_hash(block_number + 1);
 
-            self
+            let (block_header_rlp, len) = self
                 .validate_provided_header_rlp(
                     child_block_parent_hash,
                     block_number,
                     block_header_rlp_bytes_len,
-                    block_header_rlp.span()
+                    block_header_rlp
                 );
 
             let block_rlp = Words64Sequence {
                 values: block_header_rlp.span(), len_bytes: block_header_rlp_bytes_len,
-            }; // TODO - check if this is correct , block_header_bytes
+            };
             let parent_hash = decode_parent_hash(block_rlp);
             self.block_parent_hash.write(block_number, parent_hash);
 
@@ -121,61 +123,44 @@ pub mod L1HeaderStore {
 
         fn process_till_block(
             ref self: ContractState,
+            options_set: ProcessBlockOptions,
             start_block_number: u64,
-            block_header_bytes: Array<usize>,
-            block_header_words: Array<u64>,
-            block_header_concat: Array<u64>,
+            block_header_concat: Array<usize>,
+            block_header_words: Array<Array<u64>>,
         ) {
             assert!(
-                block_header_bytes.len() == block_header_words.len(),
+                block_header_concat.len() == block_header_words.len(),
                 "L1HeaderStore: block_header_bytes and block_header_words must have the same length"
             );
-            let parent_hash = self.get_parent_hash(start_block_number);
+            let mut parent_hash = self.get_parent_hash(start_block_number);
 
-            let mut keccak_ptr = 0;
-            let keccak_ptr_start = keccak_ptr;
-
-            let (save_block_number, save_parent_hash) = process_till_block_rec( // rewrite to loop
-                keccak_ptr,
-                start_block_number,
-                parent_hash,
-                block_header_bytes,
-                block_header_words,
-                block_header_concat,
-                0, // ??? 
-                0,
-            );
-
-            // if current_index == block_headers_lens_bytes_len - 1:
-            //     return (start_block_number - current_index, current_parent_hash)
-            // end
-
-            finalize_keccak(keccak_ptr_start, keccak_ptr);
-
-            self.block_parent_hash.write(save_block_number, save_parent_hash);
-
-            let mut last_header = alloc();
-            slice_arr(
-                block_headers_concat_len
-                    - block_headers_lens_words[block_headers_lens_words_len
-                    - 1],
-                block_headers_lens_words[block_headers_lens_words_len - 1],
-                block_headers_concat,
-                block_headers_concat_len,
-                last_header,
-                0,
-                0,
-            );
-
-            // Process the last block based on options and header data
-            self
-                .process_block(
-                    options_set,
-                    save_block_number - 1,
-                    block_headers_lens_bytes[block_headers_lens_bytes_len - 1],
-                    block_headers_lens_words[block_headers_lens_words_len - 1],
-                    last_header,
+            let mut current_index:u32 = 0;
+            let mut save_block_number = start_block_number + current_index.into();
+            while current_index < block_header_words.len() {
+                
+                let (block_header_rlp_bytes, len) = self.validate_provided_header_rlp(
+                    parent_hash,
+                    save_block_number,
+                    block_header_concat.at(current_index).clone(),
+                    block_header_words.at(current_index).clone(),
                 );
+
+                current_index += 1;
+                save_block_number = start_block_number + current_index.into();
+                parent_hash = self.get_parent_hash(save_block_number);
+                if current_index == block_header_words.len() {
+                    // Process the last block based on options and header data
+                    self
+                        .process_block(
+                            options_set,
+                            save_block_number - 1,
+                            len,
+                            block_header_rlp_bytes,
+                        );
+                }
+            };
+
+            self.block_parent_hash.write(save_block_number, parent_hash);
         }
 
 
@@ -228,11 +213,11 @@ pub mod L1HeaderStore {
             child_block_parent_hash: u256,
             block_number: u64,
             block_header_rlp_bytes_len: usize,
-            block_header_rlp: Span<u64>
-        ) {
+            block_header_rlp: Array<u64>
+        ) -> (Array<u64>, usize) {
             let header_ints_sequence = Words64Sequence {
-                values: block_header_rlp, len_bytes: block_header_rlp_bytes_len,
-            }; // TODO - check if this is correct , block_header_bytes
+                values: block_header_rlp.span(), len_bytes: block_header_rlp_bytes_len,
+            };
 
             let provided_rlp_hash = keccak_words64(header_ints_sequence);
             let provided_rlp_hash_u256 = words64_to_u256(provided_rlp_hash.values);
@@ -240,7 +225,9 @@ pub mod L1HeaderStore {
             assert!(
                 child_block_parent_hash == provided_rlp_hash_u256,
                 "L1HeaderStore: hashes are not equal"
-            ); // TODO eq 
+            );
+
+            (block_header_rlp, block_header_rlp_bytes_len)
         }
     }
 }
