@@ -1,15 +1,12 @@
 #[starknet::contract]
 pub mod FactRegistry {
-    use core::array::ArrayTrait;
-    use core::array::SpanTrait;
-    use core::option::OptionTrait;
     use fossil::L1_headers_store::interface::{
         IL1HeadersStore, IL1HeadersStoreDispatcher, IL1HeadersStoreDispatcherTrait
     };
     use fossil::fact_registry::interface::IFactRegistry;
     use fossil::library::{
         trie_proof::verify_proof, words64_utils::Words64Trait,
-        rlp_utils::{to_rlp_array, extract_data, extract_element}
+        rlp_utils::{to_rlp_array, extract_data, extract_element}, keccak_utils::keccak_words64
     };
     use fossil::types::{OptionsSet, Words64Sequence, RLPItem};
     use starknet::{ContractAddress, EthAddress, contract_address_const};
@@ -45,14 +42,12 @@ pub mod FactRegistry {
             assert!(state_root != 0, "FactRegistry: block not found");
             let proof = self
                 .reconstruct_ints_sequence_list(proofs_concat.span(), proof_sizes_bytes.span());
-
             let result = verify_proof(account.to_words64(), state_root.to_words64(), proof.span());
             match result {
                 Option::None => { panic!("FactRegistry: account not found"); },
                 Option::Some(result) => {
                     let result_items = to_rlp_array(result);
                     let result_values = self.extract_list_values(result, result_items.span());
-
                     match option {
                         OptionsSet::CodeHash => {
                             let code_hash = *result_values.at(3);
@@ -168,7 +163,7 @@ pub mod FactRegistry {
                             values: current_element.span(), len_bytes: element_size_bytes
                         }
                     );
-
+                offset += len_words;
                 current_index += 1;
             };
             acc
@@ -193,7 +188,6 @@ pub mod FactRegistry {
             let mut acc = array![];
             let list_len = rlp_list.len();
             let mut i = 0;
-
             while (i < list_len) {
                 let current_element = *rlp_list.at(i);
                 acc.append(extract_data(words64, current_element.position, current_element.length));

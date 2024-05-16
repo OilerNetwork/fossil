@@ -202,6 +202,10 @@ pub mod L1HeaderStore {
         fn get_gas_used(self: @ContractState, block_number: u64) -> u64 {
             self.block_gas_used.read(block_number)
         }
+        // NOTE: Temporary functions for testing
+        fn set_state_root(ref self: ContractState, block_number: u64, state_root: u256) {
+            self.block_state_root.write(block_number, state_root);
+        }
     }
 
     #[generate_trait]

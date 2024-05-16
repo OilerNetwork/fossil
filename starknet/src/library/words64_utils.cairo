@@ -1,11 +1,12 @@
 use core::integer::u32_safe_divmod;
 use core::option::OptionTrait;
 use core::traits::Into;
-use fossil::library::{array_utils::ArrayTraitExt, bitshift::BitShift,};
+use fossil::library::{array_utils::ArrayTraitExt, bitshift::BitShift, keccak_utils::keccak_words64};
 use fossil::types::Words64Sequence;
 use starknet::EthAddress;
 
 const U64_MASK: u256 = 0xFFFFFFFFFFFFFFFF;
+const U64_MASK_FELT: felt252 = 0xFFFFFFFFFFFFFFFF;
 
 pub trait Words64Trait<T> {
     fn to_words64(self: T) -> Words64Sequence;
@@ -25,9 +26,13 @@ impl U256Words64 of Words64Trait<u256> {
 
 impl EthAddressWords64 of Words64Trait<EthAddress> {
     fn to_words64(self: EthAddress) -> Words64Sequence {
-        let address: felt252 = self.into();
-        let values = split_u256_to_u64_array(address.into());
-        Words64Sequence { values: values, len_bytes: 20, }
+        let address_felt: felt252 = self.into();
+        let l0: u64 = (BitShift::shr(address_felt.into(), 96) & U64_MASK).try_into().unwrap();
+        let l1: u64 = (BitShift::shr(address_felt.into(), 32) & U64_MASK).try_into().unwrap();
+        let l2: u64 = (address_felt.into() & U64_MASK).try_into().unwrap();
+        // let values = split_u256_to_u64_array(address.into());
+
+        keccak_words64(Words64Sequence { values: array![l0, l1, l2].span(), len_bytes: 20, })
     }
 
     fn from_words64(self: Words64Sequence) -> EthAddress {

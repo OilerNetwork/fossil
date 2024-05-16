@@ -33,4 +33,7 @@ pub trait IL1HeadersStore<TState> {
     fn get_base_fee(self: @TState, block_number: u64) -> u64;
     fn get_timestamp(self: @TState, block_number: u64) -> u64;
     fn get_gas_used(self: @TState, block_number: u64) -> u64;
+
+    // NOTE: Temporary functions for testing
+    fn set_state_root(ref self: TState, block_number: u64, state_root: u256);
 }

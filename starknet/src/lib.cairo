@@ -1,6 +1,6 @@
 // pub mod test_utils;
 
-mod types;
+pub mod types;
 
 pub mod fact_registry {
     pub mod contract;

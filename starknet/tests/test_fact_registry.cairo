@@ -1,9 +1,27 @@
-use fossil::fact_registry::interface::IFactRegistryDispatcherTrait;
-use super::test_utils::setup;
+use fossil::types::OptionsSet;
+use fossil::{
+    L1_headers_store::interface::IL1HeadersStoreDispatcherTrait,
+    fact_registry::interface::IFactRegistryDispatcherTrait
+};
+use super::test_utils::{setup, testdata};
 
 #[test]
 fn prove_account_test_success_code_hash() {
-    assert!(true)
+    let dsp = setup();
+
+    let block = testdata::blocks::BLOCK_3();
+    dsp.store.set_state_root(block.number, block.state_root);
+
+    let proof = testdata::proofs::PROOF_1();
+
+    dsp
+        .registry
+        .prove_account(
+            OptionsSet::CodeHash, proof.account, block.number, proof.len_bytes, proof.data
+        );
+
+    let code_hash = dsp.registry.get_verified_account_code_hash(proof.account, block.number);
+    assert_eq!(code_hash, 0x4e36f96ee1667a663dfaac57c4d185a0e369a3a217e0079d49620f34f85d1ac7);
 }
 
 #[test]

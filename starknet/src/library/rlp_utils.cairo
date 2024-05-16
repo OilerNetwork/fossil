@@ -65,6 +65,7 @@ fn get_element(rlp: Words64Sequence, position: usize) -> RLPItem {
     };
 }
 
+// TODO: recheck this function against cairo 0 implementation to make sure it's correct
 pub fn extract_data(rlp: Words64Sequence, start: usize, size: u64) -> Words64Sequence {
     let (start_word, left_shift) = u64_safe_divmod(start.into(), 8);
     let (mut end_word, mut end_pos) = u64_safe_divmod(start.into() + size, 8);
@@ -84,7 +85,7 @@ pub fn extract_data(rlp: Words64Sequence, start: usize, size: u64) -> Words64Seq
     };
 
     let right_shift = 8 - left_shift;
-    let lastword_right_shift = if last_rlp_word_len > left_shift {
+    let lastword_right_shift = if last_rlp_word_len >= left_shift {
         last_rlp_word_len - left_shift
     } else {
         8 - (left_shift - last_rlp_word_len)
@@ -105,7 +106,7 @@ pub fn extract_data(rlp: Words64Sequence, start: usize, size: u64) -> Words64Seq
 
         if i == rlp_values_len.try_into().unwrap() - 2 {
             let value_i_add1: u128 = (*rlp_values.at(i + 1)).into();
-            if lastword_right_shift < left_shift {
+            if lastword_right_shift < 0 {
                 right_part =
                     BitShift::shl(
                         value_i_add1,
@@ -253,6 +254,29 @@ mod tests {
         assert_eq!(result.position, 1);
         assert_eq!(result.length, 54);
     }
+
+    // #[test]
+    // fn test_extract_data_specific() {
+    //     let mut rlp = Words64Sequence {
+    //         values: array![
+    //             17889425271775927342,
+    //             7747611707377904165,
+    //             13770790249671850669,
+    //             10758299819545195701,
+    //             4563277353913962038,
+    //             17973550993138662906,
+    //             12418610901666554729,
+    //             11791013025377241442,
+    //             16720179567303
+    //         ]
+    //             .span(),
+    //         len_bytes: 70
+    //     };
+    //     let start_pos = 38;
+    //     let size = 32;
+    //     let result = super::extract_data(rlp, start_pos, size);
+    //     println!("{:?}", result.values);
+    // }
 
     #[test]
     fn test_extract_data() {
