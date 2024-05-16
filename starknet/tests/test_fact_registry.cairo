@@ -26,7 +26,21 @@ fn prove_account_test_success_code_hash() {
 
 #[test]
 fn prove_account_test_success_balance() {
-    assert!(true)
+    let dsp = setup();
+
+    let block = testdata::blocks::BLOCK_3();
+    dsp.store.set_state_root(block.number, block.state_root);
+
+    let proof = testdata::proofs::PROOF_1();
+
+    dsp
+        .registry
+        .prove_account(
+            OptionsSet::Balance, proof.account, block.number, proof.len_bytes, proof.data
+        );
+
+    let balance = dsp.registry.get_verified_account_balance(proof.account, block.number);
+    assert_eq!(balance, 0x0);
 }
 
 #[test]

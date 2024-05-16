@@ -57,6 +57,7 @@ pub mod FactRegistry {
                         },
                         OptionsSet::Balance => {
                             let balance = *result_values.at(1);
+                            println!("balance: {:?}", balance.values);
                             self
                                 .verified_account_balance
                                 .write((account, block), balance.from_words64());
