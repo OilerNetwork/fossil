@@ -45,7 +45,38 @@ fn prove_account_test_success_balance() {
 
 #[test]
 fn prove_account_test_success_nonce() {
-    assert!(true)
+    let dsp = setup();
+
+    let block = testdata::blocks::BLOCK_3();
+    dsp.store.set_state_root(block.number, block.state_root);
+
+    let proof = testdata::proofs::PROOF_1();
+
+    dsp
+        .registry
+        .prove_account(OptionsSet::Nonce, proof.account, block.number, proof.len_bytes, proof.data);
+
+    let nonce = dsp.registry.get_verified_account_nonce(proof.account, block.number);
+    assert_eq!(nonce, 0x1);
+}
+
+#[test]
+fn prove_account_test_success_storage_hash() {
+    let dsp = setup();
+
+    let block = testdata::blocks::BLOCK_3();
+    dsp.store.set_state_root(block.number, block.state_root);
+
+    let proof = testdata::proofs::PROOF_1();
+
+    dsp
+        .registry
+        .prove_account(
+            OptionsSet::StorageHash, proof.account, block.number, proof.len_bytes, proof.data
+        );
+
+    let storage_hash = dsp.registry.get_verified_account_storage_hash(proof.account, block.number);
+    assert_eq!(storage_hash, 0x199c2e6b850bcc9beaea25bf1bacc5741a7aad954d28af9b23f4b53f5404937b);
 }
 
 #[test]

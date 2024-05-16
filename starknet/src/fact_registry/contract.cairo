@@ -57,7 +57,6 @@ pub mod FactRegistry {
                         },
                         OptionsSet::Balance => {
                             let balance = *result_values.at(1);
-                            println!("balance: {:?}", balance.values);
                             self
                                 .verified_account_balance
                                 .write((account, block), balance.from_words64());
@@ -66,7 +65,12 @@ pub mod FactRegistry {
                             let nonce = *(*result_values.at(0)).values.at(0);
                             self.verified_account_nonce.write((account, block), nonce);
                         },
-                        OptionsSet::StorageHash => {},
+                        OptionsSet::StorageHash => {
+                            let storage_hash = *result_values.at(2);
+                            self
+                                .verified_account_storage_hash
+                                .write((account, block), storage_hash.from_words64());
+                        },
                     };
                 }
             }
