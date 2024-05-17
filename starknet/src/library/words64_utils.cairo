@@ -66,14 +66,21 @@ pub fn words64_to_int(input: Words64Sequence) -> u256 {
     let mut i = 0;
 
     while i < num_full_words {
-        result = BitOr::bitor(result, BitShift::shl((*input.values.at(i)).into(), ((num_full_words - i - 1) * 64).into()));
+        result =
+            BitOr::bitor(
+                result,
+                BitShift::shl((*input.values.at(i)).into(), ((num_full_words - i - 1) * 64).into())
+            );
         i += 1;
     };
 
     if remaining_bytes > 0 {
         let last_word = *input.values.at(num_full_words);
         let mask = (BitShift::shl(1_u64, (remaining_bytes * 8).into()) - 1).into();
-        result = BitOr::bitor(result, BitShift::shl((last_word & mask).into(), (num_full_words * 64).into()));
+        result =
+            BitOr::bitor(
+                result, BitShift::shl((last_word & mask).into(), (num_full_words * 64).into())
+            );
     }
 
     result

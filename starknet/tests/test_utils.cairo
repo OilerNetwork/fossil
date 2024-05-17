@@ -11,7 +11,6 @@ use fossil::fact_registry::{
 use snforge_std::{declare, ContractClassTrait};
 
 
-
 fn L1_ORIGIN() -> starknet::EthAddress {
     'L1_messege_origin'.try_into().unwrap()
 }
