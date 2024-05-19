@@ -113,7 +113,7 @@ pub mod FactRegistry {
 
             let slot_value = match result {
                 Option::None => Words64Sequence { values: array![].span(), len_bytes: 0 },
-                Option::Some(result) => { extract_element(result, 0) }
+                Option::Some(result) => result
             };
             slot_value
         }

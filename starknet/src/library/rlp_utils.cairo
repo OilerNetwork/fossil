@@ -255,28 +255,26 @@ mod tests {
         assert_eq!(result.length, 54);
     }
 
-    // #[test]
-    // fn test_extract_data_specific() {
-    //     let mut rlp = Words64Sequence {
-    //         values: array![
-    //             17889425271775927342,
-    //             7747611707377904165,
-    //             13770790249671850669,
-    //             10758299819545195701,
-    //             4563277353913962038,
-    //             17973550993138662906,
-    //             12418610901666554729,
-    //             11791013025377241442,
-    //             16720179567303
-    //         ]
-    //             .span(),
-    //         len_bytes: 70
-    //     };
-    //     let start_pos = 38;
-    //     let size = 32;
-    //     let result = super::extract_data(rlp, start_pos, size);
-    //     println!("{:?}", result.values);
-    // }
+    #[test]
+    fn test_extract_data_specific() {
+        let mut rlp = Words64Sequence {
+            values: array![
+                16978043373031179566,
+                7407922919091180751,
+                14853551893213251245,
+                4906994927831835881,
+                10054857540239986558,
+                2856817665
+            ]
+                .span(),
+            len_bytes: 44
+        };
+        let start_pos = 33;
+        let size = 11;
+        let result = super::extract_data(rlp, start_pos, size);
+        assert_eq!(result.values, array![9946104055808884394, 4690945].span());
+        assert_eq!(result.len_bytes, 11);
+    }
 
     #[test]
     fn test_extract_data() {

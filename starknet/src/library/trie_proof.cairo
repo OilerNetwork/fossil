@@ -89,7 +89,6 @@ pub fn verify_proof(
                     let node_children = extract_nibble(path, path_offset).try_into().unwrap();
                     let children = *node.at(node_children);
                     assert!(children.length == 0, "Invalid children length");
-                    // out = Option::Some(Words64Sequence { values: array![].span(), len_bytes: 0 });
                     out = Option::None;
                     break;
                 }

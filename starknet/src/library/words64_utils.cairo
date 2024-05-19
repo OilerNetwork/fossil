@@ -1,7 +1,9 @@
 use core::integer::u32_safe_divmod;
 use core::option::OptionTrait;
 use core::traits::Into;
-use fossil::library::{array_utils::ArrayTraitExt, bitshift::BitShift, keccak_utils::keccak_words64};
+use fossil::library::{
+    array_utils::ArrayTraitExt, bitshift::BitShift, keccak_utils::{keccak_words64, u64_to_u8_array}
+};
 use fossil::types::Words64Sequence;
 use starknet::EthAddress;
 
@@ -54,34 +56,19 @@ pub fn words64_to_u256(input: Span<u64>) -> u256 {
     return (BitOr::bitor(BitOr::bitor(BitOr::bitor(l0, l1), l2), l3)).into();
 }
 
+
 pub fn words64_to_int(input: Words64Sequence) -> u256 {
-    assert!(input.len_bytes <= 32, "number of bytes must be less than or equal to 32");
-    if input.len_bytes == 0 {
-        return 0;
-    }
-
     let mut result = 0_u256;
-    let num_full_words = input.len_bytes / 8;
-    let remaining_bytes = input.len_bytes % 8;
-    let mut i = 0;
+    let bytes = u64_to_u8_array(input.values, input.len_bytes);
 
-    while i < num_full_words {
-        result =
-            BitOr::bitor(
-                result,
-                BitShift::shl((*input.values.at(i)).into(), ((num_full_words - i - 1) * 64).into())
-            );
+    let len = bytes.len();
+    let mut i = 0;
+    while i < len {
+        let byte = *bytes.at(i);
+        result = BitShift::shl(result, 8);
+        result = BitOr::bitor(result, byte.into());
         i += 1;
     };
-
-    if remaining_bytes > 0 {
-        let last_word = *input.values.at(num_full_words);
-        let mask = (BitShift::shl(1_u64, (remaining_bytes * 8).into()) - 1).into();
-        result =
-            BitOr::bitor(
-                result, BitShift::shl((last_word & mask).into(), (num_full_words * 64).into())
-            );
-    }
 
     result
 }

@@ -145,7 +145,7 @@ fn get_storage_test_success_with_some_data() {
             storage_proof.bytes,
             storage_proof.data
         );
-    assert_eq!(result.values, array![551956115156281927, 37889].span());
+    assert_eq!(result.values, array![9946104055808884394, 4690945].span());
 }
 
 #[test]
@@ -204,7 +204,7 @@ fn get_storage_test_fail_account_not_found() {
 
 
 #[test]
-fn get_storage_uint_test_success() {
+fn get_storage_uint_test_success_test() {
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_3();
@@ -233,7 +233,7 @@ fn get_storage_uint_test_success() {
             storage_proof.bytes,
             storage_proof.data
         );
-    assert_eq!(result, 698929238164896357460551);
+    assert_eq!(result, 0x8a07a8f1298f7eaa479401);
 }
 
 #[test]
