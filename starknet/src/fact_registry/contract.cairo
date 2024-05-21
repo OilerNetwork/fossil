@@ -5,7 +5,7 @@ pub mod FactRegistry {
     };
     use fossil::fact_registry::interface::IFactRegistry;
     use fossil::library::{
-        trie_proof::verify_proof, words64_utils::Words64Trait,
+        trie_proof::verify_proof, words64_utils::{Words64Trait, words64_to_int},
         rlp_utils::{to_rlp_array, extract_data, extract_element}, keccak_utils::keccak_words64
     };
     use fossil::types::{OptionsSet, Words64Sequence, RLPItem};
@@ -71,6 +71,22 @@ pub mod FactRegistry {
                                 .verified_account_storage_hash
                                 .write((account, block), storage_hash.from_words64());
                         },
+                        OptionsSet::All => {
+                            let nonce = *(*result_values.at(0)).values.at(0);
+                            let balance = *result_values.at(1);
+                            let storage_hash = *result_values.at(2);
+                            let code_hash = *result_values.at(3);
+                            self.verified_account_nonce.write((account, block), nonce);
+                            self
+                                .verified_account_balance
+                                .write((account, block), balance.from_words64());
+                            self
+                                .verified_account_storage_hash
+                                .write((account, block), storage_hash.from_words64());
+                            self
+                                .verified_account_code_hash
+                                .write((account, block), code_hash.from_words64());
+                        },
                     };
                 }
             }
@@ -85,10 +101,10 @@ pub mod FactRegistry {
             proofs_concat: Array<u64>,
         ) -> Words64Sequence {
             let account_state_root = self.verified_account_storage_hash.read((account, block));
-            assert!(account_state_root != 0, "FactRegistry: account not found");
+            assert!(account_state_root != 0, "FactRegistry: storage hash not found");
 
             let result = verify_proof(
-                slot.to_words64(),
+                keccak_words64(slot.to_words64()),
                 account_state_root.to_words64(),
                 self
                     .reconstruct_ints_sequence_list(proofs_concat.span(), proof_sizes_bytes.span())
@@ -97,7 +113,7 @@ pub mod FactRegistry {
 
             let slot_value = match result {
                 Option::None => Words64Sequence { values: array![].span(), len_bytes: 0 },
-                Option::Some(result) => { extract_element(result, 0) }
+                Option::Some(result) => result
             };
             slot_value
         }
@@ -111,7 +127,7 @@ pub mod FactRegistry {
             proofs_concat: Array<u64>,
         ) -> u256 {
             let result = self.get_storage(block, account, slot, proof_sizes_bytes, proofs_concat);
-            result.from_words64()
+            words64_to_int(result)
         }
 
         fn get_initialized(self: @ContractState) -> bool {

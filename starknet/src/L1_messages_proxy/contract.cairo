@@ -1,7 +1,10 @@
 #[starknet::contract]
 pub mod L1MessagesProxy {
-    use fossil::L1_headers_store::interface::IL1HeadersStore;
+    use fossil::L1_headers_store::interface::{
+        IL1HeadersStoreDispatcher, IL1HeadersStoreDispatcherTrait
+    };
     use fossil::L1_messages_proxy::interface::IL1MessagesProxy;
+    use fossil::library::words64_utils::words64_to_u256;
     use starknet::{ContractAddress, EthAddress};
 
     #[derive(Drop, Serde)]
@@ -17,7 +20,7 @@ pub mod L1MessagesProxy {
     struct Storage {
         initialized: bool,
         l1_messages_sender: EthAddress,
-        l1_headers_store_addr: ContractAddress,
+        l1_headers_store: IL1HeadersStoreDispatcher,
     }
 
     #[l1_handler]
@@ -26,6 +29,16 @@ pub mod L1MessagesProxy {
             from_address == self.get_l1_messages_sender().into(),
             "L1MessagesProxy: unauthorized sender"
         );
+        let pararent_hash: Array<u64> = array![
+            data.hash_word1.try_into().expect('felt_to_u64_fail'),
+            data.hash_word2.try_into().expect('felt_to_u64_fail'),
+            data.hash_word3.try_into().expect('felt_to_u64_fail'),
+            data.hash_word4.try_into().expect('felt_to_u64_fail')
+        ];
+        let block_number: u64 = data.block_number.try_into().expect('felt_to_u64_fail');
+
+        let header_store = self.l1_headers_store.read();
+        header_store.receive_from_l1(words64_to_u256(pararent_hash.span()), block_number);
     }
 
     #[abi(embed_v0)]
@@ -39,7 +52,9 @@ pub mod L1MessagesProxy {
             assert!(!self.get_initialized(), "L1MessagesProxy: already initialized");
             self.initialized.write(true);
             self.l1_messages_sender.write(l1_messages_sender);
-            self.l1_headers_store_addr.write(l1_headers_store_address);
+            self
+                .l1_headers_store
+                .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_address });
         }
 
         fn change_contract_addresses(
@@ -48,7 +63,9 @@ pub mod L1MessagesProxy {
             l1_headers_store_address: starknet::ContractAddress
         ) {
             self.l1_messages_sender.write(l1_messages_sender);
-            self.l1_headers_store_addr.write(l1_headers_store_address);
+            self
+                .l1_headers_store
+                .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_address });
         }
 
         fn get_initialized(self: @ContractState) -> bool {
@@ -60,7 +77,7 @@ pub mod L1MessagesProxy {
         }
 
         fn get_l1_headers_store_address(self: @ContractState) -> ContractAddress {
-            self.l1_headers_store_addr.read()
+            self.l1_headers_store.read().contract_address
         }
     }
 }

@@ -1,7 +1,9 @@
 use core::integer::u32_safe_divmod;
 use core::option::OptionTrait;
 use core::traits::Into;
-use fossil::library::{array_utils::ArrayTraitExt, bitshift::BitShift, keccak_utils::keccak_words64};
+use fossil::library::{
+    array_utils::ArrayTraitExt, bitshift::BitShift, keccak_utils::{keccak_words64, u64_to_u8_array}
+};
 use fossil::types::Words64Sequence;
 use starknet::EthAddress;
 
@@ -30,7 +32,6 @@ impl EthAddressWords64 of Words64Trait<EthAddress> {
         let l0: u64 = (BitShift::shr(address_felt.into(), 96) & U64_MASK).try_into().unwrap();
         let l1: u64 = (BitShift::shr(address_felt.into(), 32) & U64_MASK).try_into().unwrap();
         let l2: u64 = (address_felt.into() & U64_MASK).try_into().unwrap();
-        // let values = split_u256_to_u64_array(address.into());
 
         keccak_words64(Words64Sequence { values: array![l0, l1, l2].span(), len_bytes: 20, })
     }
@@ -55,6 +56,22 @@ pub fn words64_to_u256(input: Span<u64>) -> u256 {
     return (BitOr::bitor(BitOr::bitor(BitOr::bitor(l0, l1), l2), l3)).into();
 }
 
+
+pub fn words64_to_int(input: Words64Sequence) -> u256 {
+    let mut result = 0_u256;
+    let bytes = u64_to_u8_array(input.values, input.len_bytes);
+
+    let len = bytes.len();
+    let mut i = 0;
+    while i < len {
+        let byte = *bytes.at(i);
+        result = BitShift::shl(result, 8);
+        result = BitOr::bitor(result, byte.into());
+        i += 1;
+    };
+
+    result
+}
 
 pub fn split_u256_to_u64_array(value: u256) -> Span<u64> {
     let l0: u64 = (BitShift::shr(value, 192) & U64_MASK).try_into().unwrap();

@@ -13,7 +13,7 @@ pub fn keccak_words64(input: Words64Sequence) -> Words64Sequence {
 }
 
 
-fn u64_to_u8_array(input: Span<u64>, len_bytes: usize) -> Array<u8> {
+pub fn u64_to_u8_array(input: Span<u64>, len_bytes: usize) -> Array<u8> {
     let mut bytes: Array<u8> = array![];
     let (full_words, remainder) = u32_safe_divmod(len_bytes, 8);
 

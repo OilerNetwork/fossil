@@ -7,6 +7,7 @@ pub struct Keccak256Hash {
 
 #[derive(Drop, Serde)]
 pub enum OptionsSet {
+    All,
     StorageHash,
     CodeHash,
     Nonce,

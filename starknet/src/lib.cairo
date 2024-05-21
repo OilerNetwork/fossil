@@ -17,7 +17,7 @@ pub mod L1_messages_proxy {
     pub mod interface;
 }
 
-mod library {
+pub mod library {
     pub mod array_utils;
     mod bitshift;
     pub mod blockheader_rlp_extractor;
@@ -28,4 +28,13 @@ mod library {
     pub mod rlp_utils;
     pub mod trie_proof;
     pub mod words64_utils;
+}
+
+#[cfg(test)]
+pub mod testing {
+    pub mod proofs {
+        pub mod account;
+        pub mod blocks;
+        pub mod storage;
+    }
 }

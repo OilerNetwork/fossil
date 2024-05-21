@@ -21,7 +21,8 @@ pub fn verify_proof(
             root_hash.values == split_u256_to_u64_array(EMPTY_TRIE_ROOT_HASH),
             "Empty proof must have empty trie root hash"
         );
-        return Option::Some(Words64Sequence { values: array![].span(), len_bytes: 0 });
+        // return Option::Some(Words64Sequence { values: array![].span(), len_bytes: 0 });
+        return Option::None;
     }
 
     let mut next_hash = Words64Sequence { values: array![].span(), len_bytes: 0 };
@@ -88,7 +89,7 @@ pub fn verify_proof(
                     let node_children = extract_nibble(path, path_offset).try_into().unwrap();
                     let children = *node.at(node_children);
                     assert!(children.length == 0, "Invalid children length");
-                    out = Option::Some(Words64Sequence { values: array![].span(), len_bytes: 0 });
+                    out = Option::None;
                     break;
                 }
             } else {

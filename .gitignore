@@ -1,4 +1,13 @@
-target
+# Ignore all text files in the katana/ directory
+katana/*.txt
+
+# Ignore the target directory
+target/
+
+# Ignore the .snfoundry_cache directory
 .snfoundry_cache/
+
+# Ignore the Scarb.lock file
 Scarb.lock
-katana/
+
+*.txt
