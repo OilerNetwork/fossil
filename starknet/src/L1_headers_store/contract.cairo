@@ -40,12 +40,7 @@ pub mod L1HeaderStore {
             self.l1_messages_origin.write(l1_messages_origin);
         }
 
-        fn receive_from_l1(
-            ref self: ContractState,
-            contract_address: starknet::ContractAddress,
-            parent_hash: u256,
-            block_number: u64
-        ) {
+        fn receive_from_l1(ref self: ContractState, parent_hash: u256, block_number: u64) {
             assert!(
                 get_caller_address() == self.l1_messages_origin.read(),
                 "L1HeaderStore: unauthorized caller"
