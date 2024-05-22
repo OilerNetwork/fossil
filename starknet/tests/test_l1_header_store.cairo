@@ -4,10 +4,12 @@ use fossil::library::blockheader_rlp_extractor::{
     decode_transactions_root, decode_receipts_root, decode_difficulty, decode_base_fee,
     decode_timestamp, decode_gas_used
 };
-use fossil::library::words64_utils::{split_u256_to_u64_array_no_span, words64_to_nibbles, Words64Trait};
-use fossil::types::Words64Sequence;
-use fossil::types::ProcessBlockOptions;
+use fossil::library::words64_utils::{
+    split_u256_to_u64_array_no_span, words64_to_nibbles, Words64Trait
+};
 use fossil::testing::proofs;
+use fossil::types::ProcessBlockOptions;
+use fossil::types::Words64Sequence;
 use starknet::EthAddress;
 use super::test_utils::setup;
 
@@ -42,7 +44,7 @@ fn receive_from_l1_success_test() {
     let block = proofs::blocks::BLOCK_0();
     let parent_hash: u256 = 0xfbacb363819451babc6e7596aa48af6c223e40e8b0ad975e372347df5d60ba0f;
 
-    dsp.store.receive_from_l1(parent_hash, block.number); 
+    dsp.store.receive_from_l1(parent_hash, block.number);
 
     assert_eq!(dsp.store.get_parent_hash(block.number), parent_hash);
 }
@@ -65,7 +67,7 @@ fn process_block_success_uncle_hash_test() {
     let block = proofs::blocks::BLOCK_0();
     let rlp = get_rlp();
     let data = decode_uncle_hash(rlp);
-    let data_arr = split_u256_to_u64_array_no_span(data); 
+    let data_arr = split_u256_to_u64_array_no_span(data);
 
     dsp
         .store
@@ -111,7 +113,7 @@ fn process_block_success_state_root_test() {
     let block = proofs::blocks::BLOCK_0();
     let rlp = get_rlp();
     let data = decode_state_root(rlp);
-    let data_arr = split_u256_to_u64_array_no_span(data); 
+    let data_arr = split_u256_to_u64_array_no_span(data);
 
     dsp
         .store
@@ -134,7 +136,7 @@ fn process_block_success_transactions_root_test() {
     let block = proofs::blocks::BLOCK_0();
     let rlp = get_rlp();
     let data = decode_transactions_root(rlp); // u256
-    let data_arr = split_u256_to_u64_array_no_span(data); 
+    let data_arr = split_u256_to_u64_array_no_span(data);
 
     dsp
         .store
@@ -157,7 +159,7 @@ fn process_block_success_receipts_root_test() {
     let block = proofs::blocks::BLOCK_0();
     let rlp = get_rlp();
     let data = decode_receipts_root(rlp);
-    let data_arr = split_u256_to_u64_array_no_span(data); 
+    let data_arr = split_u256_to_u64_array_no_span(data);
 
     dsp
         .store
@@ -180,7 +182,7 @@ fn process_block_success_difficulty_test() {
     let block = proofs::blocks::BLOCK_0();
     let rlp = get_rlp();
     let data = decode_difficulty(rlp);
-    let data_arr = array![data]; 
+    let data_arr = array![data];
 
     dsp
         .store
@@ -203,7 +205,7 @@ fn process_block_gas_used_test() {
     let block = proofs::blocks::BLOCK_0();
     let rlp = get_rlp();
     let data = decode_gas_used(rlp);
-    let data_arr = array![data]; 
+    let data_arr = array![data];
 
     dsp
         .store
@@ -226,7 +228,7 @@ fn process_block_success_timestamp_test() {
     let block = proofs::blocks::BLOCK_0();
     let rlp = get_rlp();
     let data = decode_timestamp(rlp);
-    let data_arr = array![data]; 
+    let data_arr = array![data];
 
     dsp
         .store
@@ -249,7 +251,7 @@ fn process_block_success_base_fee_test() {
     let block = proofs::blocks::BLOCK_0();
     let rlp = get_rlp();
     let data = decode_base_fee(rlp);
-    let data_arr = array![data]; 
+    let data_arr = array![data];
 
     dsp
         .store
