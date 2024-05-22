@@ -4,10 +4,11 @@ use fossil::library::blockheader_rlp_extractor::{
     decode_transactions_root, decode_receipts_root, decode_difficulty, decode_base_fee,
     decode_timestamp, decode_gas_used
 };
-use fossil::library::words64_utils::split_u256_to_u64_array_no_span;
+use fossil::library::words64_utils::{split_u256_to_u64_array_no_span, words64_to_nibbles, Words64Trait};
 use fossil::types::Words64Sequence;
 use fossil::types::ProcessBlockOptions;
 use fossil::testing::proofs;
+use starknet::EthAddress;
 use super::test_utils::setup;
 
 pub fn get_rlp() -> Words64Sequence {
@@ -80,28 +81,28 @@ fn process_block_success_uncle_hash_test() {
     assert_eq!(uncle_hash, data);
 }
 
-// #[test]
-// fn process_block_success_beneficiary_test() {
-//     let dsp = setup();
+#[test]
+fn process_block_success_beneficiary_test() {
+    let dsp = setup();
 
-//     let block = proofs::blocks::BLOCK_0();
-//     let rlp = get_rlp();
-//     let data = decode_beneficiary(rlp);
-//     let data_arr = split_u256_to_u64_array_no_span(data); // TODO ETHAddress
+    let block = proofs::blocks::BLOCK_0();
+    let rlp = get_rlp();
+    let data = decode_beneficiary(rlp);
+    let data_arr = words64_to_nibbles(data.to_words64(), 0); // TODO ETHAddress
 
-//     dsp
-//         .store
-//         .process_block(
-//             ProcessBlockOptions::Beneficiary,
-//             block.number,
-//             4, // block_header_rlp_bytes_len: usize ,
-//             data_arr // block_header_rlp: Array<u64>,
-//         );
+    dsp
+        .store
+        .process_block(
+            ProcessBlockOptions::Beneficiary,
+            block.number,
+            4, // block_header_rlp_bytes_len: usize ,
+            data_arr // block_header_rlp: Array<u64>,
+        );
 
-//     let beneficiary: EthAddress = dsp.store.get_beneficiary(block.number);
+    let beneficiary: EthAddress = dsp.store.get_beneficiary(block.number);
 
-//     assert_eq!(beneficiary, data);
-// }
+    assert_eq!(beneficiary, data);
+}
 
 #[test]
 fn process_block_success_state_root_test() {
