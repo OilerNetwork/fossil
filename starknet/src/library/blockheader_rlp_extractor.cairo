@@ -23,28 +23,27 @@ mod decoder {
 }
 
 pub fn decode_parent_hash(block_rlp: Words64Sequence) -> u256 {
-    extract_data(block_rlp, PARENT_HASH_START, PARENT_HASH_START.into() + 32).from_words64()
+    extract_data(block_rlp, PARENT_HASH_START, 32).from_words64()
 }
 
 pub fn decode_uncle_hash(block_rlp: Words64Sequence) -> u256 {
-    extract_data(block_rlp, UNCLE_HASH_START, UNCLE_HASH_START.into() + 32).from_words64()
+    extract_data(block_rlp, UNCLE_HASH_START, 32).from_words64()
 }
 
 pub fn decode_beneficiary(block_rlp: Words64Sequence) -> EthAddress {
-    extract_data(block_rlp, BENEFICIARY_START, BENEFICIARY_START.into() + 20).from_words64()
+    extract_data(block_rlp, BENEFICIARY_START, 20).from_words64()
 }
 
 pub fn decode_state_root(block_rlp: Words64Sequence) -> u256 {
-    extract_data(block_rlp, STATE_ROOT_START, STATE_ROOT_START.into() + 32).from_words64()
+    extract_data(block_rlp, STATE_ROOT_START, 32).from_words64()
 }
 
 pub fn decode_transactions_root(block_rlp: Words64Sequence) -> u256 {
-    extract_data(block_rlp, TRANSACTIONS_ROOT_START, TRANSACTIONS_ROOT_START.into() + 32)
-        .from_words64()
+    extract_data(block_rlp, TRANSACTIONS_ROOT_START, 32).from_words64()
 }
 
 pub fn decode_receipts_root(block_rlp: Words64Sequence) -> u256 {
-    extract_data(block_rlp, RECEIPTS_ROOT_START, RECEIPTS_ROOT_START.into() + 32).from_words64()
+    extract_data(block_rlp, RECEIPTS_ROOT_START, 32).from_words64()
 }
 
 pub fn decode_difficulty(block_rlp: Words64Sequence) -> u64 {
