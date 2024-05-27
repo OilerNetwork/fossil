@@ -32,6 +32,7 @@ pub mod library {
 
 #[cfg(test)]
 pub mod testing {
+    pub mod rlp;
     pub mod proofs {
         pub mod account;
         pub mod blocks;
