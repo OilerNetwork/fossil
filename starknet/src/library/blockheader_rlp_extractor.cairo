@@ -31,7 +31,7 @@ pub fn decode_uncle_hash(block_rlp: Words64Sequence) -> u256 {
 }
 
 pub fn decode_beneficiary(block_rlp: Words64Sequence) -> EthAddress {
-    extract_data(block_rlp, BENEFICIARY_START, 20).from_words64()
+    extract_data(block_rlp, BENEFICIARY_START, 32).from_words64()
 }
 
 pub fn decode_state_root(block_rlp: Words64Sequence) -> u256 {
@@ -51,17 +51,17 @@ pub fn decode_difficulty(block_rlp: Words64Sequence) -> u64 {
     assert!(rlp_items.len() > decoder::DIFFICULTY, "Block RLP is too short");
     let data = *rlp_items.at(decoder::DIFFICULTY);
     let difficulty_rlp_element = extract_data(
-        block_rlp, data.position, data.position.into() + data.length
+        block_rlp, data.position, data.length
     );
     *difficulty_rlp_element.values.at(0)
 }
 
 pub fn decode_block_number(block_rlp: Words64Sequence) -> u64 {
     let rlp_items = to_rlp_array(block_rlp);
-    assert!(rlp_items.len() > decoder::BLOCK_NUMBER, "Block RLP is too short");
+    assert!(rlp_items.len() > decoder::BLOCK_NUMBER, "Block RLP is too short"); // I'm not sure tha
     let data = *rlp_items.at(decoder::BLOCK_NUMBER);
     let block_number_rlp_element = extract_data(
-        block_rlp, data.position, data.position.into() + data.length
+        block_rlp, data.position, data.length
     );
     *block_number_rlp_element.values.at(0)
 }
@@ -71,7 +71,7 @@ pub fn decode_gas_limit(block_rlp: Words64Sequence) -> u64 {
     assert!(rlp_items.len() > decoder::GAS_LIMIT, "Block RLP is too short");
     let data = *rlp_items.at(decoder::GAS_LIMIT);
     let gas_limit_rlp_element = extract_data(
-        block_rlp, data.position, data.position.into() + data.length
+        block_rlp, data.position, data.length
     );
     *gas_limit_rlp_element.values.at(0)
 }
@@ -81,7 +81,7 @@ pub fn decode_gas_used(block_rlp: Words64Sequence) -> u64 {
     assert!(rlp_items.len() > decoder::GAS_USED, "Block RLP is too short");
     let data = *rlp_items.at(decoder::GAS_USED);
     let gas_used_rlp_element = extract_data(
-        block_rlp, data.position, data.position.into() + data.length
+        block_rlp, data.position, data.length
     );
     *gas_used_rlp_element.values.at(0)
 }
@@ -91,7 +91,7 @@ pub fn decode_timestamp(block_rlp: Words64Sequence) -> u64 {
     assert!(rlp_items.len() > decoder::TIMESTAMP, "Block RLP is too short");
     let data = *rlp_items.at(decoder::TIMESTAMP);
     let timestamp_rlp_element = extract_data(
-        block_rlp, data.position, data.position.into() + data.length
+        block_rlp, data.position, data.length
     );
     *timestamp_rlp_element.values.at(0)
 }
@@ -101,7 +101,7 @@ pub fn decode_base_fee(block_rlp: Words64Sequence) -> u64 {
     assert!(rlp_items.len() > decoder::BASE_FEE, "Block RLP is too short");
     let data = *rlp_items.at(decoder::BASE_FEE);
     let base_fee_rlp_element = extract_data(
-        block_rlp, data.position, data.position.into() + data.length
+        block_rlp, data.position, data.length
     );
     *base_fee_rlp_element.values.at(0)
 }

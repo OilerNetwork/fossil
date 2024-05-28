@@ -62,8 +62,10 @@ fn process_block_success_uncle_hash_test() {
         );
 
     let uncle_hash: u256 = dsp.store.get_uncles_hash(block.number); // u256
-    println!("uncle_hash: {:?}", uncle_hash);
-// assert_eq!(uncle_hash, data); // TODO
+    // println!("uncle_hash: {:?}", uncle_hash);
+    assert_eq!(
+        uncle_hash, 0x1DCC4DE8DEC75D7AAB85B567B6CCD41AD312451B948A7413F0A142FD40D49347
+    ); 
 }
 
 #[test]
@@ -88,8 +90,9 @@ fn process_block_success_beneficiary_test() {
         );
 
     let beneficiary: EthAddress = dsp.store.get_beneficiary(block.number);
-    println!("beneficiary: {:?}", beneficiary);
-// assert_eq!(beneficiary, data); TODO 
+    // println!("beneficiary: {:?}", beneficiary);
+    // let address: EthAddress = 0x212ADDBEFAEB289FA0D45CEA1D5CAE78386F79E0.into();
+    // assert_eq!(beneficiary, address); TODO  
 }
 
 #[test]
@@ -114,8 +117,8 @@ fn process_block_success_state_root_test() {
         );
 
     let state_root: u256 = dsp.store.get_state_root(block.number);
-    println!("state root: {:?}", state_root);
-//     assert_eq!(state_root, data); TODO 
+    // println!("state root: {:?}", state_root);
+    assert_eq!(state_root, 0xD45CEA1D5CAE78386F79E0D522E0A1D91B2DA95FF84B5DE258F2C9893D3F49B1);
 }
 
 #[test]
@@ -140,8 +143,10 @@ fn process_block_success_transactions_root_test() {
         );
 
     let transactions_root: u256 = dsp.store.get_transactions_root(block.number);
-    println!("transactions root: {:?}", transactions_root);
-//     assert_eq!(transactions_root, data); TODO
+    // println!("transactions root: {:?}", transactions_root);
+    assert_eq!(
+        transactions_root, 0x14074F253A0323231D349A3F9C646AF771C1DEC2F234BB80AFED5460F572FED1
+    );
 }
 
 #[test]
@@ -166,12 +171,12 @@ fn process_block_success_receipts_root_test() {
         );
 
     let receipts_root: u256 = dsp.store.get_receipts_root(block.number);
-    println!("receipts root: {:?}", receipts_root);
-//     assert_eq!(receipts_root, data); TODO
+    // println!("receipts root: {:?}", receipts_root);
+    assert_eq!(receipts_root, 0x5A6F5B9AC75AE1E1F8C4AFEFB9347E141BC5C955B2ED65341DF3E1D599FCAD91);
 }
 
 #[test]
-fn process_block_success_difficulty_test() {
+fn process_block_success_difficulty_test() { 
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_0();
@@ -192,12 +197,12 @@ fn process_block_success_difficulty_test() {
         );
 
     let difficulty: u64 = dsp.store.get_difficulty(block.number);
-    println!("difficulty: {:?}", difficulty);
-//     assert_eq!(difficulty, data); TODO
+    // println!("difficulty: {:?}", difficulty);
+    assert_eq!(difficulty, 1996368138); 
 }
 
 #[test]
-fn process_block_gas_used_test() {
+fn process_block_gas_used_test() { 
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_0();
@@ -218,12 +223,12 @@ fn process_block_gas_used_test() {
         );
 
     let gas_used: u64 = dsp.store.get_gas_used(block.number);
-    println!("gas used: {:?}", gas_used);
-// assert_eq!(gas_used, data); TODO
+    // println!("gas used: {:?}", gas_used);
+    assert_eq!(gas_used, 15167841); 
 }
 
 #[test]
-fn process_block_success_timestamp_test() {
+fn process_block_success_timestamp_test() { 
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_0();
@@ -244,12 +249,12 @@ fn process_block_success_timestamp_test() {
         );
 
     let timestamp: u64 = dsp.store.get_timestamp(block.number);
-    println!("timestamp: {:?}", timestamp);
-// assert_eq!(timestamp, data); TODO
+    // println!("timestamp: {:?}", timestamp);
+    assert_eq!(timestamp, 1637335076); 
 }
 
 #[test]
-fn process_block_success_base_fee_test() {
+fn process_block_success_base_fee_test() { 
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_0();
@@ -270,8 +275,8 @@ fn process_block_success_base_fee_test() {
         );
 
     let base_fee: u64 = dsp.store.get_base_fee(block.number);
-    println!("base fee: {:?}", base_fee);
-// assert_eq!(base_fee, data); TODO
+    // println!("base fee: {:?}", base_fee);
+    assert_eq!(base_fee, 24); 
 }
 
 #[test]
@@ -297,7 +302,7 @@ fn process_block_cannot_validate_header_rlp_test() {
 #[test]
 fn process_till_block_success_test() {
     // let dsp = setup();
-    // // TODO
+    // // TODO 
     assert!(true)
 }
 
