@@ -1,12 +1,21 @@
+//! Contract for receiving block header hashes from L1 of the Ethereum network.
+
 #[starknet::contract]
 pub mod L1MessagesProxy {
+    // *************************************************************************
+    //                               IMPORTS
+    // *************************************************************************
+    // Core lib imports   
+    use starknet::{ContractAddress, EthAddress};
+
+    // Local imports.
     use fossil::L1_headers_store::interface::{
         IL1HeadersStoreDispatcher, IL1HeadersStoreDispatcherTrait
     };
     use fossil::L1_messages_proxy::interface::IL1MessagesProxy;
     use fossil::library::words64_utils::words64_to_u256;
-    use starknet::{ContractAddress, EthAddress};
-
+    
+    /// Struct to receive message (parentHash_, blockNumber_) from L1.
     #[derive(Drop, Serde)]
     struct L1Payload {
         hash_word1: felt252,
@@ -16,6 +25,9 @@ pub mod L1MessagesProxy {
         block_number: felt252,
     }
 
+    // *************************************************************************
+    //                              STORAGE
+    // *************************************************************************
     #[storage]
     struct Storage {
         initialized: bool,
@@ -23,6 +35,16 @@ pub mod L1MessagesProxy {
         l1_headers_store: IL1HeadersStoreDispatcher,
     }
 
+    // *************************************************************************
+    //                     L1 HANDLER FUNCTION
+    // *************************************************************************
+    /// Receive `message` from L1 which is deserialized as L1Payload.
+    /// Verify the sender of the L1 message.
+    /// Extracts the hash_words into a 'parent_hash' array and 'block_number'.
+    /// Sends 'parent_hash' and 'block_number' to `header_store` `receive_from_l1` function for processing.
+    /// # Arguments
+    /// * `from_address` - The contract address on L1 to receive messages from.
+    /// * `data` - The payload from L1, an array of 'parent_hash' and 'block_number'.
     #[l1_handler]
     fn receive_from_l1(ref self: ContractState, from_address: felt252, data: L1Payload) {
         assert!(
@@ -41,8 +63,17 @@ pub mod L1MessagesProxy {
         header_store.receive_from_l1(words64_to_u256(pararent_hash.span()), block_number);
     }
 
+    // *************************************************************************
+    //                          EXTERNAL FUNCTIONS
+    // *************************************************************************
+    // Implementation of IL1MessagesProxy interface
     #[abi(embed_v0)]
     impl L1MessagesProxyImpl of IL1MessagesProxy<ContractState> {
+        /// Initialize the contract.
+        /// # Arguments
+        /// * `l1_messages_sender` - The address of the L1 solidity contract.
+        /// * `l1_headers_store_address` - The address of the header store cairo contract.
+        /// * `owner` - The owner address.
         fn initialize(
             ref self: ContractState,
             l1_messages_sender: EthAddress,
@@ -57,6 +88,10 @@ pub mod L1MessagesProxy {
                 .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_address });
         }
 
+        /// Change contract address.
+        /// # Arguments
+        /// * `l1_messages_sender` - The address of the L1 solidity contract.
+        /// * `l1_headers_store_address` - The address of the header store cairo contract.
         fn change_contract_addresses(
             ref self: ContractState,
             l1_messages_sender: EthAddress,
@@ -68,14 +103,17 @@ pub mod L1MessagesProxy {
                 .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_address });
         }
 
+        /// Checks if the contract has been initialized
         fn get_initialized(self: @ContractState) -> bool {
             self.initialized.read()
         }
 
+        /// Returns the L1 contract address.
         fn get_l1_messages_sender(self: @ContractState) -> EthAddress {
             self.l1_messages_sender.read()
         }
 
+        /// Returns the header store contract address.
         fn get_l1_headers_store_address(self: @ContractState) -> ContractAddress {
             self.l1_headers_store.read().contract_address
         }
