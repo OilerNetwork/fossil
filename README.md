@@ -10,6 +10,8 @@
 1. Start Anvil in a new terminal with the command `anvil`.
 
 2. Install dependencies:
+   requires `katana 0.7.0-alpha.4`
+   
    ```bash
    cd ethereum
    forge install
@@ -51,7 +53,7 @@
    forge script script/LocalTesting.s.sol:LocalSetup --broadcast --rpc-url ${ETH_RPC_URL}
    ```
 
-9. Send a message:
+9.  Send a message:
    ```bash
    forge script script/SendMessage.s.sol:Value --broadcast --rpc-url ${ETH_RPC_URL}
    ```
