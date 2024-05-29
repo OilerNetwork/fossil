@@ -11,7 +11,7 @@
 
 2. Install dependencies:
    requires `katana 0.7.0-alpha.4`
-   
+
    ```bash
    cd ethereum
    forge install
@@ -26,7 +26,7 @@
 
 4. I a New Terminal Start the Katana StarkNet node:
    ```bash
-   katana --messaging anvil.messaging.json --disable-fee
+   katana --messaging anvil.messaging.json --disable-fee  --block-time 10000
    ```
 
 5. In a New Terminal Declare the Cairo contracts:
