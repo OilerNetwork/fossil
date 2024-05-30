@@ -172,8 +172,7 @@ pub mod L1HeaderStore {
         }
 
 
-        /// Processes a sequence of blocks by validating their RLP-encoded headers `block_header_words` and updating the contract state.
-        ///
+        /// Processes a sequence of blocks by validating their RLP-encoded block headers `block_header_words` and updating the contract state.
         ///
         /// # Arguments
         /// * `options_set` - An Enum `option` which specifies which field of the block header to decode and store for the last block in the sequence.
@@ -233,7 +232,7 @@ pub mod L1HeaderStore {
         /// * `block_number` - The block number to check.
         ///
         /// # Returns
-        /// A boolean indicating whether the contract state has been initialized.
+        /// * A boolean indicating whether the contract state has been initialized.
         fn get_initialized(self: @ContractState, block_number: u64) -> bool {
             self.initialized.read()
         }
@@ -244,7 +243,7 @@ pub mod L1HeaderStore {
         /// * `block_number` - The block number for which to retrieve the parent hash.
         ///
         /// # Returns
-        /// The parent hash as a `u256`.
+        /// * `u256` - The parent hash.
         fn get_parent_hash(self: @ContractState, block_number: u64) -> u256 {
             self.block_parent_hash.read(block_number)
         }
@@ -252,7 +251,7 @@ pub mod L1HeaderStore {
         /// Retrieves the latest L1 block number stored in the contract.
         ///
         /// # Returns
-        /// The latest L1 block number as a `u64`.
+        /// * `u64` - The latest L1 block number.
         fn get_latest_l1_block(self: @ContractState) -> u64 {
             self.latest_l1_block.read()
         }
@@ -263,7 +262,7 @@ pub mod L1HeaderStore {
         /// * `block_number` - The block number for which to retrieve the state root.
         ///
         /// # Returns
-        /// The state root as a `u256`.
+        /// * `u256` - The state root.
         fn get_state_root(self: @ContractState, block_number: u64) -> u256 {
             self.block_state_root.read(block_number)
         }
@@ -274,7 +273,7 @@ pub mod L1HeaderStore {
         /// * `block_number` - The block number for which to retrieve the transactions root.
         ///
         /// # Returns
-        /// The transactions root as a `u256`.
+        /// * `u256` - The transactions root.
         fn get_transactions_root(self: @ContractState, block_number: u64) -> u256 {
             self.block_transactions_root.read(block_number)
         }
@@ -285,7 +284,7 @@ pub mod L1HeaderStore {
         /// * `block_number` - The block number for which to retrieve the receipts root.
         ///
         /// # Returns
-        /// The receipts root as a `u256`.
+        /// * `u256` - The receipts root.
         fn get_receipts_root(self: @ContractState, block_number: u64) -> u256 {
             self.block_receipts_root.read(block_number)
         }
@@ -296,7 +295,7 @@ pub mod L1HeaderStore {
         /// * `block_number` - The block number for which to retrieve the uncles hash.
         ///
         /// # Returns
-        /// The uncles hash as a `u256`.
+        /// * `u256` - The uncles hash.
         fn get_uncles_hash(self: @ContractState, block_number: u64) -> u256 {
             self.block_uncles_hash.read(block_number)
         }
@@ -307,7 +306,7 @@ pub mod L1HeaderStore {
         /// * `block_number` - The block number for which to retrieve the beneficiary address.
         ///
         /// # Returns
-        /// The beneficiary address as a `starknet::EthAddress`.
+        /// * `starknet::EthAddress` - The beneficiary address .
         fn get_beneficiary(self: @ContractState, block_number: u64) -> starknet::EthAddress {
             self.block_beneficiary.read(block_number)
         }
@@ -318,7 +317,7 @@ pub mod L1HeaderStore {
         /// * `block_number` - The block number for which to retrieve the block difficulty.
         ///
         /// # Returns
-        /// The block difficulty as a `u64`.
+        /// * `u64` - The block difficulty.
         fn get_difficulty(self: @ContractState, block_number: u64) -> u64 {
             self.block_difficulty.read(block_number)
         }
@@ -329,7 +328,7 @@ pub mod L1HeaderStore {
         /// * `block_number` - The block number for which to retrieve the base fee.
         ///
         /// # Returns
-        /// The base fee as a `u64`.
+        /// * `u64` - The base fee.
         fn get_base_fee(self: @ContractState, block_number: u64) -> u64 {
             self.block_base_fee.read(block_number)
         }
@@ -340,7 +339,7 @@ pub mod L1HeaderStore {
         /// * `block_number` - The block number for which to retrieve the timestamp.
         ///
         /// # Returns
-        /// The timestamp as a `u64`.
+        /// * `u64` - The timestamp .
         fn get_timestamp(self: @ContractState, block_number: u64) -> u64 {
             self.block_timestamp.read(block_number)
         }
@@ -351,7 +350,7 @@ pub mod L1HeaderStore {
         /// * `block_number` - The block number for which to retrieve the gas used.
         ///
         /// # Returns
-        /// The gas used as a `u64`.
+        /// * `u64` - The gas used.
         fn get_gas_used(self: @ContractState, block_number: u64) -> u64 {
             self.block_gas_used.read(block_number)
         }

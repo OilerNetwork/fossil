@@ -110,7 +110,7 @@ pub mod L1MessagesProxy {
         /// Checks if the contract has been initialized
         ///
         /// # Returns
-        /// A boolean indicating whether the contract state has been initialized.
+        /// * A boolean indicating whether the contract state has been initialized.
         fn get_initialized(self: @ContractState) -> bool {
             self.initialized.read()
         }
@@ -118,7 +118,6 @@ pub mod L1MessagesProxy {
         /// Retrieves the sender address of L1 messages stored in the contract state.
         ///
         /// # Returns
-        ///
         /// * `EthAddress` - The Ethereum address of the sender of L1 messages.
         fn get_l1_messages_sender(self: @ContractState) -> EthAddress {
             self.l1_messages_sender.read()
