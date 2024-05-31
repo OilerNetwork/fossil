@@ -211,9 +211,8 @@ pub mod FactRegistry {
         ///
         /// # Returns
         /// * `ContractAddress` - The L1 Header Store address.
-        /// Note - This returns this Contract address and not the l1 header store address
         fn get_l1_headers_store_addr(self: @ContractState) -> ContractAddress {
-            contract_address_const::<0>()
+            self.l1_headers_store.read().contract_address
         }
 
         /// Retrieves the verified storage hash for a given Ethereum account and block number.
