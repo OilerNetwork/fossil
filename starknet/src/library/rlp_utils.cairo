@@ -151,7 +151,7 @@ pub fn extract_data(rlp: Words64Sequence, start: usize, size: u64) -> Words64Seq
                         );
                 }
             } else {
-                right_part = value_at_end_word;
+                right_part = BitShift::shr(value_at_end_word, right_shift.into() * 8);
             }
 
             let final_word = left_part + right_part;

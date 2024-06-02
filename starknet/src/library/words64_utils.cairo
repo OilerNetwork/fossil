@@ -37,8 +37,16 @@ impl EthAddressWords64 of Words64Trait<EthAddress> {
     }
 
     fn from_words64(self: Words64Sequence) -> EthAddress {
-        let address = words64_to_u256(self.values);
-        address.into()
+        assert!(self.values.len() <= 3, "input length must be less than or equal to 3");
+        if self.values.len() == 0 {
+            return 0_u256.into();
+        }
+
+        let l0: u256 = BitShift::shl((*self.values.at(0)).into(), 96_u256);
+        let l1 = BitShift::shl((*self.values.at(1)).into(), 32);
+        let l2 = (*self.values.at(2)).into();
+
+        return (BitOr::bitor(BitOr::bitor(l0, l1), l2)).into();
     }
 }
 

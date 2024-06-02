@@ -4,16 +4,86 @@ use fossil::library::blockheader_rlp_extractor::{
     decode_transactions_root, decode_receipts_root, decode_difficulty, decode_base_fee,
     decode_timestamp, decode_gas_used
 };
-use fossil::library::words64_utils::{
-    split_u256_to_u64_array_no_span, words64_to_nibbles, Words64Trait
-};
+use fossil::library::words64_utils::{words64_to_nibbles, Words64Trait};
 use fossil::testing::proofs;
-use fossil::testing::rlp;
 use fossil::types::ProcessBlockOptions;
 use fossil::types::Words64Sequence;
 use snforge_std::start_cheat_caller_address;
 use starknet::EthAddress;
 use super::test_utils::setup;
+
+pub fn get_rlp() -> Array<u64> {
+    array![
+        17942930940933183180,
+        10630688908008413652,
+        12661074544460729427,
+        864726895158924156,
+        16160421152376605773,
+        16780068465932993973,
+        7473385843023090245,
+        1987365566732607810,
+        18248819419131476918,
+        1984847897903778775,
+        11250872762094254827,
+        2927235116766469468,
+        12571860411242042658,
+        16186457246499692536,
+        5430745597336979773,
+        4560371398778244901,
+        4180223512850766399,
+        11269249778585820866,
+        17452780617349289056,
+        17686478862929260379,
+        11152982928411641007,
+        17273895561864136137,
+        6175259058000229345,
+        15391611023919743232,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        9545095912481861326,
+        10989761733450733549,
+        14953183967168469464,
+        9439837342822524276,
+        7532384104041296183,
+        3328588300275316088,
+        11561634209445742650,
+        1195534606310635284,
+        13885345432711804137,
+        13993844412326043916,
+        254522925965248994,
+        13959192
+    ]
+}
 
 
 #[test]
