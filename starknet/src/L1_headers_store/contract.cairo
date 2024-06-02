@@ -219,7 +219,7 @@ pub mod L1HeaderStore {
 
             let provided_rlp_hash = keccak_words64(header_ints_sequence);
             let provided_rlp_hash_u256 = words64_to_u256(provided_rlp_hash.values);
-            
+
             assert!(
                 child_block_parent_hash == provided_rlp_hash_u256,
                 "L1HeaderStore: hashes are not equal"
