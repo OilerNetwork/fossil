@@ -31,7 +31,7 @@ pub fn decode_uncle_hash(block_rlp: Words64Sequence) -> u256 {
 }
 
 pub fn decode_beneficiary(block_rlp: Words64Sequence) -> EthAddress {
-    extract_data(block_rlp, BENEFICIARY_START, 32).from_words64()
+    extract_data(block_rlp, BENEFICIARY_START, 24).from_words64()
 }
 
 pub fn decode_state_root(block_rlp: Words64Sequence) -> u256 {

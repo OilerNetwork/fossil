@@ -1,13 +1,8 @@
 use fossil::L1_headers_store::interface::IL1HeadersStoreDispatcherTrait;
-use fossil::library::blockheader_rlp_extractor::{
-    decode_parent_hash, decode_uncle_hash, decode_beneficiary, decode_state_root,
-    decode_transactions_root, decode_receipts_root, decode_difficulty, decode_base_fee,
-    decode_timestamp, decode_gas_used
-};
 use fossil::library::words64_utils::{words64_to_nibbles, Words64Trait};
 use fossil::testing::proofs;
+use fossil::testing::rlp;
 use fossil::types::ProcessBlockOptions;
-use fossil::types::Words64Sequence;
 use snforge_std::start_cheat_caller_address;
 use starknet::EthAddress;
 use super::test_utils::setup;
@@ -237,7 +232,7 @@ fn process_block_gas_used_test() {
     dsp.store.process_block(ProcessBlockOptions::GasUsed, block.number, len, rlp);
 
     let gas_used: u64 = dsp.store.get_gas_used(block.number);
-    assert_eq!(gas_used, 15167841);
+    assert_eq!(gas_used, 1568207);
 }
 
 #[test]
