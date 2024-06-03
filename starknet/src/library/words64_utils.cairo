@@ -89,6 +89,14 @@ pub fn split_u256_to_u64_array(value: u256) -> Span<u64> {
     return array![l0, l1, l2, l3].span();
 }
 
+pub fn split_u256_to_u64_array_no_span(value: u256) -> Array<u64> {
+    let l0: u64 = (BitShift::shr(value, 192) & U64_MASK).try_into().unwrap();
+    let l1: u64 = (BitShift::shr(value, 128) & U64_MASK).try_into().unwrap();
+    let l2: u64 = (BitShift::shr(value, 64) & U64_MASK).try_into().unwrap();
+    let l3: u64 = (value & U64_MASK).try_into().unwrap();
+    return array![l0, l1, l2, l3];
+}
+
 pub fn words64_to_nibbles(input: Words64Sequence, skip_nibbles: usize) -> Array<u64> {
     let (_, remainder) = u32_safe_divmod(input.len_bytes * 2, 16);
     let mut acc = array![];

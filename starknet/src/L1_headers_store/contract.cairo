@@ -127,7 +127,7 @@ pub mod L1HeaderStore {
                 block_header_concat.len() == block_header_words.len(),
                 "L1HeaderStore: block_header_bytes and block_header_words must have the same length"
             );
-            let mut parent_hash = self.get_parent_hash(start_block_number);
+            let mut parent_hash = self.get_parent_hash(start_block_number + 1);
 
             let mut current_index: u32 = 0;
             let mut save_block_number = start_block_number + current_index.into();
@@ -142,8 +142,9 @@ pub mod L1HeaderStore {
                         );
 
                     current_index += 1;
-                    save_block_number = start_block_number + current_index.into();
-                    parent_hash = self.get_parent_hash(save_block_number);
+                    save_block_number += 1;
+                    parent_hash = self.get_parent_hash(save_block_number + 1);
+
                     if current_index == block_header_words.len() {
                         // Process the last block based on options and header data
                         self
