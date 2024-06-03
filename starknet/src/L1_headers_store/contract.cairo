@@ -10,7 +10,6 @@ pub mod L1HeaderStore {
     use core::array::ArrayTrait;
     use core::clone::Clone;
     use core::traits::Into;
-    use starknet::{ContractAddress, EthAddress, get_caller_address};
 
     // Local imports.
     use fossil::L1_headers_store::interface::IL1HeadersStore;
@@ -23,7 +22,7 @@ pub mod L1HeaderStore {
     use fossil::library::words64_utils::words64_to_u256;
     use fossil::types::ProcessBlockOptions;
     use fossil::types::Words64Sequence;
-   
+    use starknet::{ContractAddress, EthAddress, get_caller_address};
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************

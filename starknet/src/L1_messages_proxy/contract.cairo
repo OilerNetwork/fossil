@@ -5,16 +5,14 @@ pub mod L1MessagesProxy {
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
-    // Core lib imports   
-    use starknet::{ContractAddress, EthAddress};
-
     // Local imports.
     use fossil::L1_headers_store::interface::{
         IL1HeadersStoreDispatcher, IL1HeadersStoreDispatcherTrait
     };
     use fossil::L1_messages_proxy::interface::IL1MessagesProxy;
     use fossil::library::words64_utils::words64_to_u256;
-    
+    // Core lib imports   
+    use starknet::{ContractAddress, EthAddress};
     /// Struct to receive message (parentHash_, blockNumber_) from L1.
     #[derive(Drop, Serde)]
     struct L1Payload {

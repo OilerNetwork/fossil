@@ -6,9 +6,6 @@ pub mod FactRegistry {
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
-    // Core lib imports 
-    use starknet::{ContractAddress, EthAddress, contract_address_const};
-
     // Local imports.
     use fossil::L1_headers_store::interface::{
         IL1HeadersStore, IL1HeadersStoreDispatcher, IL1HeadersStoreDispatcherTrait
@@ -19,7 +16,8 @@ pub mod FactRegistry {
         rlp_utils::{to_rlp_array, extract_data, extract_element}, keccak_utils::keccak_words64
     };
     use fossil::types::{OptionsSet, Words64Sequence, RLPItem};
-
+    // Core lib imports 
+    use starknet::{ContractAddress, EthAddress, contract_address_const};
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
