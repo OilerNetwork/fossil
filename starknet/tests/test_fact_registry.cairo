@@ -269,3 +269,16 @@ fn get_storage_uint_test_success_no_data() {
     assert_eq!(result, 0);
 }
 
+#[test]
+fn get_initialized_test() {
+    let dsp = setup();
+
+    assert_eq!(dsp.registry.get_initialized(), true);
+}
+
+#[test]
+fn get_l1_headers_store_addr_test() {
+    let dsp = setup();
+
+    assert_eq!(dsp.store.contract_address, dsp.registry.get_l1_headers_store_addr());
+}
