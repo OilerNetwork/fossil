@@ -22,14 +22,25 @@ pub mod L1HeaderStore {
     use fossil::library::words64_utils::words64_to_u256;
     use fossil::types::ProcessBlockOptions;
     use fossil::types::Words64Sequence;
+    use openzeppelin::access::ownable::OwnableComponent;
     use starknet::{ContractAddress, EthAddress, get_caller_address};
+
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+
+    // Ownable Mixin
+    #[abi(embed_v0)]
+    impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
     struct Storage {
+        #[substorage(v0)]
+        ownable: OwnableComponent::Storage,
         initialized: bool,
-        l1_messages_origin: ContractAddress,
+        // l1_messages_origin: ContractAddress,
         latest_l1_block: u64,
         block_parent_hash: LegacyMap::<u64, u256>,
         block_state_root: LegacyMap::<u64, u256>,
@@ -41,6 +52,16 @@ pub mod L1HeaderStore {
         block_base_fee: LegacyMap::<u64, u64>,
         block_timestamp: LegacyMap::<u64, u64>,
         block_gas_used: LegacyMap::<u64, u64>,
+    }
+
+    // *************************************************************************
+    //                             EVENTS
+    // *************************************************************************
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        OwnableEvent: OwnableComponent::Event
     }
 
     // *************************************************************************
@@ -56,7 +77,8 @@ pub mod L1HeaderStore {
         fn initialize(ref self: ContractState, l1_messages_origin: starknet::ContractAddress) {
             assert!(self.initialized.read() == false, "L1HeaderStore: already initialized");
             self.initialized.write(true);
-            self.l1_messages_origin.write(l1_messages_origin);
+            self.ownable.initializer(l1_messages_origin);
+        // self.l1_messages_origin.write(l1_messages_origin);
         }
 
         /// Receives `block_number` and `parent_hash` from L1 Message Proxy for processing.
@@ -69,10 +91,11 @@ pub mod L1HeaderStore {
         /// Inserts both into the `block_parent_hash` storage
         /// Updates the `latest_l1_block` storage with `block_number` if it's the latest.
         fn receive_from_l1(ref self: ContractState, parent_hash: u256, block_number: u64) {
-            assert!(
-                get_caller_address() == self.l1_messages_origin.read(),
-                "L1HeaderStore: unauthorized caller"
-            );
+            self.ownable.assert_only_owner();
+            // assert!(
+            //     get_caller_address() == self.l1_messages_origin.read(),
+            //     "L1HeaderStore: unauthorized caller"
+            // );
             self.block_parent_hash.write(block_number, parent_hash);
 
             if self.latest_l1_block.read() <= block_number {
