@@ -78,7 +78,6 @@ pub mod L1HeaderStore {
             assert!(self.initialized.read() == false, "L1HeaderStore: already initialized");
             self.initialized.write(true);
             self.ownable.initializer(l1_messages_origin);
-        // self.l1_messages_origin.write(l1_messages_origin);
         }
 
         /// Receives `block_number` and `parent_hash` from L1 Message Proxy for processing.
@@ -92,10 +91,6 @@ pub mod L1HeaderStore {
         /// Updates the `latest_l1_block` storage with `block_number` if it's the latest.
         fn receive_from_l1(ref self: ContractState, parent_hash: u256, block_number: u64) {
             self.ownable.assert_only_owner();
-            // assert!(
-            //     get_caller_address() == self.l1_messages_origin.read(),
-            //     "L1HeaderStore: unauthorized caller"
-            // );
             self.block_parent_hash.write(block_number, parent_hash);
 
             if self.latest_l1_block.read() <= block_number {
