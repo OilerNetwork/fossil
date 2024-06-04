@@ -8,7 +8,7 @@ deploy_contract() {
     echo "Deploying contract for $contract_name with class hash $class_hash..."
     
     # Run the deployment command and capture the output
-    output=$(starkli deploy "$class_hash" -w)
+    output=$(starkli deploy "$class_hash" --salt 0x1 -w)
 
     echo "$contract_name: $output" >> katana/deployed-contracts.txt
     echo "Deployment address for $contract_name saved to deployed-contracts.txt"
