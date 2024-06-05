@@ -3,7 +3,7 @@ use starknet::{EthAddress, ContractAddress};
 
 #[starknet::interface]
 pub trait IL1HeadersStore<TState> {
-    fn initialize(ref self: TState, l1_messages_origin: ContractAddress);
+    fn initialize(ref self: TState, l1_messages_origin: ContractAddress, admin: ContractAddress);
     fn receive_from_l1(ref self: TState, parent_hash: u256, block_number: u64);
     fn process_block(
         ref self: TState,

@@ -117,6 +117,7 @@ fn process_block_success_uncle_hash_test() {
     start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.receive_from_l1(parent_hash_block_next, block.number + 1);
 
+    start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.process_block(ProcessBlockOptions::UncleHash, block.number, len, rlp);
 
     let uncle_hash: u256 = dsp.store.get_uncles_hash(block.number); // u256
@@ -135,6 +136,7 @@ fn process_block_success_beneficiary_test() {
     start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.receive_from_l1(parent_hash_block_next, block.number + 1);
 
+    start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.process_block(ProcessBlockOptions::Beneficiary, block.number, len, rlp);
 
     let beneficiary: EthAddress = dsp.store.get_beneficiary(block.number);
@@ -155,6 +157,7 @@ fn process_block_success_state_root_test() {
     start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.receive_from_l1(parent_hash_block_next, block.number + 1);
 
+    start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.process_block(ProcessBlockOptions::StateRoot, block.number, len, rlp);
 
     let state_root: u256 = dsp.store.get_state_root(block.number);
@@ -173,6 +176,7 @@ fn process_block_success_transactions_root_test() {
     start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.receive_from_l1(parent_hash_block_next, block.number + 1);
 
+    start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.process_block(ProcessBlockOptions::TxRoot, block.number, len, rlp);
 
     let transactions_root: u256 = dsp.store.get_transactions_root(block.number);
@@ -193,6 +197,7 @@ fn process_block_success_receipts_root_test() {
     start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.receive_from_l1(parent_hash_block_next, block.number + 1);
 
+    start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.process_block(ProcessBlockOptions::ReceiptRoot, block.number, len, rlp);
 
     let receipts_root: u256 = dsp.store.get_receipts_root(block.number);
@@ -211,6 +216,7 @@ fn process_block_success_difficulty_test() {
     start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.receive_from_l1(parent_hash_block_next, block.number + 1);
 
+    start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.process_block(ProcessBlockOptions::Difficulty, block.number, len, rlp);
 
     let difficulty: u64 = dsp.store.get_difficulty(block.number);
@@ -229,6 +235,7 @@ fn process_block_gas_used_test() {
     start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.receive_from_l1(parent_hash_block_next, block.number + 1);
 
+    start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.process_block(ProcessBlockOptions::GasUsed, block.number, len, rlp);
 
     let gas_used: u64 = dsp.store.get_gas_used(block.number);
@@ -247,6 +254,7 @@ fn process_block_success_timestamp_test() {
     start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.receive_from_l1(parent_hash_block_next, block.number + 1);
 
+    start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.process_block(ProcessBlockOptions::TimeStamp, block.number, len, rlp);
 
     let timestamp: u64 = dsp.store.get_timestamp(block.number);
@@ -265,6 +273,7 @@ fn process_block_success_base_fee_test() {
     start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.receive_from_l1(parent_hash_block_next, block.number + 1);
 
+    start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.process_block(ProcessBlockOptions::BaseFee, block.number, len, rlp);
 
     let base_fee: u64 = dsp.store.get_base_fee(block.number);
@@ -279,6 +288,7 @@ fn process_block_cannot_validate_header_rlp_test() {
     let block = proofs::blocks::BLOCK_0();
     let (rlp, len) = rlp::RLP_0();
 
+    start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.process_block(ProcessBlockOptions::TimeStamp, block.number, len, rlp);
 
     assert!(false)
@@ -302,6 +312,7 @@ fn process_till_block_success_test() {
     start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.receive_from_l1(parent_hash_block_1_next, block_1.number + 1);
 
+    start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp
         .store
         .process_till_block(
@@ -329,6 +340,7 @@ fn process_till_block_fail_wrong_block_headers_length_test() {
     start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.receive_from_l1(parent_hash_block_next, block_0.number + 1);
 
+    start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp
         .store
         .process_till_block(
@@ -350,6 +362,7 @@ fn process_till_block_fail_wrong_block_headers_test() {
     start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp.store.receive_from_l1(parent_hash_block_next, block_0.number + 1);
 
+    start_cheat_caller_address(dsp.store.contract_address, dsp.proxy.contract_address);
     dsp
         .store
         .process_till_block(
