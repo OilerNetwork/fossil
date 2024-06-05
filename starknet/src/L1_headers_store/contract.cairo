@@ -28,6 +28,7 @@ pub mod L1HeaderStore {
     use starknet::{ContractAddress, EthAddress, get_caller_address, ClassHash};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: upgradeableEvent);
 
     // Ownable Mixin
     #[abi(embed_v0)]
@@ -35,7 +36,6 @@ pub mod L1HeaderStore {
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     // Upgradeable 
-    #[abi(embed_v0)]
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     // *************************************************************************
@@ -406,7 +406,7 @@ pub mod L1HeaderStore {
         }
     }
 
-    #[abi(embed_v0)]
+    #[external(v0)]
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         /// Upgrades the contract class hash to `new_class_hash`.
         /// This may only be called by the contract owner.
