@@ -2,17 +2,26 @@
 
 #[starknet::contract]
 pub mod L1MessagesProxy {
-    // *************************************************************************
-    //                               IMPORTS
-    // *************************************************************************
     // Local imports.
     use fossil::L1_headers_store::interface::{
         IL1HeadersStoreDispatcher, IL1HeadersStoreDispatcherTrait
     };
     use fossil::L1_messages_proxy::interface::IL1MessagesProxy;
     use fossil::library::words64_utils::words64_to_u256;
+    use openzeppelin::access::ownable::OwnableComponent;
+    // *************************************************************************
+    //                               IMPORTS
+    // *************************************************************************
     // Core lib imports   
     use starknet::{ContractAddress, EthAddress};
+
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+
+    // Ownable Mixin
+    #[abi(embed_v0)]
+    impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+
     /// Struct to receive message (parentHash_, blockNumber_) from L1.
     #[derive(Drop, Serde)]
     struct L1Payload {
@@ -28,9 +37,21 @@ pub mod L1MessagesProxy {
     // *************************************************************************
     #[storage]
     struct Storage {
+        #[substorage(v0)]
+        ownable: OwnableComponent::Storage,
         initialized: bool,
         l1_messages_sender: EthAddress,
         l1_headers_store: IL1HeadersStoreDispatcher,
+    }
+
+    // *************************************************************************
+    //                             EVENTS
+    // *************************************************************************
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        OwnableEvent: OwnableComponent::Event
     }
 
     // *************************************************************************
@@ -79,7 +100,7 @@ pub mod L1MessagesProxy {
             ref self: ContractState,
             l1_messages_sender: EthAddress,
             l1_headers_store_address: starknet::ContractAddress,
-            owner: starknet::ContractAddress,
+            owner: starknet::ContractAddress
         ) {
             assert!(!self.get_initialized(), "L1MessagesProxy: already initialized");
             self.initialized.write(true);
@@ -87,6 +108,7 @@ pub mod L1MessagesProxy {
             self
                 .l1_headers_store
                 .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_address });
+            self.ownable.initializer(owner);
         }
 
         /// Change contract address.
@@ -99,6 +121,7 @@ pub mod L1MessagesProxy {
             l1_messages_sender: EthAddress,
             l1_headers_store_address: starknet::ContractAddress
         ) {
+            self.ownable.assert_only_owner();
             self.l1_messages_sender.write(l1_messages_sender);
             self
                 .l1_headers_store
