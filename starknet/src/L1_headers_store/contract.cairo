@@ -40,6 +40,7 @@ pub mod L1HeaderStore {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
         initialized: bool,
+        l1_messages_origin: ContractAddress,
         latest_l1_block: u64,
         block_parent_hash: LegacyMap::<u64, u256>,
         block_state_root: LegacyMap::<u64, u256>,
@@ -73,10 +74,15 @@ pub mod L1HeaderStore {
         /// 
         /// # Arguments
         /// * `l1_messages_origin` - The address of L1 Message Proxy.
-        fn initialize(ref self: ContractState, l1_messages_origin: starknet::ContractAddress) {
+        fn initialize(
+            ref self: ContractState,
+            l1_messages_origin: starknet::ContractAddress,
+            admin: starknet::ContractAddress
+        ) {
             assert!(self.initialized.read() == false, "L1HeaderStore: already initialized");
             self.initialized.write(true);
-            self.ownable.initializer(l1_messages_origin);
+            self.l1_messages_origin.write(l1_messages_origin);
+            self.ownable.initializer(admin);
         }
 
         /// Receives `block_number` and `parent_hash` from L1 Message Proxy for processing.
@@ -89,7 +95,10 @@ pub mod L1HeaderStore {
         /// Inserts both into the `block_parent_hash` storage
         /// Updates the `latest_l1_block` storage with `block_number` if it's the latest.
         fn receive_from_l1(ref self: ContractState, parent_hash: u256, block_number: u64) {
-            self.ownable.assert_only_owner();
+            assert!(
+                get_caller_address() == self.l1_messages_origin.read(),
+                "L1HeaderStore: unauthorized caller"
+            );
             self.block_parent_hash.write(block_number, parent_hash);
 
             if self.latest_l1_block.read() <= block_number {
