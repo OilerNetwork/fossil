@@ -39,7 +39,7 @@ pub fn setup() -> Dispatchers {
     let proxy = IL1MessagesProxyDispatcher { contract_address };
 
     registry.initialize(store.contract_address);
-    store.initialize(proxy.contract_address);
+    store.initialize(proxy.contract_address, proxy.contract_address);
     proxy.initialize(L1_ORIGIN(), store.contract_address, OWNER());
 
     Dispatchers { registry, store, proxy }

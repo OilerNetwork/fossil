@@ -22,12 +22,23 @@ pub mod L1HeaderStore {
     use fossil::library::words64_utils::words64_to_u256;
     use fossil::types::ProcessBlockOptions;
     use fossil::types::Words64Sequence;
+    use openzeppelin::access::ownable::OwnableComponent;
     use starknet::{ContractAddress, EthAddress, get_caller_address};
+
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+
+    // Ownable Mixin
+    #[abi(embed_v0)]
+    impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
     struct Storage {
+        #[substorage(v0)]
+        ownable: OwnableComponent::Storage,
         initialized: bool,
         l1_messages_origin: ContractAddress,
         latest_l1_block: u64,
@@ -44,6 +55,16 @@ pub mod L1HeaderStore {
     }
 
     // *************************************************************************
+    //                             EVENTS
+    // *************************************************************************
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        OwnableEvent: OwnableComponent::Event
+    }
+
+    // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     // Implementation of IL1HeadersStore interface
@@ -53,10 +74,15 @@ pub mod L1HeaderStore {
         /// 
         /// # Arguments
         /// * `l1_messages_origin` - The address of L1 Message Proxy.
-        fn initialize(ref self: ContractState, l1_messages_origin: starknet::ContractAddress) {
+        fn initialize(
+            ref self: ContractState,
+            l1_messages_origin: starknet::ContractAddress,
+            admin: starknet::ContractAddress
+        ) {
             assert!(self.initialized.read() == false, "L1HeaderStore: already initialized");
             self.initialized.write(true);
             self.l1_messages_origin.write(l1_messages_origin);
+            self.ownable.initializer(admin);
         }
 
         /// Receives `block_number` and `parent_hash` from L1 Message Proxy for processing.
@@ -113,6 +139,7 @@ pub mod L1HeaderStore {
             block_header_rlp_bytes_len: usize,
             block_header_rlp: Array<u64>,
         ) {
+            self.ownable.assert_only_owner();
             let child_block_parent_hash = self.get_parent_hash(block_number + 1);
 
             let (block_header_rlp, _) = self
@@ -192,6 +219,7 @@ pub mod L1HeaderStore {
             block_header_concat: Array<usize>,
             block_header_words: Array<Array<u64>>,
         ) {
+            self.ownable.assert_only_owner();
             assert!(
                 block_header_concat.len() == block_header_words.len(),
                 "L1HeaderStore: block_header_bytes and block_header_words must have the same length"
