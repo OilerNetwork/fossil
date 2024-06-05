@@ -40,7 +40,6 @@ pub mod L1HeaderStore {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
         initialized: bool,
-        // l1_messages_origin: ContractAddress,
         latest_l1_block: u64,
         block_parent_hash: LegacyMap::<u64, u256>,
         block_state_root: LegacyMap::<u64, u256>,
@@ -131,6 +130,7 @@ pub mod L1HeaderStore {
             block_header_rlp_bytes_len: usize,
             block_header_rlp: Array<u64>,
         ) {
+            self.ownable.assert_only_owner();
             let child_block_parent_hash = self.get_parent_hash(block_number + 1);
 
             let (block_header_rlp, _) = self
@@ -210,6 +210,7 @@ pub mod L1HeaderStore {
             block_header_concat: Array<usize>,
             block_header_words: Array<Array<u64>>,
         ) {
+            self.ownable.assert_only_owner();
             assert!(
                 block_header_concat.len() == block_header_words.len(),
                 "L1HeaderStore: block_header_bytes and block_header_words must have the same length"
