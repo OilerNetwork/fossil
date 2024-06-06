@@ -11,12 +11,16 @@ use fossil::fact_registry::{
 use snforge_std::{declare, ContractClassTrait};
 
 
-fn L1_ORIGIN() -> starknet::EthAddress {
+pub fn L1_ORIGIN() -> starknet::EthAddress {
     'L1_messege_origin'.try_into().unwrap()
 }
 
 pub fn OWNER() -> starknet::ContractAddress {
     starknet::contract_address_const::<'OWNER'>()
+}
+
+pub fn OWNER2() -> starknet::ContractAddress {
+    starknet::contract_address_const::<'OWNER2'>()
 }
 
 pub fn ADMIN() -> starknet::ContractAddress {
@@ -45,7 +49,7 @@ pub fn setup() -> Dispatchers {
     let store = IL1HeadersStoreDispatcher { contract_address: contract_address_header_store };
 
     let contract_factory = declare("FactRegistry").unwrap();
-    let mut constructor_calldata = array![store.contract_address.into()];
+    let mut constructor_calldata = array![store.contract_address.into(), OWNER2().into()];
     let (contract_address_factory, _) = contract_factory.deploy(@constructor_calldata).unwrap();
     let registry = IFactRegistryDispatcher { contract_address: contract_address_factory };
 

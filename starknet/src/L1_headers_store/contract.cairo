@@ -122,6 +122,17 @@ pub mod L1HeaderStore {
             }
         }
 
+        /// Change L1 Message Proxy address. (Only Owner)
+        /// 
+        /// # Arguments
+        /// * `l1_messages_origin` - The address of L1 Message Proxy.
+        fn change_l1_messages_origin(
+            ref self: ContractState, l1_messages_origin: starknet::ContractAddress
+        ) {
+            self.ownable.assert_only_owner();
+            self.l1_messages_origin.write(l1_messages_origin);
+        }
+
         fn store_state_root(ref self: ContractState, block_number: u64, state_root: u256) {
             self.ownable.assert_only_owner();
 

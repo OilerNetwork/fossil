@@ -71,11 +71,16 @@ pub mod FactRegistry {
     /// # Arguments
     /// * `l1_headers_store_addr` - The address of L1 Header Store contract.
     #[constructor]
-    fn constructor(ref self: ContractState, l1_headers_store_addr: starknet::ContractAddress) {
+    fn constructor(
+        ref self: ContractState,
+        l1_headers_store_addr: starknet::ContractAddress,
+        owner: starknet::ContractAddress
+    ) {
         self.initialized.write(true);
         self
             .l1_headers_store
             .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_addr });
+        self.ownable.initializer(owner);
     }
 
     // *************************************************************************
