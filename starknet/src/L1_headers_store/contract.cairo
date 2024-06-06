@@ -19,13 +19,13 @@ pub mod L1HeaderStore {
     use fossil::types::ProcessBlockOptions;
     use fossil::types::Words64Sequence;
     use openzeppelin::access::ownable::OwnableComponent;
-    use openzeppelin::upgrades::UpgradeableComponent;
-    use openzeppelin::upgrades::interface::IUpgradeable;
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
     // Core lib imports 
     use openzeppelin::access::ownable::ownable::OwnableComponent::InternalTrait;
+    use openzeppelin::upgrades::UpgradeableComponent;
+    use openzeppelin::upgrades::interface::IUpgradeable;
     use starknet::{ContractAddress, EthAddress, get_caller_address, ClassHash};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
