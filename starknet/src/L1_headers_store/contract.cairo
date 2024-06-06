@@ -118,7 +118,7 @@ pub mod L1HeaderStore {
         }
 
         fn store_many_state_roots(
-            ref self: ContractState, start_block: u64, end_block: u64, mut state_roots: Array<u256>
+            ref self: ContractState, start_block: u64, end_block: u64, state_roots: Array<u256>
         ) {
             self.ownable.assert_only_owner();
 
@@ -128,9 +128,12 @@ pub mod L1HeaderStore {
             );
 
             let mut start = start_block;
+            let mut index = 0;
 
             while start <= end_block {
-                self.store_state_root(start, state_roots.pop_front().unwrap());
+                self.store_state_root(start, *state_roots.at(index));
+                start += 1;
+                index += 1;
             };
         }
 

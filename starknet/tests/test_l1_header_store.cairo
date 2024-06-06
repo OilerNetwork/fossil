@@ -35,6 +35,24 @@ fn test_store_state_root() {
 }
 
 #[test]
+fn test_store_many_state_root() {
+    let dsp = setup();
+
+    let state_roots: Array<u256> = array![
+        0x1e7f7, 0x3e497, 0x4e7f7, 0x5e7f7, 0x6e7f7, 0x7e7f7, 0x8e7f7, 0x9e7f7, 0x10e7f7, 0x11e7f7
+    ];
+    let start_block = 1;
+    let end_block = 10;
+
+    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    dsp.store.store_many_state_roots(start_block, end_block, state_roots);
+
+    assert_eq!(dsp.store.get_state_root(1), 0x1e7f7);
+    assert_eq!(dsp.store.get_state_root(5), 0x6e7f7);
+    assert_eq!(dsp.store.get_state_root(10), 0x11e7f7);
+}
+
+#[test]
 fn get_initialized_test() {
     assert!(true)
 }
