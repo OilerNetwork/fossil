@@ -66,6 +66,7 @@ pub mod L1MessagesProxy {
     fn constructor(
         ref self: ContractState, l1_messages_sender: EthAddress, owner: starknet::ContractAddress
     ) {
+        self.initialized.write(true);
         self.l1_messages_sender.write(l1_messages_sender);
         self.ownable.initializer(owner);
     }
@@ -116,15 +117,6 @@ pub mod L1MessagesProxy {
                 .l1_headers_store
                 .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_address });
         }
-
-        /// Retrieves the L1 Header Store address.
-        ///
-        /// # Returns
-        /// * `ContractAddress` - The L1 Header Store address.
-        fn get_l1_headers_store_addr(self: @ContractState) -> ContractAddress {
-            self.l1_headers_store.read().contract_address
-        }
-
 
         /// Change contract address. (Only Owner)
         /// 

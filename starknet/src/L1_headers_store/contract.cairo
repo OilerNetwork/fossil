@@ -80,7 +80,7 @@ pub mod L1HeaderStore {
         admin: starknet::ContractAddress
     ) {
         // assert!(self.initialized.read() == false, "L1HeaderStore: already initialized");
-        // self.initialized.write(true);
+        self.initialized.write(true);
         self.l1_messages_origin.write(l1_messages_origin);
         self.ownable.initializer(admin);
     }

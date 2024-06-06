@@ -8,15 +8,6 @@ use starknet::EthAddress;
 use super::test_utils::{setup, OWNER, ADMIN};
 
 #[test]
-fn get_addr() {
-    let dsp = setup();
-
-    println!("Store : {:?}", dsp.store.contract_address);
-    println!("proxy : {:?}", dsp.proxy.contract_address);
-    println!("registry : {:?}", dsp.registry.contract_address);
-}
-
-#[test]
 fn receive_from_l1_success_test() {
     let dsp = setup();
 

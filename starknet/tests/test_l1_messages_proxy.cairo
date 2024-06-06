@@ -7,15 +7,15 @@ use super::test_utils::{setup, OWNER, ADMIN};
 fn set_l1_headers_store_test_success() {
     let dsp = setup();
 
-    println!("proxy before: {:?}", dsp.proxy.get_l1_headers_store_addr());
-    assert_eq!(dsp.proxy.get_l1_headers_store_addr(), starknet::contract_address_const::<0>());
+    println!("proxy before: {:?}", dsp.proxy.get_l1_headers_store_address());
+    assert_eq!(dsp.proxy.get_l1_headers_store_address(), starknet::contract_address_const::<0>());
 
     start_cheat_caller_address(dsp.proxy.contract_address, OWNER());
     dsp.proxy.set_l1_headers_store(dsp.store.contract_address);
 
-    println!("proxy after: {:?}", dsp.proxy.get_l1_headers_store_addr());
+    println!("proxy after: {:?}", dsp.proxy.get_l1_headers_store_address());
 
-    assert_eq!(dsp.proxy.get_l1_headers_store_addr(), dsp.store.contract_address);
+    assert_eq!(dsp.proxy.get_l1_headers_store_address(), dsp.store.contract_address);
 }
 
 #[test]
