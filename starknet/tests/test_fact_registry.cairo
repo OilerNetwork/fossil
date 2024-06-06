@@ -5,14 +5,17 @@ use fossil::{
     L1_headers_store::interface::IL1HeadersStoreDispatcherTrait,
     fact_registry::interface::IFactRegistryDispatcherTrait
 };
-use super::test_utils::setup;
+use snforge_std::start_cheat_caller_address;
+use super::test_utils::{setup, OWNER};
 
 #[test]
 fn prove_account_test_success_code_hash() {
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_3();
-    dsp.store.set_state_root(block.number, block.state_root);
+
+    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
 
@@ -29,7 +32,9 @@ fn prove_account_test_success_balance() {
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_3();
-    dsp.store.set_state_root(block.number, block.state_root);
+
+    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
 
@@ -46,7 +51,9 @@ fn prove_account_test_success_nonce() {
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_3();
-    dsp.store.set_state_root(block.number, block.state_root);
+
+    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
 
@@ -63,7 +70,9 @@ fn prove_account_test_success_storage_hash() {
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_3();
-    dsp.store.set_state_root(block.number, block.state_root);
+
+    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
 
@@ -82,7 +91,9 @@ fn prove_account_test_success_save_all() {
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_3();
-    dsp.store.set_state_root(block.number, block.state_root);
+
+    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
 
@@ -120,7 +131,9 @@ fn get_storage_test_success_with_some_data() {
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_3();
-    dsp.store.set_state_root(block.number, block.state_root);
+
+    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    dsp.store.store_state_root(block.number, block.state_root);
 
     let account_proof = proofs::account::PROOF_1();
 
@@ -153,7 +166,9 @@ fn get_storage_test_success_with_no_data() {
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_3();
-    dsp.store.set_state_root(block.number, block.state_root);
+
+    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    dsp.store.store_state_root(block.number, block.state_root);
 
     let account_proof = proofs::account::PROOF_1();
 
@@ -208,7 +223,9 @@ fn get_storage_uint_test_success_test() {
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_3();
-    dsp.store.set_state_root(block.number, block.state_root);
+
+    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    dsp.store.store_state_root(block.number, block.state_root);
 
     let account_proof = proofs::account::PROOF_1();
 
@@ -241,7 +258,9 @@ fn get_storage_uint_test_success_no_data() {
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_3();
-    dsp.store.set_state_root(block.number, block.state_root);
+
+    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    dsp.store.store_state_root(block.number, block.state_root);
 
     let account_proof = proofs::account::PROOF_1();
 

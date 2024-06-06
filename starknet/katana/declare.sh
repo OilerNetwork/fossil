@@ -8,7 +8,7 @@ declare_contract() {
     echo "Declaring Cairo 1 class for $contract_name..."
     
     # Run the command and capture the output
-    output=$(starkli declare "$contract_file" -w --compiler-version 2.6.2)
+    output=$(starkli declare "$contract_file"  -w --compiler-version 2.6.2)
 
     echo "$contract_name: $output" >> katana/declared-classes.txt
     echo "Class hash for $contract_name saved to declared-classes.txt"
