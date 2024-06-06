@@ -1,3 +1,11 @@
+/// This function compares two `usize` values and returns the smaller of the two.
+///
+/// # Arguments
+/// * `a` - The first value to compare.
+/// * `b` - The second value to compare.
+///
+/// # Returns
+/// * `usize`: The minimum of two `usize` values.
 fn min(a: usize, b: usize) -> usize {
     if a < b {
         return a;
@@ -7,8 +15,11 @@ fn min(a: usize, b: usize) -> usize {
 
 /// Raise a number to a power.
 /// O(log n) time complexity.
+/// 
+/// # Arguments
 /// * `base` - The number to raise.
 /// * `exp` - The exponent.
+/// 
 /// # Returns
 /// * `T` - The result of base raised to the power of exp.
 pub fn pow<T, +Sub<T>, +Mul<T>, +Div<T>, +Rem<T>, +PartialEq<T>, +Into<u8, T>, +Drop<T>, +Copy<T>>(

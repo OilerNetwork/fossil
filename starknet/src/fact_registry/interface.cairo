@@ -15,24 +15,18 @@ pub trait IFactRegistry<TState> {
         proof_sizes_bytes: Array<usize>,
         proofs_concat: Array<u64>,
     );
+    fn prove_storage(
+        ref self: TState,
+        block: u64,
+        account: starknet::EthAddress,
+        slot: u256,
+        proof_sizes_bytes: Array<usize>,
+        proofs_concat: Array<u64>,
+    ) -> Option<u256>;
+
     fn get_storage(
-        ref self: TState,
-        block: u64,
-        account: starknet::EthAddress,
-        slot: u256,
-        proof_sizes_bytes: Array<usize>,
-        proofs_concat: Array<u64>,
-    ) -> Words64Sequence;
-    fn get_storage_uint(
-        ref self: TState,
-        block: u64,
-        account: starknet::EthAddress,
-        slot: u256,
-        proof_sizes_bytes: Array<usize>,
-        proofs_concat: Array<u64>,
-    ) -> u256;
-
-
+        ref self: TState, block: u64, account: starknet::EthAddress, slot: u256,
+    ) -> Option<u256>;
     fn get_initialized(self: @TState) -> bool;
     fn get_l1_headers_store_addr(self: @TState) -> starknet::ContractAddress;
     fn get_verified_account_storage_hash(

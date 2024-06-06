@@ -1,9 +1,25 @@
+//! Library for RLP Util.
+
+// *************************************************************************
+//                                  IMPORTS
+// *************************************************************************
 use core::integer::u64_safe_divmod;
 use fossil::library::{bitshift::BitShift, math_utils::pow};
 use fossil::types::{Words64Sequence, RLPItem};
 // use alexandria_math::{BitShift, fast_power::fast_power};
 const TWO_POW_64_MIN_ONE: u128 = 18446744073709551615;
 
+/// Converts a `Words64Sequence` representing an RLP (Recursive Length Prefix) encoded data into an array of `RLPItem` structs.
+///
+/// # Arguments
+/// * `rlp` - The `Words64Sequence` representing the RLP-encoded data.
+///
+/// # Returns
+/// * `Array<RLPItem>` - The `RLPItem` structs representing the individual RLP elements within the input sequence.
+///
+/// This function takes a `Words64Sequence` as input, which is expected to be an RLP-encoded data structure.
+/// It iterates over the RLP elements within the input sequence and constructs an array of `RLPItem` structs,
+/// each representing a single RLP element.
 pub fn to_rlp_array(rlp: Words64Sequence) -> Array<RLPItem> {
     let mut rlp_array = array![];
     let element = get_element(rlp, 0);
@@ -20,6 +36,17 @@ pub fn to_rlp_array(rlp: Words64Sequence) -> Array<RLPItem> {
     rlp_array
 }
 
+/// Extracts an RLP (Recursive Length Prefix) element from a `Words64Sequence` at a given position.
+///
+/// # Arguments
+/// * `rlp` - The `Words64Sequence` representing the RLP-encoded data.
+/// * `position` - The position (index) within the `Words64Sequence` where the desired RLP element is located.
+///
+/// # Returns
+/// * `Words64Sequence` - The extracted RLP element data.
+///
+/// This function takes a `Words64Sequence` representing an RLP-encoded data structure and a position within that sequence.
+/// It extracts the RLP element located at the specified position and returns it as a new `Words64Sequence`.
 pub fn extract_element(rlp: Words64Sequence, position: usize) -> Words64Sequence {
     let element = get_element(rlp, position);
     let position = element.position;
@@ -32,6 +59,18 @@ pub fn extract_element(rlp: Words64Sequence, position: usize) -> Words64Sequence
     extract_data(rlp, position, length)
 }
 
+/// Helper function to parse the RLP element header and determine the position and length of an RLP element.
+///
+/// # Arguments
+/// * `rlp` - The `Words64Sequence` representing the RLP-encoded data.
+/// * `position` - The position (index) within the `Words64Sequence` where the desired RLP element is located.
+///
+/// # Returns
+/// * `RLPItem` - The position, length, and first byte of the RLP element.
+///
+/// This function takes a `Words64Sequence` representing an RLP-encoded data structure and a position within that sequence.
+/// It parses the RLP element header at the specified position and returns an `RLPItem` struct containing the position,
+/// length, and first byte of the element.
 fn get_element(rlp: Words64Sequence, position: usize) -> RLPItem {
     let first_byte = *extract_data(rlp, position, 1).values.at(0);
 
@@ -66,6 +105,15 @@ fn get_element(rlp: Words64Sequence, position: usize) -> RLPItem {
 }
 
 // TODO: recheck this function against cairo 0 implementation to make sure it's correct
+/// Extracts a sequence of bytes from a `Words64Sequence` representing an RLP-encoded data structure.
+///
+/// # Arguments
+/// * `rlp` - The `Words64Sequence` containing the RLP-encoded data.
+/// * `start` - The starting position (index) within the `Words64Sequence` from which to extract the bytes.
+/// * `size` - The number of bytes to be extracted.
+///
+/// # Returns
+/// * `Words64Sequence` - The new sequence containing the extracted bytes.
 pub fn extract_data(rlp: Words64Sequence, start: usize, size: u64) -> Words64Sequence {
     let (start_word, left_shift) = u64_safe_divmod(start.into(), 8);
     let (mut end_word, mut end_pos) = u64_safe_divmod(start.into() + size, 8);
@@ -174,6 +222,17 @@ pub fn extract_data(rlp: Words64Sequence, start: usize, size: u64) -> Words64Seq
     res
 }
 
+/// Checks if an `RLPItem` represents an RLP list or a single value.
+///
+/// # Arguments
+/// * `item` - The `RLPItem` struct to be checked.
+///
+/// # Returns
+/// * `bool` - The value indicating whether the `RLPItem` represents an RLP list or not.
+/// 
+/// In the RLP (Recursive Length Prefix) encoding scheme, the first byte of an RLP item indicates
+/// the type and length of the item. If the first byte is greater than or equal to 192 (0xC0 in hexadecimal),
+/// the item is considered an RLP list. Otherwise, it is a single value.
 pub fn is_rlp_item(item: RLPItem) -> bool {
     let first_byte = item.first_byte;
     first_byte >= 192

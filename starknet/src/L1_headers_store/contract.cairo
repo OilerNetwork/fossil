@@ -3,10 +3,6 @@
 
 #[starknet::contract]
 pub mod L1HeaderStore {
-    // *************************************************************************
-    //                               IMPORTS
-    // *************************************************************************
-    // Core lib imports 
     use core::array::ArrayTrait;
     use core::clone::Clone;
     use core::traits::Into;
@@ -23,9 +19,12 @@ pub mod L1HeaderStore {
     use fossil::types::ProcessBlockOptions;
     use fossil::types::Words64Sequence;
     use openzeppelin::access::ownable::OwnableComponent;
-    use openzeppelin::upgrades::UpgradeableComponent;
-    use openzeppelin::upgrades::interface::IUpgradeable;
-    use starknet::{ContractAddress, EthAddress, get_caller_address, ClassHash};
+    // *************************************************************************
+    //                               IMPORTS
+    // *************************************************************************
+    // Core lib imports 
+    use openzeppelin::access::ownable::ownable::OwnableComponent::InternalTrait;
+    use starknet::{ContractAddress, EthAddress, get_caller_address};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: UpgradeableComponent, storage: upgradeable, event: upgradeableEvent);
@@ -116,153 +115,36 @@ pub mod L1HeaderStore {
             }
         }
 
-        /// Processes a block by validating its RLP-encoded header `block_header_rlp` and save the relevant fields into the contract storage.
-        /// 
-        /// # Arguments
-        /// * `option` - An Enum `option` which specifies which field of the block header to decode and store.
-        /// * `block_number` - The block number of the child block.
-        /// * `block_header_rlp_bytes_len` - The length of the RLP-encoded block header.
-        /// * `block_header_rlp` - The RLP-encoded block header.
-        /// 
-        /// This function validates the `block_header_rlp` provided,
-        /// decodes and stores each field in the block header
-        /// starting with the `parent_hash` and fields specified in the `ProcessBlockOptions` Enum
-        ///
-        /// # Processing Options
-        /// The `ProcessBlockOptions` enum specifies the field to be decoded and stored:
-        /// * `UncleHash`: Decodes and stores the uncle hash.
-        /// * `Beneficiary`: Decodes and stores the beneficiary address.
-        /// * `StateRoot`: Decodes and stores the state root.
-        /// * `TxRoot`: Decodes and stores the transactions root.
-        /// * `ReceiptRoot`: Decodes and stores the receipts root.
-        /// * `Difficulty`: Decodes and stores the difficulty.
-        /// * `GasUsed`: Decodes and stores the gas used.
-        /// * `TimeStamp`: Decodes and stores the timestamp.
-        /// * `BaseFee`: Decodes and stores the base fee.
-        /// 
-        /// # Panics
-        /// This function panics if the provided block header is invalid or if any of the decoding operations fail.
-        fn process_block(
-            ref self: ContractState,
-            option: ProcessBlockOptions,
-            block_number: u64,
-            block_header_rlp_bytes_len: usize,
-            block_header_rlp: Array<u64>,
-        ) {
+        fn store_state_root(ref self: ContractState, block_number: u64, state_root: u256) {
             self.ownable.assert_only_owner();
-            let child_block_parent_hash = self.get_parent_hash(block_number + 1);
 
-            let (block_header_rlp, _) = self
-                .validate_provided_header_rlp(
-                    child_block_parent_hash,
-                    block_number,
-                    block_header_rlp_bytes_len,
-                    block_header_rlp
-                );
-
-            let block_rlp = Words64Sequence {
-                values: block_header_rlp.span(), len_bytes: block_header_rlp_bytes_len,
-            };
-            let parent_hash = decode_parent_hash(block_rlp);
-            self.block_parent_hash.write(block_number, parent_hash);
-
-            match option {
-                ProcessBlockOptions::UncleHash => {
-                    let field_value = decode_uncle_hash(block_rlp);
-                    self.block_uncles_hash.write(block_number, field_value);
-                },
-                ProcessBlockOptions::Beneficiary => {
-                    let field_value = decode_beneficiary(block_rlp);
-                    self.block_beneficiary.write(block_number, field_value);
-                },
-                ProcessBlockOptions::StateRoot => {
-                    let field_value = decode_state_root(block_rlp);
-                    self.block_state_root.write(block_number, field_value);
-                },
-                ProcessBlockOptions::TxRoot => {
-                    let field_value = decode_transactions_root(block_rlp);
-                    self.block_transactions_root.write(block_number, field_value);
-                },
-                ProcessBlockOptions::ReceiptRoot => {
-                    let field_value = decode_receipts_root(block_rlp);
-                    self.block_receipts_root.write(block_number, field_value);
-                },
-                ProcessBlockOptions::Difficulty => {
-                    let field_value = decode_difficulty(block_rlp);
-                    self.block_difficulty.write(block_number, field_value);
-                },
-                ProcessBlockOptions::GasUsed => {
-                    let field_value = decode_gas_used(block_rlp);
-                    self.block_gas_used.write(block_number, field_value);
-                },
-                ProcessBlockOptions::TimeStamp => {
-                    let field_value = decode_timestamp(block_rlp);
-                    self.block_timestamp.write(block_number, field_value);
-                },
-                ProcessBlockOptions::BaseFee => {
-                    let field_value = decode_base_fee(block_rlp);
-                    self.block_base_fee.write(block_number, field_value);
-                },
-                _ => {}
-            }
-        }
-
-
-        /// Processes a sequence of blocks by validating their RLP-encoded block headers `block_header_words` and updating the contract state.
-        ///
-        /// # Arguments
-        /// * `options_set` - An Enum `option` which specifies which field of the block header to decode and store for the last block in the sequence.
-        /// * `start_block_number` - The block number from which to start processing.
-        /// * `block_header_concat` - An array of sizes representing the lengths of each block's RLP-encoded header.
-        /// * `block_header_words` - An array of RLP-encoded block headers.
-        ///
-        /// # Panics
-        /// Panics if the lengths of `block_header_concat` and `block_header_words` do not match, or if any of the provided block headers are invalid.
-        /// 
-        /// This function iterates through a series of blocks starting from `start_block_number`, 
-        /// validates each block's RLP-encoded header, and updates the contract state accordingly. 
-        /// For the final block in the sequence, additional processing is done based on the provided `options_set`.
-        fn process_till_block(
-            ref self: ContractState,
-            options_set: ProcessBlockOptions,
-            start_block_number: u64,
-            block_header_concat: Array<usize>,
-            block_header_words: Array<Array<u64>>,
-        ) {
-            self.ownable.assert_only_owner();
             assert!(
-                block_header_concat.len() == block_header_words.len(),
-                "L1HeaderStore: block_header_bytes and block_header_words must have the same length"
+                self.block_state_root.read(block_number) == 0,
+                "L1HeaderStore: state root already exists"
             );
-            let mut parent_hash = self.get_parent_hash(start_block_number + 1);
-
-            let mut current_index: u32 = 0;
-            let mut save_block_number = start_block_number + current_index.into();
-            while current_index < block_header_words
-                .len() {
-                    let (block_header_rlp_bytes, len) = self
-                        .validate_provided_header_rlp(
-                            parent_hash,
-                            save_block_number,
-                            block_header_concat.at(current_index).clone(),
-                            block_header_words.at(current_index).clone(),
-                        );
-
-                    current_index += 1;
-                    save_block_number += 1;
-                    parent_hash = self.get_parent_hash(save_block_number + 1);
-
-                    if current_index == block_header_words.len() {
-                        // Process the last block based on options and header data
-                        self
-                            .process_block(
-                                options_set, save_block_number - 1, len, block_header_rlp_bytes,
-                            );
-                    }
-                };
-
-            self.block_parent_hash.write(save_block_number, parent_hash);
+            self.block_state_root.write(block_number, state_root);
         }
+
+        fn store_many_state_roots(
+            ref self: ContractState, start_block: u64, end_block: u64, state_roots: Array<u256>
+        ) {
+            self.ownable.assert_only_owner();
+
+            assert!(
+                state_roots.len().into() == (end_block - start_block + 1),
+                "L1HeaderStore: invalid state roots length"
+            );
+
+            let mut start = start_block;
+            let mut index = 0;
+
+            while start <= end_block {
+                self.store_state_root(start, *state_roots.at(index));
+                start += 1;
+                index += 1;
+            };
+        }
+
 
         /// Checks if the contract state has been initialized for a specific block number.
         ///
@@ -303,106 +185,6 @@ pub mod L1HeaderStore {
         /// * `u256` - The state root.
         fn get_state_root(self: @ContractState, block_number: u64) -> u256 {
             self.block_state_root.read(block_number)
-        }
-
-        /// Retrieves the transactions root of the specified block number.
-        ///
-        /// # Arguments
-        /// * `block_number` - The block number for which to retrieve the transactions root.
-        ///
-        /// # Returns
-        /// * `u256` - The transactions root.
-        fn get_transactions_root(self: @ContractState, block_number: u64) -> u256 {
-            self.block_transactions_root.read(block_number)
-        }
-
-        /// Retrieves the receipts root of the specified block number.
-        ///
-        /// # Arguments
-        /// * `block_number` - The block number for which to retrieve the receipts root.
-        ///
-        /// # Returns
-        /// * `u256` - The receipts root.
-        fn get_receipts_root(self: @ContractState, block_number: u64) -> u256 {
-            self.block_receipts_root.read(block_number)
-        }
-
-        /// Retrieves the uncles hash of the specified block number.
-        ///
-        /// # Arguments
-        /// * `block_number` - The block number for which to retrieve the uncles hash.
-        ///
-        /// # Returns
-        /// * `u256` - The uncles hash.
-        fn get_uncles_hash(self: @ContractState, block_number: u64) -> u256 {
-            self.block_uncles_hash.read(block_number)
-        }
-
-        /// Retrieves the beneficiary address of the specified block number.
-        ///
-        /// # Arguments
-        /// * `block_number` - The block number for which to retrieve the beneficiary address.
-        ///
-        /// # Returns
-        /// * `starknet::EthAddress` - The beneficiary address .
-        fn get_beneficiary(self: @ContractState, block_number: u64) -> starknet::EthAddress {
-            self.block_beneficiary.read(block_number)
-        }
-
-        /// Retrieves the block difficulty of the specified block number.
-        ///
-        /// # Arguments
-        /// * `block_number` - The block number for which to retrieve the block difficulty.
-        ///
-        /// # Returns
-        /// * `u64` - The block difficulty.
-        fn get_difficulty(self: @ContractState, block_number: u64) -> u64 {
-            self.block_difficulty.read(block_number)
-        }
-
-        /// Retrieves the base fee of the specified block number.
-        ///
-        /// # Arguments
-        /// * `block_number` - The block number for which to retrieve the base fee.
-        ///
-        /// # Returns
-        /// * `u64` - The base fee.
-        fn get_base_fee(self: @ContractState, block_number: u64) -> u64 {
-            self.block_base_fee.read(block_number)
-        }
-
-        /// Retrieves the timestamp of the specified block number.
-        ///
-        /// # Arguments
-        /// * `block_number` - The block number for which to retrieve the timestamp.
-        ///
-        /// # Returns
-        /// * `u64` - The timestamp .
-        fn get_timestamp(self: @ContractState, block_number: u64) -> u64 {
-            self.block_timestamp.read(block_number)
-        }
-
-        /// Retrieves the gas used of the specified block number.
-        ///
-        /// # Arguments
-        /// * `block_number` - The block number for which to retrieve the gas used.
-        ///
-        /// # Returns
-        /// * `u64` - The gas used.
-        fn get_gas_used(self: @ContractState, block_number: u64) -> u64 {
-            self.block_gas_used.read(block_number)
-        }
-
-        /// Sets the state root for the specified block number.
-        ///
-        /// This is a temporary function intended for testing purposes.
-        ///
-        /// # Arguments
-        /// * `block_number` - The block number for which to set the state root.
-        /// * `state_root` - The state root to set.
-        // NOTE: Temporary functions for testing
-        fn set_state_root(ref self: ContractState, block_number: u64, state_root: u256) {
-            self.block_state_root.write(block_number, state_root);
         }
     }
 

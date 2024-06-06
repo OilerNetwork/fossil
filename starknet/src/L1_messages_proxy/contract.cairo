@@ -77,21 +77,18 @@ pub mod L1MessagesProxy {
     /// into a `parent_hash` array and `block_number`, and sends `parent_hash` and
     /// `block_number` to the `header_store`'s `receive_from_l1` function for processing.
     #[l1_handler]
-    fn receive_from_l1(ref self: ContractState, from_address: felt252, data: L1Payload) {
+    fn receive_from_l1(
+        ref self: ContractState, from_address: felt252, pararent_hash: u256, block_number: u256
+    ) {
         assert!(
             from_address == self.get_l1_messages_sender().into(),
             "L1MessagesProxy: unauthorized sender"
         );
-        let pararent_hash: Array<u64> = array![
-            data.hash_word1.try_into().expect('felt_to_u64_fail'),
-            data.hash_word2.try_into().expect('felt_to_u64_fail'),
-            data.hash_word3.try_into().expect('felt_to_u64_fail'),
-            data.hash_word4.try_into().expect('felt_to_u64_fail')
-        ];
-        let block_number: u64 = data.block_number.try_into().expect('felt_to_u64_fail');
+
+        let block_number: u64 = block_number.try_into().expect('felt_to_u64_fail');
 
         let header_store = self.l1_headers_store.read();
-        header_store.receive_from_l1(words64_to_u256(pararent_hash.span()), block_number);
+        header_store.receive_from_l1(pararent_hash, block_number);
     }
 
     // *************************************************************************

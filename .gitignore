@@ -11,3 +11,5 @@ target/
 Scarb.lock
 
 *.txt
+
+pyenv/
