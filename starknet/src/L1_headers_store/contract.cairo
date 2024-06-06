@@ -19,12 +19,14 @@ pub mod L1HeaderStore {
     use fossil::types::ProcessBlockOptions;
     use fossil::types::Words64Sequence;
     use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin::upgrades::UpgradeableComponent;
+    use openzeppelin::upgrades::interface::IUpgradeable;
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
     // Core lib imports 
     use openzeppelin::access::ownable::ownable::OwnableComponent::InternalTrait;
-    use starknet::{ContractAddress, EthAddress, get_caller_address};
+    use starknet::{ContractAddress, EthAddress, get_caller_address, ClassHash};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: UpgradeableComponent, storage: upgradeable, event: upgradeableEvent);
@@ -188,7 +190,7 @@ pub mod L1HeaderStore {
         }
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         /// Upgrades the contract class hash to `new_class_hash`.
         /// This may only be called by the contract owner.

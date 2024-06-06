@@ -160,7 +160,7 @@ pub mod L1MessagesProxy {
         }
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         /// Upgrades the contract class hash to `new_class_hash`.
         /// This may only be called by the contract owner.
