@@ -66,26 +66,31 @@ pub mod L1HeaderStore {
     }
 
     // *************************************************************************
+    //                              CONSTRUCTOR
+    // *************************************************************************
+    /// Contract Constructor.
+    /// 
+    /// # Arguments
+    /// * `l1_messages_origin` - The address of L1 Message Proxy.
+    /// * `admin` - .
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        l1_messages_origin: starknet::ContractAddress,
+        admin: starknet::ContractAddress
+    ) {
+        // assert!(self.initialized.read() == false, "L1HeaderStore: already initialized");
+        // self.initialized.write(true);
+        self.l1_messages_origin.write(l1_messages_origin);
+        self.ownable.initializer(admin);
+    }
+
+    // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     // Implementation of IL1HeadersStore interface
     #[abi(embed_v0)]
     impl L1HeaderStoreImpl of IL1HeadersStore<ContractState> {
-        /// Initialize the contract.
-        /// 
-        /// # Arguments
-        /// * `l1_messages_origin` - The address of L1 Message Proxy.
-        fn initialize(
-            ref self: ContractState,
-            l1_messages_origin: starknet::ContractAddress,
-            admin: starknet::ContractAddress
-        ) {
-            assert!(self.initialized.read() == false, "L1HeaderStore: already initialized");
-            self.initialized.write(true);
-            self.l1_messages_origin.write(l1_messages_origin);
-            self.ownable.initializer(admin);
-        }
-
         /// Receives `block_number` and `parent_hash` from L1 Message Proxy for processing.
         /// 
         /// # Arguments

@@ -34,23 +34,24 @@ pub mod FactRegistry {
     }
 
     // *************************************************************************
+    //                              CONSTRUCTOR
+    // *************************************************************************
+    /// Contract Constructor.
+    /// 
+    /// # Arguments
+    /// * `l1_headers_store_addr` - The address of L1 Header Store contract.
+    #[constructor]
+    fn constructor(ref self: ContractState, l1_headers_store_addr: starknet::ContractAddress) {
+        self
+            .l1_headers_store
+            .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_addr });
+    }
+    // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     // Implementation of IFactRegistry interface
     #[abi(embed_v0)]
     impl FactRegistry of IFactRegistry<ContractState> {
-        /// Initialize the contract.
-        /// 
-        /// # Arguments
-        /// * `l1_headers_store_addr` - The address of L1 Header Store contract.
-        fn initialize(ref self: ContractState, l1_headers_store_addr: starknet::ContractAddress) {
-            assert!(self.initialized.read() == false, "FactRegistry: already initialized");
-            self.initialized.write(true);
-            self
-                .l1_headers_store
-                .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_addr });
-        }
-
         /// Verifies the account information for a given Ethereum address  at a given block using a provided state root proof and stores the verified value.
         ///
         /// # Arguments

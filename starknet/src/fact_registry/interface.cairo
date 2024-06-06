@@ -2,7 +2,6 @@ use fossil::types::{OptionsSet, Words64Sequence};
 
 #[starknet::interface]
 pub trait IFactRegistry<TState> {
-    fn initialize(ref self: TState, l1_headers_store_addr: starknet::ContractAddress);
     fn prove_account(
         ref self: TState,
         option: OptionsSet,

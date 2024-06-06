@@ -55,6 +55,23 @@ pub mod L1MessagesProxy {
     }
 
     // *************************************************************************
+    //                              CONSTRUCTOR
+    // *************************************************************************
+    /// Contract Constructor.
+    /// 
+    /// # Arguments
+    /// * `l1_messages_sender` - The address of the L1 solidity contract.
+    /// * `owner` - The owner address.
+    #[constructor]
+    fn constructor(
+        ref self: ContractState, l1_messages_sender: EthAddress, owner: starknet::ContractAddress
+    ) {
+        self.l1_messages_sender.write(l1_messages_sender);
+        self.ownable.initializer(owner);
+    }
+
+
+    // *************************************************************************
     //                     L1 HANDLER FUNCTION
     // *************************************************************************
     /// Receive `message` from L1 which is deserialized as L1Payload.
@@ -87,28 +104,29 @@ pub mod L1MessagesProxy {
     // Implementation of IL1MessagesProxy interface
     #[abi(embed_v0)]
     impl L1MessagesProxyImpl of IL1MessagesProxy<ContractState> {
-        /// Initialize the contract.
+        /// Set the Header Store Address. (Only Owner)
         /// 
         /// # Arguments
-        /// * `l1_messages_sender` - The address of the L1 solidity contract.
-        /// * `l1_headers_store_address` - The address of the Header Store cairo contract.
-        /// * `owner` - The owner address.
-        fn initialize(
-            ref self: ContractState,
-            l1_messages_sender: EthAddress,
-            l1_headers_store_address: starknet::ContractAddress,
-            owner: starknet::ContractAddress
+        /// * `l1_headers_store_address` - The address of the header store cairo contract.
+        fn set_l1_headers_store(
+            ref self: ContractState, l1_headers_store_address: starknet::ContractAddress
         ) {
-            assert!(!self.get_initialized(), "L1MessagesProxy: already initialized");
-            self.initialized.write(true);
-            self.l1_messages_sender.write(l1_messages_sender);
+            self.ownable.assert_only_owner();
             self
                 .l1_headers_store
                 .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_address });
-            self.ownable.initializer(owner);
         }
 
-        /// Change contract address.
+        /// Retrieves the L1 Header Store address.
+        ///
+        /// # Returns
+        /// * `ContractAddress` - The L1 Header Store address.
+        fn get_l1_headers_store_addr(self: @ContractState) -> ContractAddress {
+            self.l1_headers_store.read().contract_address
+        }
+
+
+        /// Change contract address. (Only Owner)
         /// 
         /// # Arguments
         /// * `l1_messages_sender` - The address of the L1 solidity contract.
