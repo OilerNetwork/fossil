@@ -9,18 +9,24 @@ pub mod L1MessagesProxy {
     use fossil::L1_messages_proxy::interface::IL1MessagesProxy;
     use fossil::library::words64_utils::words64_to_u256;
     use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin::upgrades::UpgradeableComponent;
+    use openzeppelin::upgrades::interface::IUpgradeable;
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
     // Core lib imports   
-    use starknet::{ContractAddress, EthAddress};
+    use starknet::{ContractAddress, EthAddress, ClassHash};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: upgradeableEvent);
 
     // Ownable Mixin
     #[abi(embed_v0)]
     impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+
+    // Upgradeable 
+    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     /// Struct to receive message (parentHash_, blockNumber_) from L1.
     #[derive(Drop, Serde)]
@@ -39,6 +45,8 @@ pub mod L1MessagesProxy {
     struct Storage {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
+        #[substorage(v0)]
+        upgradeable: UpgradeableComponent::Storage,
         initialized: bool,
         l1_messages_sender: EthAddress,
         l1_headers_store: IL1HeadersStoreDispatcher,
@@ -51,7 +59,9 @@ pub mod L1MessagesProxy {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        OwnableEvent: OwnableComponent::Event
+        OwnableEvent: OwnableComponent::Event,
+        #[flat]
+        upgradeableEvent: UpgradeableComponent::Event
     }
 
     // *************************************************************************
@@ -147,6 +157,16 @@ pub mod L1MessagesProxy {
         /// * `ContractAddress` - The address of the L1 header store contract.
         fn get_l1_headers_store_address(self: @ContractState) -> ContractAddress {
             self.l1_headers_store.read().contract_address
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl UpgradeableImpl of IUpgradeable<ContractState> {
+        /// Upgrades the contract class hash to `new_class_hash`.
+        /// This may only be called by the contract owner.
+        fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+            self.ownable.assert_only_owner();
+            self.upgradeable._upgrade(new_class_hash);
         }
     }
 }

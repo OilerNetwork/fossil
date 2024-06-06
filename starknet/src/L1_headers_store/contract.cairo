@@ -24,14 +24,20 @@ pub mod L1HeaderStore {
     // *************************************************************************
     // Core lib imports 
     use openzeppelin::access::ownable::ownable::OwnableComponent::InternalTrait;
-    use starknet::{ContractAddress, EthAddress, get_caller_address};
+    use openzeppelin::upgrades::UpgradeableComponent;
+    use openzeppelin::upgrades::interface::IUpgradeable;
+    use starknet::{ContractAddress, EthAddress, get_caller_address, ClassHash};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: upgradeableEvent);
 
     // Ownable Mixin
     #[abi(embed_v0)]
     impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+
+    // Upgradeable 
+    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     // *************************************************************************
     //                              STORAGE
@@ -40,6 +46,8 @@ pub mod L1HeaderStore {
     struct Storage {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
+        #[substorage(v0)]
+        upgradeable: UpgradeableComponent::Storage,
         initialized: bool,
         l1_messages_origin: ContractAddress,
         latest_l1_block: u64,
@@ -62,7 +70,9 @@ pub mod L1HeaderStore {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        OwnableEvent: OwnableComponent::Event
+        OwnableEvent: OwnableComponent::Event,
+        #[flat]
+        upgradeableEvent: UpgradeableComponent::Event
     }
 
     // *************************************************************************
@@ -177,6 +187,16 @@ pub mod L1HeaderStore {
         /// * `u256` - The state root.
         fn get_state_root(self: @ContractState, block_number: u64) -> u256 {
             self.block_state_root.read(block_number)
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl UpgradeableImpl of IUpgradeable<ContractState> {
+        /// Upgrades the contract class hash to `new_class_hash`.
+        /// This may only be called by the contract owner.
+        fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+            self.ownable.assert_only_owner();
+            self.upgradeable._upgrade(new_class_hash);
         }
     }
 

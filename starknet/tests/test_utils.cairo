@@ -38,7 +38,7 @@ pub fn setup() -> Dispatchers {
     let (contract_address, _) = contract.deploy(@array![]).unwrap();
     let proxy = IL1MessagesProxyDispatcher { contract_address };
 
-    registry.initialize(store.contract_address);
+    registry.initialize(store.contract_address, OWNER());
     store.initialize(proxy.contract_address, OWNER());
     proxy.initialize(L1_ORIGIN(), store.contract_address, OWNER());
 

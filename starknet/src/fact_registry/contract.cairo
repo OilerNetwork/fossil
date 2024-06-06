@@ -17,13 +17,32 @@ pub mod FactRegistry {
         rlp_utils::{to_rlp_array, extract_data, extract_element}, keccak_utils::keccak_words64
     };
     use fossil::types::{OptionsSet, Words64Sequence, RLPItem};
+    use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin::upgrades::UpgradeableComponent;
+    use openzeppelin::upgrades::interface::IUpgradeable;
     // Core lib imports 
-    use starknet::{ContractAddress, EthAddress, contract_address_const};
+    use starknet::{ContractAddress, EthAddress, contract_address_const, ClassHash};
+
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: upgradeableEvent);
+
+    // Ownable Mixin
+    #[abi(embed_v0)]
+    impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+
+    // Upgradeable 
+    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
+
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
     struct Storage {
+        #[substorage(v0)]
+        ownable: OwnableComponent::Storage,
+        #[substorage(v0)]
+        upgradeable: UpgradeableComponent::Storage,
         initialized: bool,
         l1_headers_store: IL1HeadersStoreDispatcher,
         verified_account_storage_hash: LegacyMap::<(EthAddress, u64), u256>,
@@ -31,6 +50,18 @@ pub mod FactRegistry {
         verified_account_balance: LegacyMap::<(EthAddress, u64), u256>,
         verified_account_nonce: LegacyMap::<(EthAddress, u64), u64>,
         verified_storage: LegacyMap::<(EthAddress, u64, u256), (bool, u256)>,
+    }
+
+    // *************************************************************************
+    //                             EVENTS
+    // *************************************************************************
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        OwnableEvent: OwnableComponent::Event,
+        #[flat]
+        upgradeableEvent: UpgradeableComponent::Event
     }
 
     // *************************************************************************
@@ -43,12 +74,17 @@ pub mod FactRegistry {
         /// 
         /// # Arguments
         /// * `l1_headers_store_addr` - The address of L1 Header Store contract.
-        fn initialize(ref self: ContractState, l1_headers_store_addr: starknet::ContractAddress) {
+        fn initialize(
+            ref self: ContractState,
+            l1_headers_store_addr: starknet::ContractAddress,
+            admin: starknet::ContractAddress
+        ) {
             assert!(self.initialized.read() == false, "FactRegistry: already initialized");
             self.initialized.write(true);
             self
                 .l1_headers_store
                 .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_addr });
+            self.ownable.initializer(admin);
         }
 
         /// Verifies the account information for a given Ethereum address  at a given block using a provided state root proof and stores the verified value.
@@ -271,6 +307,16 @@ pub mod FactRegistry {
             self: @ContractState, account: starknet::EthAddress, block: u64
         ) -> u64 {
             self.verified_account_nonce.read((account, block))
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl UpgradeableImpl of IUpgradeable<ContractState> {
+        /// Upgrades the contract class hash to `new_class_hash`.
+        /// This may only be called by the contract owner.
+        fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+            self.ownable.assert_only_owner();
+            self.upgradeable._upgrade(new_class_hash);
         }
     }
 
