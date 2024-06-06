@@ -1,3 +1,8 @@
+//! Library for Keccak Util.
+
+// *************************************************************************
+//                                  IMPORTS
+// *************************************************************************
 use core::integer::u32_safe_divmod;
 use fossil::library::{
     array_utils::ArrayTraitExt, words64_utils::split_u256_to_u64_array, keccak256::keccak256,
@@ -5,6 +10,17 @@ use fossil::library::{
 };
 use fossil::types::Words64Sequence;
 
+/// Computes the Keccak-256 hash of a given `Words64Sequence`.
+///
+/// # Arguments
+/// * `input` - A `Words64Sequence`.
+///
+/// # Returns
+/// * `Words64Sequence`: The resulting Keccak-256 hash represented as a sequence of 64-bit words,
+///   with a length of 32 bytes.
+/// 
+/// This function takes an input `Words64Sequence`, converts it to a byte array,
+/// computes the Keccak-256 hash of the byte array, and returns the hash as a new `Words64Sequence`.
 pub fn keccak_words64(input: Words64Sequence) -> Words64Sequence {
     let mut bytes = u64_to_u8_array(input.values, input.len_bytes);
     let hash = keccak256(bytes.span());
@@ -12,7 +28,14 @@ pub fn keccak_words64(input: Words64Sequence) -> Words64Sequence {
     Words64Sequence { values: values_u64, len_bytes: 32 }
 }
 
-
+/// Converts a span of 64-bit unsigned integers to an array of u8 with a length specified by the `len_bytes` parameter.
+///
+/// # Arguments
+/// * `input` - The span of 64-bit unsigned integers to convert.
+/// * `len_bytes` - The desired length of the output byte array.
+///
+/// # Returns
+/// * `Array<u8>` - The resulting byte array in big-endian order.
 pub fn u64_to_u8_array(input: Span<u64>, len_bytes: usize) -> Array<u8> {
     let mut bytes: Array<u8> = array![];
     let (full_words, remainder) = u32_safe_divmod(len_bytes, 8);
@@ -44,6 +67,14 @@ pub fn u64_to_u8_array(input: Span<u64>, len_bytes: usize) -> Array<u8> {
     bytes
 }
 
+/// Converts a 64-bit unsigned integer into big-endian byte slice.
+///
+/// # Arguments
+/// * `num` - A 64-bit unsigned integer to be converted.
+/// * `len` - The length of the output byte array.
+///
+/// # Returns
+/// * `Array<u8>` - The resulting byte array.
 fn u64_to_big_endian_bytes(num: u64, len: u32) -> Array<u8> {
     let mut out = array![];
 

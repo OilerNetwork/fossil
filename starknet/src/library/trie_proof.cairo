@@ -1,3 +1,8 @@
+//! Library for Merkle Patricia Tree Utils
+
+// *************************************************************************
+//                                  IMPORTS
+// *************************************************************************
 use fossil::library::{
     words64_utils::{split_u256_to_u64_array, words64_to_nibbles},
     merkle_patricia_utils::{
@@ -10,6 +15,33 @@ use fossil::types::Words64Sequence;
 const EMPTY_TRIE_ROOT_HASH: u256 =
     0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421;
 
+/// Verifies a Merkle Patricia Tree proof against a given path and root hash.
+///
+/// This function takes a `Words64Sequence` representing the path to be verified, a `Words64Sequence`
+/// representing the expected root hash, and a `Span<Words64Sequence>` containing the proof data. It
+/// iterates through the proof data and verifies that the provided path matches the proof, and that
+/// the root hash matches the calculated root hash based on the proof.
+///
+/// # Arguments
+///
+/// * `path` - A `Words64Sequence` representing the path to be verified.
+/// * `root_hash` - A `Words64Sequence` representing the expected root hash.
+/// * `proof` - A `Span<Words64Sequence>` containing the proof data.
+///
+/// # Returns
+///
+/// An `Option<Words64Sequence>` containing the data associated with the verified path, or `None` if
+/// the proof is invalid or the path does not exist in the Merkle Patricia Tree.
+///
+/// # Panics
+///
+/// The function may panic in the following cases:
+///
+/// - If the proof is empty and the provided `root_hash` is not the empty trie root hash.
+/// - If a hash mismatch is encountered during the verification process.
+/// - If an invalid node length is encountered during the verification process.
+/// - If the path offset exceeds the length of the provided path.
+///
 pub fn verify_proof(
     path: Words64Sequence, root_hash: Words64Sequence, proof: Span<Words64Sequence>,
 ) -> Option<Words64Sequence> {
