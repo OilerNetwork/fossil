@@ -9,7 +9,6 @@ pub trait IL1HeadersStore<TState> {
     fn store_many_state_roots(
         ref self: TState, start_block: u64, end_block: u64, state_roots: Array<u256>
     );
-    fn get_initialized(self: @TState, block_number: u64) -> bool;
     fn get_parent_hash(self: @TState, block_number: u64) -> u256;
     fn get_latest_l1_block(self: @TState) -> u64;
     fn get_state_root(self: @TState, block_number: u64) -> u256;

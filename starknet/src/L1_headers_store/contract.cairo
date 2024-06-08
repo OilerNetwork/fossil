@@ -48,7 +48,6 @@ pub mod L1HeaderStore {
         ownable: OwnableComponent::Storage,
         #[substorage(v0)]
         upgradeable: UpgradeableComponent::Storage,
-        initialized: bool,
         l1_messages_origin: ContractAddress,
         latest_l1_block: u64,
         block_parent_hash: LegacyMap::<u64, u256>,
@@ -89,8 +88,6 @@ pub mod L1HeaderStore {
         l1_messages_origin: starknet::ContractAddress,
         admin: starknet::ContractAddress
     ) {
-        // assert!(self.initialized.read() == false, "L1HeaderStore: already initialized");
-        self.initialized.write(true);
         self.l1_messages_origin.write(l1_messages_origin);
         self.ownable.initializer(admin);
     }
@@ -161,18 +158,6 @@ pub mod L1HeaderStore {
                 start += 1;
                 index += 1;
             };
-        }
-
-
-        /// Checks if the contract state has been initialized for a specific block number.
-        ///
-        /// # Arguments
-        /// * `block_number` - The block number to check.
-        ///
-        /// # Returns
-        /// * A boolean indicating whether the contract state has been initialized.
-        fn get_initialized(self: @ContractState, block_number: u64) -> bool {
-            self.initialized.read()
         }
 
         /// Retrieves the parent hash of the specified block number.

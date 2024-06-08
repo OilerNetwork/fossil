@@ -47,7 +47,6 @@ pub mod L1MessagesProxy {
         ownable: OwnableComponent::Storage,
         #[substorage(v0)]
         upgradeable: UpgradeableComponent::Storage,
-        initialized: bool,
         l1_messages_sender: EthAddress,
         l1_headers_store: IL1HeadersStoreDispatcher,
     }
@@ -76,7 +75,6 @@ pub mod L1MessagesProxy {
     fn constructor(
         ref self: ContractState, l1_messages_sender: EthAddress, owner: starknet::ContractAddress
     ) {
-        self.initialized.write(true);
         self.l1_messages_sender.write(l1_messages_sender);
         self.ownable.initializer(owner);
     }
@@ -143,14 +141,6 @@ pub mod L1MessagesProxy {
             self
                 .l1_headers_store
                 .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_address });
-        }
-
-        /// Checks if the contract has been initialized
-        ///
-        /// # Returns
-        /// * A boolean indicating whether the contract state has been initialized.
-        fn get_initialized(self: @ContractState) -> bool {
-            self.initialized.read()
         }
 
         /// Retrieves the sender address of L1 messages stored in the contract state.

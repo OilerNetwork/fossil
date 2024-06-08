@@ -43,7 +43,6 @@ pub mod FactRegistry {
         ownable: OwnableComponent::Storage,
         #[substorage(v0)]
         upgradeable: UpgradeableComponent::Storage,
-        initialized: bool,
         l1_headers_store: IL1HeadersStoreDispatcher,
         verified_account_storage_hash: LegacyMap::<(EthAddress, u64), u256>,
         verified_account_code_hash: LegacyMap::<(EthAddress, u64), u256>,
@@ -76,7 +75,6 @@ pub mod FactRegistry {
         l1_headers_store_addr: starknet::ContractAddress,
         owner: starknet::ContractAddress
     ) {
-        self.initialized.write(true);
         self
             .l1_headers_store
             .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_addr });
@@ -237,14 +235,6 @@ pub mod FactRegistry {
             } else {
                 return Option::None;
             }
-        }
-
-        /// Checks if the contract state has been initialized .
-        ///
-        /// # Returns
-        /// * `bool` - A boolean indicating whether the contract state has been initialized.
-        fn get_initialized(self: @ContractState) -> bool {
-            self.initialized.read()
         }
 
         /// Retrieves the L1 Header Store address.
