@@ -66,5 +66,4 @@ echo " "
 #Set l1_headers_store_address for messages-proxy
 # echo "Setting headers-store for messages-proxy contract..."
 # output=$(starkli invoke "$messages_proxy" set_l1_headers_store "$headers_store" --account $owner_address -w)
-
 # echo "l1_headers_store_address set complete."
