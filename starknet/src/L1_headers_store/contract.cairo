@@ -48,7 +48,6 @@ pub mod L1HeaderStore {
         ownable: OwnableComponent::Storage,
         #[substorage(v0)]
         upgradeable: UpgradeableComponent::Storage,
-        initialized: bool,
         l1_messages_origin: ContractAddress,
         latest_l1_block: u64,
         block_parent_hash: LegacyMap::<u64, u256>,
@@ -76,26 +75,29 @@ pub mod L1HeaderStore {
     }
 
     // *************************************************************************
+    //                              CONSTRUCTOR
+    // *************************************************************************
+    /// Contract Constructor.
+    /// 
+    /// # Arguments
+    /// * `l1_messages_origin` - The address of L1 Message Proxy.
+    /// * `admin` - .
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        l1_messages_origin: starknet::ContractAddress,
+        admin: starknet::ContractAddress
+    ) {
+        self.l1_messages_origin.write(l1_messages_origin);
+        self.ownable.initializer(admin);
+    }
+
+    // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     // Implementation of IL1HeadersStore interface
     #[abi(embed_v0)]
     impl L1HeaderStoreImpl of IL1HeadersStore<ContractState> {
-        /// Initialize the contract.
-        /// 
-        /// # Arguments
-        /// * `l1_messages_origin` - The address of L1 Message Proxy.
-        fn initialize(
-            ref self: ContractState,
-            l1_messages_origin: starknet::ContractAddress,
-            admin: starknet::ContractAddress
-        ) {
-            assert!(self.initialized.read() == false, "L1HeaderStore: already initialized");
-            self.initialized.write(true);
-            self.l1_messages_origin.write(l1_messages_origin);
-            self.ownable.initializer(admin);
-        }
-
         /// Receives `block_number` and `parent_hash` from L1 Message Proxy for processing.
         /// 
         /// # Arguments
@@ -115,6 +117,17 @@ pub mod L1HeaderStore {
             if self.latest_l1_block.read() <= block_number {
                 self.latest_l1_block.write(block_number);
             }
+        }
+
+        /// Change L1 Message Proxy address. (Only Owner)
+        /// 
+        /// # Arguments
+        /// * `l1_messages_origin` - The address of L1 Message Proxy.
+        fn change_l1_messages_origin(
+            ref self: ContractState, l1_messages_origin: starknet::ContractAddress
+        ) {
+            self.ownable.assert_only_owner();
+            self.l1_messages_origin.write(l1_messages_origin);
         }
 
         fn store_state_root(ref self: ContractState, block_number: u64, state_root: u256) {
@@ -145,18 +158,6 @@ pub mod L1HeaderStore {
                 start += 1;
                 index += 1;
             };
-        }
-
-
-        /// Checks if the contract state has been initialized for a specific block number.
-        ///
-        /// # Arguments
-        /// * `block_number` - The block number to check.
-        ///
-        /// # Returns
-        /// * A boolean indicating whether the contract state has been initialized.
-        fn get_initialized(self: @ContractState, block_number: u64) -> bool {
-            self.initialized.read()
         }
 
         /// Retrieves the parent hash of the specified block number.

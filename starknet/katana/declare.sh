@@ -18,6 +18,6 @@ declare_contract() {
 rm -f katana/declared-classes.txt
 
 # Declare each contract and save the class hash
-declare_contract "fact-registry" "target/dev/fossil_FactRegistry.contract_class.json"
-declare_contract "headers-store" "target/dev/fossil_L1HeaderStore.contract_class.json"
 declare_contract "messages-proxy" "target/dev/fossil_L1MessagesProxy.contract_class.json"
+declare_contract "headers-store" "target/dev/fossil_L1HeaderStore.contract_class.json"
+declare_contract "fact-registry" "target/dev/fossil_FactRegistry.contract_class.json"

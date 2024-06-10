@@ -6,7 +6,7 @@ use fossil::{
     fact_registry::interface::IFactRegistryDispatcherTrait
 };
 use snforge_std::start_cheat_caller_address;
-use super::test_utils::{setup, OWNER};
+use super::test_utils::{setup, OWNER, ADMIN};
 
 #[test]
 fn prove_account_test_success_code_hash() {
@@ -14,7 +14,7 @@ fn prove_account_test_success_code_hash() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
@@ -33,7 +33,7 @@ fn prove_account_test_success_balance() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
@@ -52,7 +52,7 @@ fn prove_account_test_success_nonce() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
@@ -71,7 +71,7 @@ fn prove_account_test_success_storage_hash() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
@@ -92,7 +92,7 @@ fn prove_account_test_success_save_all() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
@@ -120,7 +120,7 @@ fn prove_storage_test_success_with_some_data() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let account_proof = proofs::account::PROOF_1();
@@ -166,7 +166,7 @@ fn get_storage_test_success_with_no_data() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let account_proof = proofs::account::PROOF_1();
@@ -204,7 +204,7 @@ fn prove_storage_test_state_root_not_found() {
     let account_proof = proofs::account::PROOF_1();
     let storage_proof = proofs::storage::PROOF_1();
 
-    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let _ = dsp
@@ -218,12 +218,6 @@ fn prove_storage_test_state_root_not_found() {
         );
 }
 
-#[test]
-fn get_initialized_test() {
-    let dsp = setup();
-
-    assert_eq!(dsp.registry.get_initialized(), true);
-}
 
 #[test]
 fn get_l1_headers_store_addr_test() {
