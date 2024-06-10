@@ -24,14 +24,20 @@ pub mod L1HeaderStore {
     // *************************************************************************
     // Core lib imports 
     use openzeppelin::access::ownable::ownable::OwnableComponent::InternalTrait;
-    use starknet::{ContractAddress, EthAddress, get_caller_address};
+    use openzeppelin::upgrades::UpgradeableComponent;
+    use openzeppelin::upgrades::interface::IUpgradeable;
+    use starknet::{ContractAddress, EthAddress, get_caller_address, ClassHash};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: upgradeableEvent);
 
     // Ownable Mixin
     #[abi(embed_v0)]
     impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+
+    // Upgradeable 
+    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     // *************************************************************************
     //                              STORAGE
@@ -40,7 +46,8 @@ pub mod L1HeaderStore {
     struct Storage {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
-        initialized: bool,
+        #[substorage(v0)]
+        upgradeable: UpgradeableComponent::Storage,
         l1_messages_origin: ContractAddress,
         latest_l1_block: u64,
         block_parent_hash: LegacyMap::<u64, u256>,
@@ -62,7 +69,27 @@ pub mod L1HeaderStore {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        OwnableEvent: OwnableComponent::Event
+        OwnableEvent: OwnableComponent::Event,
+        #[flat]
+        upgradeableEvent: UpgradeableComponent::Event
+    }
+
+    // *************************************************************************
+    //                              CONSTRUCTOR
+    // *************************************************************************
+    /// Contract Constructor.
+    /// 
+    /// # Arguments
+    /// * `l1_messages_origin` - The address of L1 Message Proxy.
+    /// * `admin` - .
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        l1_messages_origin: starknet::ContractAddress,
+        admin: starknet::ContractAddress
+    ) {
+        self.l1_messages_origin.write(l1_messages_origin);
+        self.ownable.initializer(admin);
     }
 
     // *************************************************************************
@@ -71,21 +98,6 @@ pub mod L1HeaderStore {
     // Implementation of IL1HeadersStore interface
     #[abi(embed_v0)]
     impl L1HeaderStoreImpl of IL1HeadersStore<ContractState> {
-        /// Initialize the contract.
-        /// 
-        /// # Arguments
-        /// * `l1_messages_origin` - The address of L1 Message Proxy.
-        fn initialize(
-            ref self: ContractState,
-            l1_messages_origin: starknet::ContractAddress,
-            admin: starknet::ContractAddress
-        ) {
-            assert!(self.initialized.read() == false, "L1HeaderStore: already initialized");
-            self.initialized.write(true);
-            self.l1_messages_origin.write(l1_messages_origin);
-            self.ownable.initializer(admin);
-        }
-
         /// Receives `block_number` and `parent_hash` from L1 Message Proxy for processing.
         /// 
         /// # Arguments
@@ -105,6 +117,17 @@ pub mod L1HeaderStore {
             if self.latest_l1_block.read() <= block_number {
                 self.latest_l1_block.write(block_number);
             }
+        }
+
+        /// Change L1 Message Proxy address. (Only Owner)
+        /// 
+        /// # Arguments
+        /// * `l1_messages_origin` - The address of L1 Message Proxy.
+        fn change_l1_messages_origin(
+            ref self: ContractState, l1_messages_origin: starknet::ContractAddress
+        ) {
+            self.ownable.assert_only_owner();
+            self.l1_messages_origin.write(l1_messages_origin);
         }
 
         fn store_state_root(ref self: ContractState, block_number: u64, state_root: u256) {
@@ -137,18 +160,6 @@ pub mod L1HeaderStore {
             };
         }
 
-
-        /// Checks if the contract state has been initialized for a specific block number.
-        ///
-        /// # Arguments
-        /// * `block_number` - The block number to check.
-        ///
-        /// # Returns
-        /// * A boolean indicating whether the contract state has been initialized.
-        fn get_initialized(self: @ContractState, block_number: u64) -> bool {
-            self.initialized.read()
-        }
-
         /// Retrieves the parent hash of the specified block number.
         ///
         /// # Arguments
@@ -177,6 +188,16 @@ pub mod L1HeaderStore {
         /// * `u256` - The state root.
         fn get_state_root(self: @ContractState, block_number: u64) -> u256 {
             self.block_state_root.read(block_number)
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl UpgradeableImpl of IUpgradeable<ContractState> {
+        /// Upgrades the contract class hash to `new_class_hash`.
+        /// This may only be called by the contract owner.
+        fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+            self.ownable.assert_only_owner();
+            self.upgradeable._upgrade(new_class_hash);
         }
     }
 

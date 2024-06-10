@@ -7,6 +7,7 @@ pub mod FactRegistry {
     //                               IMPORTS
     // *************************************************************************
     // Local imports.
+    use core::option::OptionTrait;
     use fossil::L1_headers_store::interface::{
         IL1HeadersStore, IL1HeadersStoreDispatcher, IL1HeadersStoreDispatcherTrait
     };
@@ -16,19 +17,68 @@ pub mod FactRegistry {
         rlp_utils::{to_rlp_array, extract_data, extract_element}, keccak_utils::keccak_words64
     };
     use fossil::types::{OptionsSet, Words64Sequence, RLPItem};
+    use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin::upgrades::UpgradeableComponent;
+    use openzeppelin::upgrades::interface::IUpgradeable;
     // Core lib imports 
-    use starknet::{ContractAddress, EthAddress, contract_address_const};
+    use starknet::{ContractAddress, EthAddress, contract_address_const, ClassHash};
+
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: upgradeableEvent);
+
+    // Ownable Mixin
+    #[abi(embed_v0)]
+    impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+
+    // Upgradeable 
+    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
+
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
     #[storage]
     struct Storage {
-        initialized: bool,
+        #[substorage(v0)]
+        ownable: OwnableComponent::Storage,
+        #[substorage(v0)]
+        upgradeable: UpgradeableComponent::Storage,
         l1_headers_store: IL1HeadersStoreDispatcher,
         verified_account_storage_hash: LegacyMap::<(EthAddress, u64), u256>,
         verified_account_code_hash: LegacyMap::<(EthAddress, u64), u256>,
         verified_account_balance: LegacyMap::<(EthAddress, u64), u256>,
         verified_account_nonce: LegacyMap::<(EthAddress, u64), u64>,
+        verified_storage: LegacyMap::<(EthAddress, u64, u256), (bool, u256)>,
+    }
+    // *************************************************************************
+    //                             EVENTS
+    // *************************************************************************
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        OwnableEvent: OwnableComponent::Event,
+        #[flat]
+        upgradeableEvent: UpgradeableComponent::Event
+    }
+
+    // *************************************************************************
+    //                              CONSTRUCTOR
+    // *************************************************************************
+    /// Contract Constructor.
+    /// 
+    /// # Arguments
+    /// * `l1_headers_store_addr` - The address of L1 Header Store contract.
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        l1_headers_store_addr: starknet::ContractAddress,
+        owner: starknet::ContractAddress
+    ) {
+        self
+            .l1_headers_store
+            .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_addr });
+        self.ownable.initializer(owner);
     }
 
     // *************************************************************************
@@ -37,18 +87,6 @@ pub mod FactRegistry {
     // Implementation of IFactRegistry interface
     #[abi(embed_v0)]
     impl FactRegistry of IFactRegistry<ContractState> {
-        /// Initialize the contract.
-        /// 
-        /// # Arguments
-        /// * `l1_headers_store_addr` - The address of L1 Header Store contract.
-        fn initialize(ref self: ContractState, l1_headers_store_addr: starknet::ContractAddress) {
-            assert!(self.initialized.read() == false, "FactRegistry: already initialized");
-            self.initialized.write(true);
-            self
-                .l1_headers_store
-                .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_addr });
-        }
-
         /// Verifies the account information for a given Ethereum address  at a given block using a provided state root proof and stores the verified value.
         ///
         /// # Arguments
@@ -75,7 +113,7 @@ pub mod FactRegistry {
             proofs_concat: Array<u64>,
         ) {
             let state_root = self.l1_headers_store.read().get_state_root(block);
-            assert!(state_root != 0, "FactRegistry: block not found");
+            assert!(state_root != 0, "FactRegistry: block state root not found");
             let proof = self
                 .reconstruct_ints_sequence_list(proofs_concat.span(), proof_sizes_bytes.span());
             let result = verify_proof(account.to_words64(), state_root.to_words64(), proof.span());
@@ -145,16 +183,16 @@ pub mod FactRegistry {
         /// 
         /// This function is responsible for retrieving the storage value at a specific slot for an Ethereum account and block number
         /// using StarkNet state root proofs. It verifies the proof and returns the storage value if the proof is valid.
-        fn get_storage(
+        fn prove_storage(
             ref self: ContractState,
             block: u64,
             account: starknet::EthAddress,
             slot: u256,
             proof_sizes_bytes: Array<usize>,
             proofs_concat: Array<u64>,
-        ) -> Words64Sequence {
+        ) -> Option<u256> {
             let account_state_root = self.verified_account_storage_hash.read((account, block));
-            assert!(account_state_root != 0, "FactRegistry: storage hash not found");
+            assert!(account_state_root != 0, "FactRegistry: block state root not found");
 
             let result = verify_proof(
                 keccak_words64(slot.to_words64()),
@@ -164,11 +202,14 @@ pub mod FactRegistry {
                     .span()
             );
 
-            let slot_value = match result {
-                Option::None => Words64Sequence { values: array![].span(), len_bytes: 0 },
-                Option::Some(result) => result
-            };
-            slot_value
+            match result {
+                Option::None => Option::None,
+                Option::Some(result) => {
+                    let result_value = words64_to_int(result);
+                    self.verified_storage.write((account, block, slot), (true, result_value));
+                    Option::Some(result_value)
+                }
+            }
         }
 
         /// Retrieves the storage value at a given slot for an Ethereum account and block number as an unsigned 256-bit integer.
@@ -185,24 +226,15 @@ pub mod FactRegistry {
         ///
         /// Returns:
         /// * `u256` - The storage value at the given slot.
-        fn get_storage_uint(
-            ref self: ContractState,
-            block: u64,
-            account: starknet::EthAddress,
-            slot: u256,
-            proof_sizes_bytes: Array<usize>,
-            proofs_concat: Array<u64>,
-        ) -> u256 {
-            let result = self.get_storage(block, account, slot, proof_sizes_bytes, proofs_concat);
-            words64_to_int(result)
-        }
-
-        /// Checks if the contract state has been initialized .
-        ///
-        /// # Returns
-        /// * `bool` - A boolean indicating whether the contract state has been initialized.
-        fn get_initialized(self: @ContractState) -> bool {
-            self.initialized.read()
+        fn get_storage(
+            ref self: ContractState, block: u64, account: starknet::EthAddress, slot: u256,
+        ) -> Option<u256> {
+            let (verified, value) = self.verified_storage.read((account, block, slot));
+            if verified {
+                return Option::Some(value);
+            } else {
+                return Option::None;
+            }
         }
 
         /// Retrieves the L1 Header Store address.
@@ -267,6 +299,16 @@ pub mod FactRegistry {
             self: @ContractState, account: starknet::EthAddress, block: u64
         ) -> u64 {
             self.verified_account_nonce.read((account, block))
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl UpgradeableImpl of IUpgradeable<ContractState> {
+        /// Upgrades the contract class hash to `new_class_hash`.
+        /// This may only be called by the contract owner.
+        fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+            self.ownable.assert_only_owner();
+            self.upgradeable._upgrade(new_class_hash);
         }
     }
 
