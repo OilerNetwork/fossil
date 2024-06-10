@@ -115,6 +115,20 @@ fn prove_account_test_success_save_all() {
 }
 
 #[test]
+#[should_panic]
+fn prove_account_test_fail_state_root_not_found() {
+    let dsp = setup();
+
+    let block = proofs::blocks::BLOCK_3();
+
+    let proof = proofs::account::PROOF_1();
+
+    dsp
+        .registry
+        .prove_account(OptionsSet::All, proof.address, block.number, proof.bytes, proof.data);
+}
+
+#[test]
 fn prove_storage_test_success_with_some_data() {
     let dsp = setup();
 
@@ -149,6 +163,31 @@ fn prove_storage_test_success_with_some_data() {
     assert_eq!(
         result, dsp.registry.get_storage(block.number, account_proof.address, storage_proof.key)
     );
+}
+
+#[test]
+#[should_panic]
+fn prove_storage_test_fail_state_root_not_found() {
+    let dsp = setup();
+
+    let block = proofs::blocks::BLOCK_3();
+
+    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    dsp.store.store_state_root(block.number, block.state_root);
+
+    let account_proof = proofs::account::PROOF_1();
+
+    let storage_proof = proofs::storage::PROOF_2();
+
+    let _ = dsp
+        .registry
+        .prove_storage(
+            block.number,
+            account_proof.address,
+            storage_proof.key,
+            storage_proof.bytes,
+            storage_proof.data
+        );
 }
 
 #[test]

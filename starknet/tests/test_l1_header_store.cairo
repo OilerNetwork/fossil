@@ -22,6 +22,20 @@ fn receive_from_l1_success_test() {
 }
 
 #[test]
+#[should_panic]
+fn receive_from_l1_unauthorized_sender() {
+    let dsp = setup();
+
+    let block = proofs::blocks::BLOCK_0();
+    let parent_hash: u256 = 0xfbacb363819451babc6e7596aa48af6c223e40e8b0ad975e372347df5d60ba0f;
+
+    dsp.store.receive_from_l1(parent_hash, block.number);
+
+    assert_eq!(dsp.store.get_parent_hash(block.number), parent_hash);
+}
+
+
+#[test]
 fn test_store_state_root() {
     let dsp = setup();
 
