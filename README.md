@@ -10,11 +10,13 @@
 1. Start Anvil in a new terminal with the command `anvil`.
 
 2. Install dependencies:
-   requires `katana 0.7.0-alpha.4`
+   ```bash 
+    dojoup -v 0.7.0-alpha.4
+    ```
 
    ```bash
    cd ethereum
-   forge install
+   forge soldeer install forge-std~1.8.2
    ```
 
 3. Build the project and set up environment variables:
