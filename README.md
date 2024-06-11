@@ -40,12 +40,7 @@
    katana/deploy.sh
    ```
 
-7. Initialize the deployed contracts:
-   ```bash
-   source katana/initialize_contracts.sh 
-   ```
-
-8. Set up local Ethereum testing:
+7. Set up local Ethereum testing:
    ```bash
    cd ../ethereum
    cp anvil.env .env
@@ -53,7 +48,7 @@
    forge script script/LocalTesting.s.sol:LocalSetup --broadcast --rpc-url ${ETH_RPC_URL} 
    ```
 
-9.  Send a message:
+8.  Send a message:
    ```bash
    forge script script/SendMessage.s.sol:Value --broadcast --rpc-url ${ETH_RPC_URL}
    ```
