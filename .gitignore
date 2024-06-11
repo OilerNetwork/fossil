@@ -13,3 +13,5 @@ Scarb.lock
 *.txt
 
 pyenv/
+
+ethereum/dependencies/

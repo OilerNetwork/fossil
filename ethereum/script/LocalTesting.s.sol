@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "forge-std/Script.sol";
+import "@forge-std/src/Script.sol";
 
 import "src/ContractMsg.sol";
 
@@ -31,7 +31,7 @@ contract LocalSetup is Script {
 
         address l1MessageSender = address(new L1MessagesSender(snLocalAddress, vm.envUint("L2_CONTRACT_ADDRESS")));
         vm.serializeString(json, "l1MessageSender_address", vm.toString(l1MessageSender));
-        
+
         vm.stopBroadcast();
 
         string memory data = vm.serializeBool(json, "success", true);
