@@ -115,7 +115,7 @@ fn prove_account_test_success_save_all() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected: "FactRegistry: block state root not found")]
 fn prove_account_test_fail_state_root_not_found() {
     let dsp = setup();
 
@@ -166,13 +166,13 @@ fn prove_storage_test_success_with_some_data() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected: "FactRegistry: block state root not found")]
 fn prove_storage_test_fail_state_root_not_found() {
     let dsp = setup();
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let account_proof = proofs::account::PROOF_1();

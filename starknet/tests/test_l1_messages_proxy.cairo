@@ -63,7 +63,7 @@ fn change_contract_addresses_success() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected: 'Caller is not the owner')]
 fn change_contract_addresses_fail_calle_not_by_owner() {
     let dsp = setup();
 

@@ -21,7 +21,7 @@ fn receive_from_l1_success_test() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected: "L1HeaderStore: unauthorized caller")]
 fn receive_from_l1_fail_unauthorized_sender() {
     let dsp = setup();
 
@@ -43,7 +43,7 @@ fn change_l1_messages_origin_success() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected: 'Caller is not the owner')]
 fn change_l1_messages_origin_fail_unauthorized_sender() {
     let dsp = setup();
 
@@ -67,7 +67,7 @@ fn test_store_state_root_success() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_store_state_root_fail_call_not_by_owner() {
     let dsp = setup();
 
@@ -78,8 +78,8 @@ fn test_store_state_root_fail_call_not_by_owner() {
 }
 
 #[test]
-#[should_panic]
-fn test_store_state_root_fail_block_number_is_zero() {
+#[should_panic(expected: "L1HeaderStore: state root already exists")]
+fn test_store_state_root_fail_block_number_is_not_zero() {
     let dsp = setup();
 
     let state_root: u256 = 0x1e7f7;
@@ -111,7 +111,7 @@ fn test_store_many_state_root_success() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_store_many_state_root_fail_called_not_by_owner() {
     let dsp = setup();
 
@@ -129,7 +129,7 @@ fn test_store_many_state_root_fail_called_not_by_owner() {
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected: "L1HeaderStore: invalid state roots length")]
 fn test_store_many_state_root_fail_invailed_state_root_length() {
     let dsp = setup();
 
