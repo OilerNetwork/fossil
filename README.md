@@ -51,6 +51,6 @@
    ```
 
 8.  Send a message:
-   ```bash
-   forge script script/SendMessage.s.sol:Value --broadcast --rpc-url ${ETH_RPC_URL}
-   ```
+      ```bash
+      forge script script/SendMessage.s.sol:Value --broadcast --rpc-url ${ETH_RPC_URL}
+      ```
