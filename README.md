@@ -10,11 +10,13 @@
 1. Start Anvil in a new terminal with the command `anvil`.
 
 2. Install dependencies:
-   requires `katana 0.7.0-alpha.4`
+   ```bash 
+    dojoup -v 0.7.0-alpha.4
+    ```
 
    ```bash
    cd ethereum
-   forge install
+   forge soldeer install forge-std~1.8.2
    ```
 
 3. Build the project and set up environment variables:
@@ -40,12 +42,7 @@
    katana/deploy.sh
    ```
 
-7. Initialize the deployed contracts:
-   ```bash
-   source katana/initialize_contracts.sh 
-   ```
-
-8. Set up local Ethereum testing:
+7. Set up local Ethereum testing:
    ```bash
    cd ../ethereum
    cp anvil.env .env
@@ -53,7 +50,7 @@
    forge script script/LocalTesting.s.sol:LocalSetup --broadcast --rpc-url ${ETH_RPC_URL} 
    ```
 
-9.  Send a message:
-   ```bash
-   forge script script/SendMessage.s.sol:Value --broadcast --rpc-url ${ETH_RPC_URL}
-   ```
+8.  Send a message:
+      ```bash
+      forge script script/SendMessage.s.sol:Value --broadcast --rpc-url ${ETH_RPC_URL}
+      ```

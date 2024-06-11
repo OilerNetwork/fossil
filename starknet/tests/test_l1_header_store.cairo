@@ -5,8 +5,7 @@ use fossil::testing::rlp;
 use fossil::types::ProcessBlockOptions;
 use snforge_std::start_cheat_caller_address;
 use starknet::EthAddress;
-use super::test_utils::{setup, OWNER};
-
+use super::test_utils::{setup, OWNER, ADMIN};
 
 #[test]
 fn receive_from_l1_success_test() {
@@ -42,7 +41,7 @@ fn test_store_state_root() {
     let state_root: u256 = 0x1e7f7;
     let block = 19882;
 
-    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
     dsp.store.store_state_root(block, state_root);
 
     assert_eq!(dsp.store.get_state_root(block), state_root);
@@ -58,7 +57,7 @@ fn test_store_many_state_root() {
     let start_block = 1;
     let end_block = 10;
 
-    start_cheat_caller_address(dsp.store.contract_address, OWNER());
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
     dsp.store.store_many_state_roots(start_block, end_block, state_roots);
 
     assert_eq!(dsp.store.get_state_root(1), 0x1e7f7);

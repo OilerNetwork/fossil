@@ -43,7 +43,6 @@ pub mod FactRegistry {
         ownable: OwnableComponent::Storage,
         #[substorage(v0)]
         upgradeable: UpgradeableComponent::Storage,
-        initialized: bool,
         l1_headers_store: IL1HeadersStoreDispatcher,
         verified_account_storage_hash: LegacyMap::<(EthAddress, u64), u256>,
         verified_account_code_hash: LegacyMap::<(EthAddress, u64), u256>,
@@ -51,7 +50,6 @@ pub mod FactRegistry {
         verified_account_nonce: LegacyMap::<(EthAddress, u64), u64>,
         verified_storage: LegacyMap::<(EthAddress, u64, u256), (bool, u256)>,
     }
-
     // *************************************************************************
     //                             EVENTS
     // *************************************************************************
@@ -65,28 +63,30 @@ pub mod FactRegistry {
     }
 
     // *************************************************************************
+    //                              CONSTRUCTOR
+    // *************************************************************************
+    /// Contract Constructor.
+    /// 
+    /// # Arguments
+    /// * `l1_headers_store_addr` - The address of L1 Header Store contract.
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        l1_headers_store_addr: starknet::ContractAddress,
+        owner: starknet::ContractAddress
+    ) {
+        self
+            .l1_headers_store
+            .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_addr });
+        self.ownable.initializer(owner);
+    }
+
+    // *************************************************************************
     //                          EXTERNAL FUNCTIONS
     // *************************************************************************
     // Implementation of IFactRegistry interface
     #[abi(embed_v0)]
     impl FactRegistry of IFactRegistry<ContractState> {
-        /// Initialize the contract.
-        /// 
-        /// # Arguments
-        /// * `l1_headers_store_addr` - The address of L1 Header Store contract.
-        fn initialize(
-            ref self: ContractState,
-            l1_headers_store_addr: starknet::ContractAddress,
-            admin: starknet::ContractAddress
-        ) {
-            assert!(self.initialized.read() == false, "FactRegistry: already initialized");
-            self.initialized.write(true);
-            self
-                .l1_headers_store
-                .write(IL1HeadersStoreDispatcher { contract_address: l1_headers_store_addr });
-            self.ownable.initializer(admin);
-        }
-
         /// Verifies the account information for a given Ethereum address  at a given block using a provided state root proof and stores the verified value.
         ///
         /// # Arguments
@@ -235,14 +235,6 @@ pub mod FactRegistry {
             } else {
                 return Option::None;
             }
-        }
-
-        /// Checks if the contract state has been initialized .
-        ///
-        /// # Returns
-        /// * `bool` - A boolean indicating whether the contract state has been initialized.
-        fn get_initialized(self: @ContractState) -> bool {
-            self.initialized.read()
         }
 
         /// Retrieves the L1 Header Store address.
