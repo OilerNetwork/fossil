@@ -49,3 +49,28 @@ fn get_l1_headers_store_address_test() {
 
     assert_eq!(dsp.proxy.get_l1_headers_store_address(), dsp.store.contract_address);
 }
+
+#[test]
+fn change_contract_addresses_success() {
+    let dsp = setup();
+
+    let new_l1_headers_store_address: starknet::ContractAddress = 'NEW_L1_HEADER_STORE_ADDRESS'
+        .try_into()
+        .unwrap();
+
+    start_cheat_caller_address(dsp.proxy.contract_address, OWNER());
+    dsp.proxy.change_contract_addresses(L1_ORIGIN(), new_l1_headers_store_address);
+}
+
+#[test]
+#[should_panic]
+fn change_contract_addresses_fail_calle_not_by_owner() {
+    let dsp = setup();
+
+    let new_l1_headers_store_address: starknet::ContractAddress = 'NEW_L1_HEADER_STORE_ADDRESS'
+        .try_into()
+        .unwrap();
+
+    dsp.proxy.change_contract_addresses(L1_ORIGIN(), new_l1_headers_store_address);
+}
+
