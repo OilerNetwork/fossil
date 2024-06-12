@@ -134,10 +134,13 @@ pub mod L1HeaderStore {
         }
 
         // Only Owner
-        fn set_latest_mmr_root(ref self: ContractState, new_root: u256) {}
+        fn set_latest_mmr_root(ref self: ContractState, new_root: u256) {
+            self.ownable.assert_only_owner();
+            self.mmr_root_hash.write(new_root);
+        }
 
         fn get_latest_block_hash(self: @ContractState) -> u256 {
-            0
+            self.latest_l1_block_hash.read(self.latest_l1_block_number.read())
         }
 
         /// Retrieves the latest L1 block number stored in the contract.
@@ -150,11 +153,11 @@ pub mod L1HeaderStore {
 
 
         fn get_mmr_root(self: @ContractState) -> u256 {
-            0
+            self.mmr_proof.read()
         }
 
         fn get_block_state_root(self: @ContractState, block_number: u64) -> u256 {
-            0
+            self.block_state_root.read(block_number)
         }
     }
 
