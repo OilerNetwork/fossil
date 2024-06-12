@@ -1,4 +1,5 @@
 pub type Words64 = Span<u64>;
+pub type BlockRLP = Span<u8>;
 
 #[derive(Default, Drop, Serde, starknet::Store)]
 pub struct Keccak256Hash {
@@ -59,6 +60,15 @@ pub enum ProcessBlockOptions {
     GasUsed,
     TimeStamp,
     BaseFee
+}
+
+#[derive(Drop, Serde)]
+pub struct MMRProof {
+    element_index: usize,
+    element_hash: u256,
+    siblings: Span<u256>,
+    peaks: Span<u256>,
+    elements_count: usize,
 }
 
 /// Implementation of `PartialEq` for `Words64Sequence`.
