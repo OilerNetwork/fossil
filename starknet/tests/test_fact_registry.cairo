@@ -161,7 +161,8 @@ fn prove_storage_test_success_with_some_data() {
             storage_proof.data
         );
     assert_eq!(
-        result, dsp.registry.get_storage(block.number, account_proof.address, storage_proof.key)
+        result.unwrap(),
+        dsp.registry.get_storage(block.number, account_proof.address, storage_proof.key).unwrap()
     );
 }
 
@@ -231,7 +232,7 @@ fn get_storage_test_success_with_no_data() {
             storage_proof.bytes,
             storage_proof.data
         );
-    assert!(result == Option::None);
+    assert!(result == Result::Err('Result is None'));
 }
 
 #[test]
