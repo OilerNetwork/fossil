@@ -9,6 +9,24 @@ use snforge_std::start_cheat_caller_address;
 use super::test_utils::{setup, OWNER, ADMIN};
 
 #[test]
+fn prove_account_test_account_not_found() {
+    let dsp = setup();
+
+    let block = proofs::blocks::BLOCK_1();
+
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    dsp.store.store_state_root(block.number, block.state_root);
+
+    let proof = proofs::account::PROOF_1();
+
+    let output = dsp
+        .registry
+        .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
+
+    assert_eq!(output.unwrap_err(), 'FactRegistry: account not found');
+}
+
+#[test]
 fn prove_account_test_success_code_hash() {
     let dsp = setup();
 
@@ -19,7 +37,7 @@ fn prove_account_test_success_code_hash() {
 
     let proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
 
@@ -38,7 +56,7 @@ fn prove_account_test_success_balance() {
 
     let proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(OptionsSet::Balance, proof.address, block.number, proof.bytes, proof.data);
 
@@ -57,7 +75,7 @@ fn prove_account_test_success_nonce() {
 
     let proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(OptionsSet::Nonce, proof.address, block.number, proof.bytes, proof.data);
 
@@ -76,7 +94,7 @@ fn prove_account_test_success_storage_hash() {
 
     let proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(
             OptionsSet::StorageHash, proof.address, block.number, proof.bytes, proof.data
@@ -97,7 +115,7 @@ fn prove_account_test_success_save_all() {
 
     let proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(OptionsSet::All, proof.address, block.number, proof.bytes, proof.data);
 
@@ -123,7 +141,7 @@ fn prove_account_test_fail_state_root_not_found() {
 
     let proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(OptionsSet::All, proof.address, block.number, proof.bytes, proof.data);
 }
@@ -139,7 +157,7 @@ fn prove_storage_test_success_with_some_data() {
 
     let account_proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(
             OptionsSet::All,
@@ -211,7 +229,7 @@ fn get_storage_test_success_with_no_data() {
 
     let account_proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(
             OptionsSet::All,

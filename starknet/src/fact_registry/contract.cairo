@@ -111,14 +111,14 @@ pub mod FactRegistry {
             block: u64,
             proof_sizes_bytes: Array<usize>,
             proofs_concat: Array<u64>,
-        ) {
+        ) -> Result<bool, felt252> {
             let state_root = self.l1_headers_store.read().get_state_root(block);
             assert!(state_root != 0, "FactRegistry: block state root not found");
             let proof = self
                 .reconstruct_ints_sequence_list(proofs_concat.span(), proof_sizes_bytes.span());
             let result = verify_proof(account.to_words64(), state_root.to_words64(), proof.span());
             match result {
-                Result::Err => { panic!("FactRegistry: account not found"); },
+                Result::Err => { Result::Err('FactRegistry: account not found') },
                 Result::Ok(result) => {
                     let result = result.unwrap();
                     let result_items = to_rlp_array(result);
@@ -163,6 +163,7 @@ pub mod FactRegistry {
                                 .write((account, block), code_hash.from_words64());
                         },
                     };
+                    return Result::Ok(true);
                 }
             }
         }

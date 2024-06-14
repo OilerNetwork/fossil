@@ -9,7 +9,7 @@ pub trait IFactRegistry<TState> {
         block: u64,
         proof_sizes_bytes: Array<usize>,
         proofs_concat: Array<u64>,
-    );
+    ) -> Result<bool, felt252>;
     fn prove_storage(
         ref self: TState,
         block: u64,
