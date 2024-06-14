@@ -118,7 +118,7 @@ pub mod FactRegistry {
                 .reconstruct_ints_sequence_list(proofs_concat.span(), proof_sizes_bytes.span());
             let result = verify_proof(account.to_words64(), state_root.to_words64(), proof.span());
             match result {
-                Result::Err => { Result::Err('FactRegistry: account not found') },
+                Result::Err(e) => { Result::Err(e) },
                 Result::Ok(result) => {
                     let result = result.unwrap();
                     let result_items = to_rlp_array(result);

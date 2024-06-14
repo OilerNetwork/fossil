@@ -59,24 +59,22 @@ pub fn verify_proof(
     let mut next_hash = Words64Sequence { values: array![].span(), len_bytes: 0 };
     let mut path_offset = 0;
     let mut i = 0_u32;
-    let mut return_string = '';
 
-    while (i < proof_len) {
+    let output = loop {
         if i == proof_len {
             out = Option::None;
-            break;
+            break Result::Ok(out);
         }
+
         let element_rlp = *(proof.at(i));
 
         if i == 0 {
             if root_hash != keccak_words64(element_rlp) {
-                return_string = 'Root hash mismatch';
-                break;
+                break Result::Err('Root hash mismatch');
             }
         } else {
             if next_hash != keccak_words64(element_rlp) {
-                return_string = 'Hash mismatch';
-                break;
+                break Result::Err('Hash mismatch');
             }
         }
 
@@ -95,8 +93,7 @@ pub fn verify_proof(
 
             if i == proof_len - 1 {
                 if path_offset != path.len_bytes * 2 {
-                    return_string = 'Path offset mismatch';
-                    break;
+                    break Result::Err('Path offset mismatch');
                 }
                 let node_element_at_one = *node.at(1);
                 out =
@@ -105,7 +102,7 @@ pub fn verify_proof(
                             element_rlp, node_element_at_one.position, node_element_at_one.length
                         )
                     );
-                break;
+                break Result::Ok(out);
             } else {
                 let children = *node.at(1);
                 if !is_rlp_item(children) {
@@ -119,8 +116,7 @@ pub fn verify_proof(
             }
         } else {
             if node_len != 17 {
-                return_string = 'Invalid node length';
-                break;
+                break Result::Err('Invalid node length');
             }
 
             if i == proof_len - 1 {
@@ -129,21 +125,19 @@ pub fn verify_proof(
                         Option::Some(
                             extract_data(element_rlp, *node.at(16).position, *node.at(16).length)
                         );
-                    break;
+                    break Result::Ok(out);
                 } else {
                     let node_children = extract_nibble(path, path_offset).try_into().unwrap();
                     let children = *node.at(node_children);
                     if children.length != 0 {
-                        return_string = 'invalid children length';
-                        break;
+                        break Result::Err('invalid children length');
                     }
                     out = Option::None;
-                    break;
+                    break Result::Ok(out);
                 }
             } else {
                 if path_offset >= path.len_bytes * 2 {
-                    return_string = 'Path offset mismatch2';
-                    break;
+                    break Result::Err('Path offset mismatch');
                 }
                 let node_children = extract_nibble(path, path_offset).try_into().unwrap();
                 let children = *node.at(node_children);
@@ -162,11 +156,7 @@ pub fn verify_proof(
         }
         i += 1;
     };
-
-    if return_string != '' {
-        return Result::Err(return_string);
-    }
-    Result::Ok(out)
+    output
 }
 
 #[cfg(test)]

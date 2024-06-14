@@ -9,24 +9,6 @@ use snforge_std::start_cheat_caller_address;
 use super::test_utils::{setup, OWNER, ADMIN};
 
 #[test]
-fn prove_account_test_account_not_found() {
-    let dsp = setup();
-
-    let block = proofs::blocks::BLOCK_1();
-
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
-    dsp.store.store_state_root(block.number, block.state_root);
-
-    let proof = proofs::account::PROOF_1();
-
-    let output = dsp
-        .registry
-        .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
-
-    assert_eq!(output.unwrap_err(), 'FactRegistry: account not found');
-}
-
-#[test]
 fn prove_account_test_success_code_hash() {
     let dsp = setup();
 
@@ -282,4 +264,39 @@ fn get_l1_headers_store_addr_test() {
     let dsp = setup();
 
     assert_eq!(dsp.store.contract_address, dsp.registry.get_l1_headers_store_addr());
+}
+
+#[test]
+fn prove_account_test_error_invalid_children_length() {
+    let dsp = setup();
+
+    let block = proofs::blocks::BLOCK_3();
+
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    dsp.store.store_state_root(block.number, block.state_root);
+
+    let proof = proofs::account::PROOF_invalid_children_length();
+
+    let output = dsp
+        .registry
+        .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
+
+    assert_eq!(output.unwrap_err(), 'invalid children length');
+}
+
+#[test]
+fn prove_account_test_error_root_hash_mismatch() {
+    let dsp = setup();
+
+    let block = proofs::blocks::BLOCK_4();
+
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    dsp.store.store_state_root(block.number, block.state_root);
+
+    let proof = proofs::account::PROOF_4();
+
+    let output = dsp
+        .registry
+        .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
+    assert_eq!(output.unwrap_err(), 'Root hash mismatch');
 }
