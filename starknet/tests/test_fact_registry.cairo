@@ -19,7 +19,7 @@ fn prove_account_test_success_code_hash() {
 
     let proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
 
@@ -38,7 +38,7 @@ fn prove_account_test_success_balance() {
 
     let proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(OptionsSet::Balance, proof.address, block.number, proof.bytes, proof.data);
 
@@ -57,7 +57,7 @@ fn prove_account_test_success_nonce() {
 
     let proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(OptionsSet::Nonce, proof.address, block.number, proof.bytes, proof.data);
 
@@ -76,7 +76,7 @@ fn prove_account_test_success_storage_hash() {
 
     let proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(
             OptionsSet::StorageHash, proof.address, block.number, proof.bytes, proof.data
@@ -97,7 +97,7 @@ fn prove_account_test_success_save_all() {
 
     let proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(OptionsSet::All, proof.address, block.number, proof.bytes, proof.data);
 
@@ -123,7 +123,7 @@ fn prove_account_test_fail_state_root_not_found() {
 
     let proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(OptionsSet::All, proof.address, block.number, proof.bytes, proof.data);
 }
@@ -139,7 +139,7 @@ fn prove_storage_test_success_with_some_data() {
 
     let account_proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(
             OptionsSet::All,
@@ -161,7 +161,8 @@ fn prove_storage_test_success_with_some_data() {
             storage_proof.data
         );
     assert_eq!(
-        result, dsp.registry.get_storage(block.number, account_proof.address, storage_proof.key)
+        result.unwrap(),
+        dsp.registry.get_storage(block.number, account_proof.address, storage_proof.key).unwrap()
     );
 }
 
@@ -210,7 +211,7 @@ fn get_storage_test_success_with_no_data() {
 
     let account_proof = proofs::account::PROOF_1();
 
-    dsp
+    let _output = dsp
         .registry
         .prove_account(
             OptionsSet::All,
@@ -231,7 +232,7 @@ fn get_storage_test_success_with_no_data() {
             storage_proof.bytes,
             storage_proof.data
         );
-    assert!(result == Option::None);
+    assert!(result == Result::Err('Result is None'));
 }
 
 #[test]
@@ -263,4 +264,39 @@ fn get_l1_headers_store_addr_test() {
     let dsp = setup();
 
     assert_eq!(dsp.store.contract_address, dsp.registry.get_l1_headers_store_addr());
+}
+
+#[test]
+fn prove_account_test_error_invalid_children_length() {
+    let dsp = setup();
+
+    let block = proofs::blocks::BLOCK_3();
+
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    dsp.store.store_state_root(block.number, block.state_root);
+
+    let proof = proofs::account::PROOF_invalid_children_length();
+
+    let output = dsp
+        .registry
+        .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
+
+    assert_eq!(output.unwrap_err(), 'invalid children length');
+}
+
+#[test]
+fn prove_account_test_error_root_hash_mismatch() {
+    let dsp = setup();
+
+    let block = proofs::blocks::BLOCK_4();
+
+    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    dsp.store.store_state_root(block.number, block.state_root);
+
+    let proof = proofs::account::PROOF_4();
+
+    let output = dsp
+        .registry
+        .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
+    assert_eq!(output.unwrap_err(), 'Root hash mismatch');
 }

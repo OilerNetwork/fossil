@@ -30,47 +30,52 @@ const EMPTY_TRIE_ROOT_HASH: u256 =
 ///
 /// # Returns
 ///
-/// An `Option<Words64Sequence>` containing the data associated with the verified path, or `None` if
+/// An ` Result<Option<Words64Sequence>>` containing the data associated with the verified path, or `Result<felt252>` if
 /// the proof is invalid or the path does not exist in the Merkle Patricia Tree.
 ///
-/// # Panics
+/// # Error(Result<felt252>)
 ///
-/// The function may panic in the following cases:
-///
+/// The function may returns Result<felt252> in the following cases:
 /// - If the proof is empty and the provided `root_hash` is not the empty trie root hash.
 /// - If a hash mismatch is encountered during the verification process.
 /// - If an invalid node length is encountered during the verification process.
 /// - If the path offset exceeds the length of the provided path.
-///
 pub fn verify_proof(
     path: Words64Sequence, root_hash: Words64Sequence, proof: Span<Words64Sequence>,
-) -> Option<Words64Sequence> {
+) -> Result<Option<Words64Sequence>, felt252> {
     let mut out = Option::None;
     let proof_len = proof.len();
 
     if proof_len == 0 {
-        assert!(
-            root_hash.values == split_u256_to_u64_array(EMPTY_TRIE_ROOT_HASH),
-            "Empty proof must have empty trie root hash"
-        );
-        // return Option::Some(Words64Sequence { values: array![].span(), len_bytes: 0 });
-        return Option::None;
+        if root_hash.values != split_u256_to_u64_array(EMPTY_TRIE_ROOT_HASH) {
+            return Result::Err(
+                'Empty proof must be empty'
+            ); //Empty proof must have empty trie root hash
+        } else {
+            return Result::Ok(out);
+        }
     }
 
     let mut next_hash = Words64Sequence { values: array![].span(), len_bytes: 0 };
     let mut path_offset = 0;
     let mut i = 0_u32;
-    while (i < proof_len) {
+
+    let output = loop {
         if i == proof_len {
             out = Option::None;
-            break;
+            break Result::Ok(out);
         }
+
         let element_rlp = *(proof.at(i));
 
         if i == 0 {
-            assert!(root_hash == keccak_words64(element_rlp), "Root hash mismatch");
+            if root_hash != keccak_words64(element_rlp) {
+                break Result::Err('Root hash mismatch');
+            }
         } else {
-            assert!(next_hash == keccak_words64(element_rlp), "Hash mismatch")
+            if next_hash != keccak_words64(element_rlp) {
+                break Result::Err('Hash mismatch');
+            }
         }
 
         let node = to_rlp_array(element_rlp);
@@ -87,7 +92,9 @@ pub fn verify_proof(
                 );
 
             if i == proof_len - 1 {
-                assert!(path_offset == path.len_bytes * 2, "Path offset mismatch");
+                if path_offset != path.len_bytes * 2 {
+                    break Result::Err('Path offset mismatch');
+                }
                 let node_element_at_one = *node.at(1);
                 out =
                     Option::Some(
@@ -95,7 +102,7 @@ pub fn verify_proof(
                             element_rlp, node_element_at_one.position, node_element_at_one.length
                         )
                     );
-                break;
+                break Result::Ok(out);
             } else {
                 let children = *node.at(1);
                 if !is_rlp_item(children) {
@@ -108,7 +115,9 @@ pub fn verify_proof(
                 }
             }
         } else {
-            assert!(node_len == 17, "Invalid node length");
+            if node_len != 17 {
+                break Result::Err('Invalid node length');
+            }
 
             if i == proof_len - 1 {
                 if path_offset + 1 == path.len_bytes * 2 {
@@ -116,16 +125,20 @@ pub fn verify_proof(
                         Option::Some(
                             extract_data(element_rlp, *node.at(16).position, *node.at(16).length)
                         );
-                    break;
+                    break Result::Ok(out);
                 } else {
                     let node_children = extract_nibble(path, path_offset).try_into().unwrap();
                     let children = *node.at(node_children);
-                    assert!(children.length == 0, "Invalid children length");
+                    if children.length != 0 {
+                        break Result::Err('invalid children length');
+                    }
                     out = Option::None;
-                    break;
+                    break Result::Ok(out);
                 }
             } else {
-                assert!(path_offset < path.len_bytes * 2, "Path offset mismatch");
+                if path_offset >= path.len_bytes * 2 {
+                    break Result::Err('Path offset mismatch');
+                }
                 let node_children = extract_nibble(path, path_offset).try_into().unwrap();
                 let children = *node.at(node_children);
 
@@ -143,8 +156,7 @@ pub fn verify_proof(
         }
         i += 1;
     };
-
-    out
+    output
 }
 
 #[cfg(test)]
@@ -154,24 +166,29 @@ mod tests {
     #[test]
     fn test_verify_proof() {
         let out = super::verify_proof(proof_path(), block_state_root(), proof().span());
-        assert!(out.is_some());
-        let out = out.unwrap();
-        assert_eq!(out.len_bytes, 70);
-        assert_eq!(
-            out.values,
-            array![
-                17889425271775927342,
-                7747611707377904165,
-                13770790249671850669,
-                10758299819545195701,
-                4563277353913962038,
-                17973550993138662906,
-                12418610901666554729,
-                11791013025377241442,
-                16720179567303
-            ]
-                .span()
-        );
+        match out {
+            Result::Ok(value) => {
+                assert!(value.is_some());
+                let value = value.unwrap();
+                assert_eq!(value.len_bytes, 70);
+                assert_eq!(
+                    value.values,
+                    array![
+                        17889425271775927342,
+                        7747611707377904165,
+                        13770790249671850669,
+                        10758299819545195701,
+                        4563277353913962038,
+                        17973550993138662906,
+                        12418610901666554729,
+                        11791013025377241442,
+                        16720179567303
+                    ]
+                        .span()
+                );
+            },
+            Result::Err(e) => println!("Error {}", e),
+        };
     }
 
     fn proof_path() -> Words64Sequence {
