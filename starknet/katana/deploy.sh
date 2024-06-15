@@ -23,7 +23,7 @@ echo "Messages Proxy Class hash: $messages_proxy_class_hash"
 # Retrieve the L1_MESSAGE_SENDER_ADDRESS from the environment variables
 l1_message_sender_address=${L1_MESSAGE_SENDER_ADDRESS}
 owner_address=${OWNER_ADDRESS} # 0x6162896d1d7ab204c7ccac6dd5f8e9e7c25ecd5ae4fcb4ad32e57786bb46e03 //katana-0
-admin_address=${ADMIN_ADDRESS}
+starknet_handler_address=${STARKNET_HANDLER_ADDRESS}
 
 # Check if the L1_MESSAGE_SENDER_ADDRESS environment variable is set
 if [ -z "$l1_message_sender_address" ]; then
@@ -47,7 +47,7 @@ echo " "
 
 # Header Store Deployment
 echo "Deploying headers-store with messages-proxy address..."
-output=$(starkli deploy "$headers_store_class_hash" "$messages_proxy" "$admin_address" --salt 0x1 -w)
+output=$(starkli deploy "$headers_store_class_hash" "$messages_proxy" "$owner_address" "$starknet_handler_address"--salt 0x1 -w)
 echo "headers-store: $output" >> katana/deployed-contracts.txt
 headers_store=$output
 echo "Header Store address: $headers_store"

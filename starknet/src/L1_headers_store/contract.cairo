@@ -46,6 +46,8 @@ pub mod L1HeaderStore {
     struct Storage {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
+        // #[substorage(v0)]
+        starknet_handler_address: ContractAddress,
         #[substorage(v0)]
         upgradeable: UpgradeableComponent::Storage,
         l1_messages_origin: ContractAddress,
@@ -81,15 +83,17 @@ pub mod L1HeaderStore {
     /// 
     /// # Arguments
     /// * `l1_messages_origin` - The address of L1 Message Proxy.
-    /// * `admin` - .
+    /// * `owner` - .
     #[constructor]
     fn constructor(
         ref self: ContractState,
         l1_messages_origin: starknet::ContractAddress,
-        admin: starknet::ContractAddress
+        owner: starknet::ContractAddress,
+        starknet_handler_address: starknet::ContractAddress
     ) {
         self.l1_messages_origin.write(l1_messages_origin);
-        self.ownable.initializer(admin);
+        self.ownable.initializer(owner);
+        self.starknet_handler_address.write(starknet_handler_address);
     }
 
     // *************************************************************************
@@ -131,7 +135,10 @@ pub mod L1HeaderStore {
         }
 
         fn store_state_root(ref self: ContractState, block_number: u64, state_root: u256) {
-            self.ownable.assert_only_owner();
+            // self.ownable.assert_only_owner();
+            // self.starknet_handler_address.assert_only_owner();
+            let caller = get_caller_address();
+            assert(caller == self.starknet_handler_address.read(),  'Caller is not the owner');
 
             assert!(
                 self.block_state_root.read(block_number) == 0,
@@ -143,7 +150,10 @@ pub mod L1HeaderStore {
         fn store_many_state_roots(
             ref self: ContractState, start_block: u64, end_block: u64, state_roots: Array<u256>
         ) {
-            self.ownable.assert_only_owner();
+            // self.ownable.assert_only_owner();
+            // self.starknet_handler_address.assert_only_owner();
+            let caller = get_caller_address();
+            assert(caller == self.starknet_handler_address.read(),  'Caller is not the owner');
 
             assert!(
                 state_roots.len().into() == (end_block - start_block + 1),

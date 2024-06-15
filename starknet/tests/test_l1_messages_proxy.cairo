@@ -1,7 +1,7 @@
 use fossil::L1_messages_proxy::interface::IL1MessagesProxyDispatcherTrait;
 use snforge_std::start_cheat_caller_address;
 use starknet::EthAddress;
-use super::test_utils::{setup, OWNER, ADMIN, L1_ORIGIN};
+use super::test_utils::{setup, OWNER, L1_ORIGIN, STARKNET_HANDLER};
 
 #[test]
 fn set_l1_headers_store_test_success() {
@@ -23,7 +23,7 @@ fn set_l1_headers_store_test_success() {
 fn set_l1_headers_store_test_fail() {
     let dsp = setup();
 
-    start_cheat_caller_address(dsp.proxy.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.proxy.contract_address, STARKNET_HANDLER());
     dsp.proxy.set_l1_headers_store(dsp.store.contract_address);
 }
 
