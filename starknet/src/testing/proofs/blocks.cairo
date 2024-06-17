@@ -29,3 +29,11 @@ pub fn BLOCK_3() -> Block {
         state_root: 0x2045bf4ea5561e88a4d0d9afbc316354e49fe892ac7e961a5e68f1f4b9561152,
     }
 }
+
+
+pub fn BLOCK_4() -> Block {
+    Block {
+        number: 13843679,
+        state_root: 0x2045bf4ea5561e88a4d0d9afbc316354e49fe892ac7e961a5e68f1f4b9561158,
+    }
+}
