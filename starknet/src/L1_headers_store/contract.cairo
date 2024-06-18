@@ -15,6 +15,7 @@ pub mod L1HeaderStore {
         decode_timestamp, decode_gas_used
     };
     use fossil::library::keccak_utils::keccak_words64;
+    use fossil::library::mmr_verifier::verify_proof;
     use fossil::library::words64_utils::words64_to_u256;
     use fossil::types::ProcessBlockOptions;
     use fossil::types::{BlockRLP, MMRProof, Words64Sequence};
@@ -125,11 +126,32 @@ pub mod L1HeaderStore {
 
         // Verifies the MMR inclusion proof for the block hash.
         // Processes the block header RLP encoded data to extract block state root.
-        // Hashes the block header RLP encoded data and compare to tnhe block hash provided.
+        // Hashes the block header RLP encoded data and compare to the block hash provided.
         // Save the block state root in the contract storage.
         fn verify_mmr_inclusion(
             self: @ContractState, block_hash: u256, mmr_proof: MMRProof, encoded_block: BlockRLP
         ) -> bool {
+            let res = verify_proof(block_hash, mmr_proof);
+            assert!(res == Result::Ok(true), "L1HeaderStore: MMR proof verification failed");
+
+            let rlpW64 = Words64Sequence {
+                values: encoded_block.try_into().unwrap(), len_bytes: encoded_block.len()
+            };
+            let block_state_root = decode_state_root(rlpW64);
+
+            // block number is the timestamp
+            let block_number = decode_timestamp(rlpW64);
+
+            self
+                .validate_provided_header_rlp(
+                    block_hash, // child_block_parent_hash: u256,
+                    block_number, // block_number: u64,
+                    encoded_block.len(), // block_header_rlp_bytes_len: usize,
+                    rlpW64.values // block_header_rlp: Array<u64>
+                );
+
+            self.block_state_root.write(block_number, block_state_root);
+
             true
         }
 
@@ -153,7 +175,7 @@ pub mod L1HeaderStore {
 
 
         fn get_mmr_root(self: @ContractState) -> u256 {
-            self.mmr_proof.read()
+            self.mmr_root_hash.read()
         }
 
         fn get_block_state_root(self: @ContractState, block_number: u64) -> u256 {
