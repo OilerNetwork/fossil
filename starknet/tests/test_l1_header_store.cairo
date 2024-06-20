@@ -67,7 +67,7 @@ fn test_store_state_root_success() {
 }
 
 #[test]
-#[should_panic(expected: 'Caller is not the owner')]
+#[should_panic(expected: 'Caller is not starknet handler')]
 fn test_store_state_root_fail_call_not_by_owner() {
     let dsp = setup();
 
@@ -111,7 +111,7 @@ fn test_store_many_state_root_success() {
 }
 
 #[test]
-#[should_panic(expected: 'Caller is not the owner')]
+#[should_panic(expected: 'Caller is not starknet handler')]
 fn test_store_many_state_root_fail_called_not_by_owner() {
     let dsp = setup();
 

@@ -46,10 +46,9 @@ pub mod L1HeaderStore {
     struct Storage {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
-        // #[substorage(v0)]
-        starknet_handler_address: ContractAddress,
         #[substorage(v0)]
         upgradeable: UpgradeableComponent::Storage,
+        starknet_handler_address: ContractAddress,
         l1_messages_origin: ContractAddress,
         latest_l1_block: u64,
         block_parent_hash: LegacyMap::<u64, u256>,
@@ -135,11 +134,7 @@ pub mod L1HeaderStore {
         }
 
         fn store_state_root(ref self: ContractState, block_number: u64, state_root: u256) {
-            // self.ownable.assert_only_owner();
-            // self.starknet_handler_address.assert_only_owner();
-            let caller = get_caller_address();
-            assert(caller == self.starknet_handler_address.read(),  'Caller is not the owner');
-
+            self.assert_only_starknet_handler();
             assert!(
                 self.block_state_root.read(block_number) == 0,
                 "L1HeaderStore: state root already exists"
@@ -150,11 +145,7 @@ pub mod L1HeaderStore {
         fn store_many_state_roots(
             ref self: ContractState, start_block: u64, end_block: u64, state_roots: Array<u256>
         ) {
-            // self.ownable.assert_only_owner();
-            // self.starknet_handler_address.assert_only_owner();
-            let caller = get_caller_address();
-            assert(caller == self.starknet_handler_address.read(),  'Caller is not the owner');
-
+            self.assert_only_starknet_handler();
             assert!(
                 state_roots.len().into() == (end_block - start_block + 1),
                 "L1HeaderStore: invalid state roots length"
@@ -253,5 +244,12 @@ pub mod L1HeaderStore {
 
             (block_header_rlp, block_header_rlp_bytes_len)
         }
+
+        fn assert_only_starknet_handler(self: @ContractState) {
+            let caller = get_caller_address();
+            assert(caller == self.starknet_handler_address.read(),  'Caller is not starknet handler');
+        }
     }
+
+    
 }
