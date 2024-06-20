@@ -247,9 +247,9 @@ pub mod L1HeaderStore {
 
         fn assert_only_starknet_handler(self: @ContractState) {
             let caller = get_caller_address();
-            assert(caller == self.starknet_handler_address.read(),  'Caller is not starknet handler');
+            assert(
+                caller == self.starknet_handler_address.read(), 'Caller is not starknet handler'
+            );
         }
     }
-
-    
 }
