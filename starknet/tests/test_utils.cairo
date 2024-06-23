@@ -19,13 +19,10 @@ pub fn OWNER() -> starknet::ContractAddress {
     starknet::contract_address_const::<'OWNER'>()
 }
 
-pub fn OWNER2() -> starknet::ContractAddress {
-    starknet::contract_address_const::<'OWNER2'>()
+pub fn STARKNET_HANDLER() -> starknet::ContractAddress {
+    starknet::contract_address_const::<'STARKNET_HANDLER'>()
 }
 
-pub fn ADMIN() -> starknet::ContractAddress {
-    starknet::contract_address_const::<'ADMIN'>()
-}
 #[derive(Drop, Copy)]
 pub struct Dispatchers {
     pub registry: IFactRegistryDispatcher,
@@ -42,14 +39,16 @@ pub fn setup() -> Dispatchers {
     let proxy = IL1MessagesProxyDispatcher { contract_address: contract_address_message_proxy };
 
     let contract_header_store = declare("L1HeaderStore").unwrap();
-    let mut constructor_calldata = array![proxy.contract_address.into(), ADMIN().into()];
+    let mut constructor_calldata = array![
+        proxy.contract_address.into(), OWNER().into(), STARKNET_HANDLER().into()
+    ];
     let (contract_address_header_store, _) = contract_header_store
         .deploy(@constructor_calldata)
         .unwrap();
     let store = IL1HeadersStoreDispatcher { contract_address: contract_address_header_store };
 
     let contract_factory = declare("FactRegistry").unwrap();
-    let mut constructor_calldata = array![store.contract_address.into(), OWNER2().into()];
+    let mut constructor_calldata = array![store.contract_address.into(), OWNER().into()];
     let (contract_address_factory, _) = contract_factory.deploy(@constructor_calldata).unwrap();
     let registry = IFactRegistryDispatcher { contract_address: contract_address_factory };
 

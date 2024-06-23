@@ -5,7 +5,7 @@ use fossil::testing::rlp;
 use fossil::types::ProcessBlockOptions;
 use snforge_std::start_cheat_caller_address;
 use starknet::EthAddress;
-use super::test_utils::{setup, OWNER, ADMIN};
+use super::test_utils::{setup, OWNER, STARKNET_HANDLER};
 
 #[test]
 fn receive_from_l1_success_test() {
@@ -38,7 +38,7 @@ fn change_l1_messages_origin_success() {
     let dsp = setup();
 
     let new_origin: starknet::ContractAddress = 'NEW_L1_MESSAGES'.try_into().unwrap();
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, OWNER());
     dsp.store.change_l1_messages_origin(new_origin);
 }
 
@@ -60,14 +60,14 @@ fn test_store_state_root_success() {
     let state_root: u256 = 0x1e7f7;
     let block = 19882;
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_state_root(block, state_root);
 
     assert_eq!(dsp.store.get_state_root(block), state_root);
 }
 
 #[test]
-#[should_panic(expected: 'Caller is not the owner')]
+#[should_panic(expected: 'Caller is not starknet handler')]
 fn test_store_state_root_fail_call_not_by_owner() {
     let dsp = setup();
 
@@ -85,10 +85,10 @@ fn test_store_state_root_fail_block_number_is_not_zero() {
     let state_root: u256 = 0x1e7f7;
     let block = 19882;
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_state_root(block, state_root);
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_state_root(block, state_root);
 }
 
@@ -102,7 +102,7 @@ fn test_store_many_state_root_success() {
     let start_block = 1;
     let end_block = 10;
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_many_state_roots(start_block, end_block, state_roots);
 
     assert_eq!(dsp.store.get_state_root(1), 0x1e7f7);
@@ -111,7 +111,7 @@ fn test_store_many_state_root_success() {
 }
 
 #[test]
-#[should_panic(expected: 'Caller is not the owner')]
+#[should_panic(expected: 'Caller is not starknet handler')]
 fn test_store_many_state_root_fail_called_not_by_owner() {
     let dsp = setup();
 
@@ -139,7 +139,7 @@ fn test_store_many_state_root_fail_invailed_state_root_length() {
     let start_block = 1;
     let end_block = 9;
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_many_state_roots(start_block, end_block, state_roots);
 
     assert_eq!(dsp.store.get_state_root(1), 0x1e7f7);

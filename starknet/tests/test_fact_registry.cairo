@@ -6,7 +6,7 @@ use fossil::{
     fact_registry::interface::IFactRegistryDispatcherTrait
 };
 use snforge_std::start_cheat_caller_address;
-use super::test_utils::{setup, OWNER, ADMIN};
+use super::test_utils::{setup, OWNER, STARKNET_HANDLER};
 
 #[test]
 fn prove_account_test_success_code_hash() {
@@ -14,7 +14,7 @@ fn prove_account_test_success_code_hash() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
@@ -33,7 +33,7 @@ fn prove_account_test_success_balance() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
@@ -52,7 +52,7 @@ fn prove_account_test_success_nonce() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
@@ -71,7 +71,7 @@ fn prove_account_test_success_storage_hash() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
@@ -92,7 +92,7 @@ fn prove_account_test_success_save_all() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_1();
@@ -134,7 +134,7 @@ fn prove_storage_test_success_with_some_data() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let account_proof = proofs::account::PROOF_1();
@@ -173,7 +173,7 @@ fn prove_storage_test_fail_state_root_not_found() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let account_proof = proofs::account::PROOF_1();
@@ -206,7 +206,7 @@ fn get_storage_test_success_with_no_data() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let account_proof = proofs::account::PROOF_1();
@@ -244,7 +244,7 @@ fn prove_storage_test_state_root_not_found() {
     let account_proof = proofs::account::PROOF_1();
     let storage_proof = proofs::storage::PROOF_1();
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let _ = dsp
@@ -272,7 +272,7 @@ fn prove_account_test_error_invalid_children_length() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_invalid_children_length();
@@ -290,7 +290,7 @@ fn prove_account_test_error_root_hash_mismatch() {
 
     let block = proofs::blocks::BLOCK_4();
 
-    start_cheat_caller_address(dsp.store.contract_address, ADMIN());
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
     dsp.store.store_state_root(block.number, block.state_root);
 
     let proof = proofs::account::PROOF_4();
