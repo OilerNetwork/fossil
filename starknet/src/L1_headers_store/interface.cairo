@@ -1,4 +1,4 @@
-use fossil::types::{MMRProof, BlockRLP};
+use fossil::types::{MMRProof, BlockRLP, Words64Sequence};
 use starknet::{EthAddress, ContractAddress};
 
 #[starknet::interface]
@@ -6,7 +6,7 @@ pub trait IL1HeadersStore<TState> {
     fn receive_from_l1(ref self: TState, parent_hash: u256, block_number: u64);
     fn change_l1_messages_origin(ref self: TState, l1_messages_origin: starknet::ContractAddress);
     fn verify_mmr_inclusion(
-        self: @TState, block_hash: u256, mmr_proof: MMRProof, encoded_block: BlockRLP
+        ref self: TState, block_hash: u256, mmr_proof: MMRProof, encoded_block: BlockRLP
     ) -> bool;
     fn set_latest_mmr_root(ref self: TState, new_root: u256);
 
