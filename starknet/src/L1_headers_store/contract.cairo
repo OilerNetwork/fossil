@@ -130,20 +130,32 @@ pub mod L1HeaderStore {
         // Hashes the block header RLP encoded data and compare to the block hash provided.
         // Save the block state root in the contract storage.
         fn verify_mmr_inclusion(
-            ref self: ContractState, block_hash: u256, mmr_proof: MMRProof, encoded_block: BlockRLP
-        ) -> bool {
-            let res = verify_proof(block_hash, mmr_proof);
-            assert!(res == Result::Ok(true), "L1HeaderStore: MMR proof verification failed");
-            let encoded_block_hash = keccak256(encoded_block);
-            assert!(encoded_block_hash == block_hash, "L1HeaderStore: block hash does not match");
+            ref self: ContractState,
+            block_number: u64,
+            block_hash: u256,
+            mmr_proof: MMRProof,
+            encoded_block: BlockRLP
+        ) -> Result<bool, felt252> {
+            let result = verify_proof(block_hash, mmr_proof);
 
-            let state_root = extract_state_root(encoded_block);
-            // let block_number = decode_block_number(encoded_block);
-            let block_number = self.latest_l1_block_number;
+            match result {
+                Result::Ok(result) => {
+                    let encoded_block_hash = keccak256(encoded_block);
+                    let is_encoded_hash_matched = encoded_block_hash == block_hash;
 
-            self.block_state_root.write(block_number, state_root);
+                    match is_encoded_hash_matched {
+                        true => {},
+                        false => { return Result::Err('block hash mismatch'); }
+                    }
 
-            true
+                    let state_root = extract_state_root(encoded_block);
+
+                    self.block_state_root.write(block_number, state_root);
+
+                    Result::Ok(result)
+                },
+                Result::Err(e) => Result::Err(e)
+            }
         }
 
         // Only Owner

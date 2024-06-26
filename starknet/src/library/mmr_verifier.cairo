@@ -191,29 +191,6 @@ pub fn extract_state_root(rlp_encoded: Span<u8>) -> u256 {
     state_root
 }
 
-pub fn extract_block_number(rlp_encoded: Span<u8>) -> u64 {
-    let start_index = 90;
-    let length = 8;
-    let mut block_number_bytes = array![];
-
-    let mut i = start_index;
-    while i <= start_index + length {
-        block_number_bytes.append(*rlp_encoded.at(i));
-        i += 1;
-    };
-
-    let len = state_root_bytes.len();
-    let mut j = 0;
-    let mut block_number: u64 = 0;
-
-    while j < len {
-        block_number = (BitShift::shl(state_root, 8)) + (*block_number_bytes.at(j)).into();
-        j += 1;
-    };
-
-    block_number
-}
-
 #[cfg(test)]
 mod tests {
     #[test]

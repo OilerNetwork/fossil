@@ -64,11 +64,11 @@ pub enum ProcessBlockOptions {
 
 #[derive(Drop, Serde)]
 pub struct MMRProof {
-    element_index: usize,
-    element_hash: u256,
-    siblings: Span<u256>,
-    peaks: Span<u256>,
-    elements_count: usize,
+    pub element_index: usize,
+    pub element_hash: u256,
+    pub siblings: Span<u256>,
+    pub peaks: Span<u256>,
+    pub elements_count: usize,
 }
 
 /// Implementation of `PartialEq` for `Words64Sequence`.
