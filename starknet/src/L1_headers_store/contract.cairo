@@ -125,6 +125,16 @@ pub mod L1HeaderStore {
             self.l1_messages_origin.write(l1_messages_origin);
         }
 
+        /// Change MMR root hash. (Only Owner)
+        /// 
+        /// # Arguments
+        /// * `new_root` - The new MMR root hash.
+        fn set_latest_mmr_root(ref self: ContractState, new_root: u256) {
+            self.ownable.assert_only_owner();
+            self.mmr_root_hash.write(new_root);
+        }
+
+
         // Verifies the MMR inclusion proof for the block hash.
         // Processes the block header RLP encoded data to extract block state root.
         // Hashes the block header RLP encoded data and compare to the block hash provided.
@@ -158,12 +168,10 @@ pub mod L1HeaderStore {
             }
         }
 
-        // Only Owner
-        fn set_latest_mmr_root(ref self: ContractState, new_root: u256) {
-            self.ownable.assert_only_owner();
-            self.mmr_root_hash.write(new_root);
-        }
-
+        /// Retrieves the latest block hash stored in the contract.
+        ///
+        /// # Returns
+        /// * `u256` - The latest block hash.
         fn get_latest_block_hash(self: @ContractState) -> u256 {
             self.latest_l1_block_hash.read(self.latest_l1_block_number.read())
         }
@@ -176,11 +184,19 @@ pub mod L1HeaderStore {
             self.latest_l1_block_number.read()
         }
 
-
+        /// Retrieves the MMR root hash stored in the contract.
+        ///
+        /// # Returns
+        /// * `u256` - The MMR root hash.
         fn get_mmr_root(self: @ContractState) -> u256 {
             self.mmr_root_hash.read()
         }
 
+        /// Retrieves the block state root for specific block number stored in 
+        /// the contract.
+        ///
+        /// # Returns
+        /// * `u256` - The block state root.
         fn get_block_state_root(self: @ContractState, block_number: u64) -> u256 {
             self.block_state_root.read(block_number)
         }
