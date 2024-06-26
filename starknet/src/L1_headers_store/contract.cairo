@@ -12,9 +12,11 @@ pub mod L1HeaderStore {
     use fossil::library::blockheader_rlp_extractor::{
         decode_parent_hash, decode_uncle_hash, decode_beneficiary, decode_state_root,
         decode_transactions_root, decode_receipts_root, decode_difficulty, decode_base_fee,
-        decode_timestamp, decode_gas_used
+        decode_timestamp, decode_gas_used, decode_block_number
     };
+    use fossil::library::keccak256::keccak256;
     use fossil::library::keccak_utils::keccak_words64;
+    use fossil::library::mmr_verifier::{verify_proof, extract_state_root};
     use fossil::library::words64_utils::words64_to_u256;
     use fossil::types::ProcessBlockOptions;
     use fossil::types::{BlockRLP, MMRProof, Words64Sequence};
@@ -123,21 +125,55 @@ pub mod L1HeaderStore {
             self.l1_messages_origin.write(l1_messages_origin);
         }
 
-        // Verifies the MMR inclusion proof for the block hash.
-        // Processes the block header RLP encoded data to extract block state root.
-        // Hashes the block header RLP encoded data and compare to tnhe block hash provided.
-        // Save the block state root in the contract storage.
-        fn verify_mmr_inclusion(
-            self: @ContractState, block_hash: u256, mmr_proof: MMRProof, encoded_block: BlockRLP
-        ) -> bool {
-            true
+        /// Change MMR root hash. (Only Owner)
+        /// 
+        /// # Arguments
+        /// * `new_root` - The new MMR root hash.
+        fn set_latest_mmr_root(ref self: ContractState, new_root: u256) {
+            self.ownable.assert_only_owner();
+            self.mmr_root_hash.write(new_root);
         }
 
-        // Only Owner
-        fn set_latest_mmr_root(ref self: ContractState, new_root: u256) {}
 
+        // Verifies the MMR inclusion proof for the block hash.
+        // Processes the block header RLP encoded data to extract block state root.
+        // Hashes the block header RLP encoded data and compare to the block hash provided.
+        // Save the block state root in the contract storage.
+        fn verify_mmr_inclusion(
+            ref self: ContractState,
+            block_number: u64,
+            block_hash: u256,
+            mmr_proof: MMRProof,
+            encoded_block: BlockRLP
+        ) -> Result<bool, felt252> {
+            let result = verify_proof(block_hash, mmr_proof);
+
+            match result {
+                Result::Ok(result) => {
+                    let encoded_block_hash = keccak256(encoded_block);
+                    let is_encoded_hash_matched = encoded_block_hash == block_hash;
+
+                    match is_encoded_hash_matched {
+                        true => {},
+                        false => { return Result::Err('block hash mismatch'); }
+                    }
+
+                    let state_root = extract_state_root(encoded_block);
+
+                    self.block_state_root.write(block_number, state_root);
+
+                    Result::Ok(result)
+                },
+                Result::Err(e) => Result::Err(e)
+            }
+        }
+
+        /// Retrieves the latest block hash stored in the contract.
+        ///
+        /// # Returns
+        /// * `u256` - The latest block hash.
         fn get_latest_block_hash(self: @ContractState) -> u256 {
-            0
+            self.latest_l1_block_hash.read(self.latest_l1_block_number.read())
         }
 
         /// Retrieves the latest L1 block number stored in the contract.
@@ -148,13 +184,21 @@ pub mod L1HeaderStore {
             self.latest_l1_block_number.read()
         }
 
-
+        /// Retrieves the MMR root hash stored in the contract.
+        ///
+        /// # Returns
+        /// * `u256` - The MMR root hash.
         fn get_mmr_root(self: @ContractState) -> u256 {
-            0
+            self.mmr_root_hash.read()
         }
 
+        /// Retrieves the block state root for specific block number stored in 
+        /// the contract.
+        ///
+        /// # Returns
+        /// * `u256` - The block state root.
         fn get_block_state_root(self: @ContractState, block_number: u64) -> u256 {
-            0
+            self.block_state_root.read(block_number)
         }
     }
 

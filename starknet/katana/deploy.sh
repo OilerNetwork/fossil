@@ -58,7 +58,8 @@ echo " "
 echo "Deploying fact-registry with headers-store address and owner address..."
 output=$(starkli deploy "$fact_registry_class_hash" "$headers_store" "$owner_address" --salt 0x1 -w)
 echo "fact-registry: $output" >> katana/deployed-contracts.txt
-echo "Fact Registry address: $headers_store"
+fact_registry=$output
+echo "Fact Registry address: $fact_registry"
 echo "Deployment address for fact-registry saved to deployed-contracts.txt"
 
 echo "Deployment complete."
