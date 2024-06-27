@@ -3,6 +3,7 @@ src = "src"
 out = "out"
 libs = ["lib"]
 fs_permissions = [{ access = "read-write", path = "./logs" }]
+remappings = ["@forge-std/=lib/forge-std/"]
 
-[dependencies] # <= Dependencies will be added under this config
+[profile.dependencies] # <= Dependencies will be added under this config
 forge-std = { version = "1.8.2", url = "https://github.com/foundry-rs/foundry.git" }
