@@ -1,8 +1,13 @@
+
+# Full reference https://github.com/foundry-rs/foundry/tree/master/crates/config
+
 [profile.default]
+script = "script"
+solc = "0.8.26"
 src = "src"
-out = "out"
-libs = ["lib"]
+test = "test"
+libs = ["dependencies"]
 fs_permissions = [{ access = "read-write", path = "./logs" }]
 
-[dependencies] # <= Dependencies will be added under this config
+[dependencies]
 forge-std = { version = "1.8.2", url = "https://github.com/foundry-rs/foundry.git" }
