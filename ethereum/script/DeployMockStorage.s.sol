@@ -13,7 +13,9 @@ contract DeployMockStorage is Script{
 
     function run() external returns (MockStorage) {
 
-        vm.startBroadcast();
+        uint256 deployerPrivateKey = vm.envUint("ACCOUNT_PRIVATE_KEY");
+
+        vm.startBroadcast(deployerPrivateKey);
         MockStorage mockStorage = new MockStorage();
         mockStorage.setValue(val1);
         mockStorage.setMapValues(val1, addr);
