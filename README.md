@@ -54,3 +54,8 @@
       ```bash
       forge script script/SendMessage.s.sol:Value --broadcast --rpc-url ${ETH_RPC_URL}
       ```
+
+9. Deploy Mock Sol Contract:
+     ```bash
+     forge script script/DeployMockStorage.s.sol:DeployMockStorage --broadcast --rpc-url ${ETH_RPC_URL}
+      ```
