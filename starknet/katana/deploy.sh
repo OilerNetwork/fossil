@@ -47,7 +47,7 @@ echo " "
 
 # Header Store Deployment
 echo "Deploying headers-store with messages-proxy address..."
-output=$(starkli deploy "$headers_store_class_hash" "$messages_proxy" "$owner_address" "$starknet_handler_address"--salt 0x1 -w)
+output=$(starkli deploy "$headers_store_class_hash" "$messages_proxy" "$owner_address" "$starknet_handler_address" --salt 0x1 -w)
 echo "headers-store: $output" >> katana/deployed-contracts.txt
 headers_store=$output
 echo "Header Store address: $headers_store"
