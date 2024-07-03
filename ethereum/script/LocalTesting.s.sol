@@ -9,6 +9,8 @@ import "src/L1MessageSender.sol";
 
 import "src/StarknetMessagingLocal.sol";
 
+import "src/Mock/MockStorage.sol";
+
 /**
  * Deploys the ContractMsg and StarknetMessagingLocal contracts.
  *    Very handy to quickly setup Anvil to debug.
@@ -31,6 +33,9 @@ contract LocalSetup is Script {
 
         address l1MessageSender = address(new L1MessagesSender(snLocalAddress, vm.envUint("L2_CONTRACT_ADDRESS")));
         vm.serializeString(json, "l1MessageSender_address", vm.toString(l1MessageSender));
+
+         address mockStorageAddress = address(new MockStorage());
+        vm.serializeString(json, "snMessaging_address", vm.toString(mockStorageAddress));
 
         vm.stopBroadcast();
 

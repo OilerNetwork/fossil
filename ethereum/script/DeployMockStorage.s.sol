@@ -15,13 +15,17 @@ contract DeployMockStorage is Script{
 
         uint256 deployerPrivateKey = vm.envUint("ACCOUNT_PRIVATE_KEY");
 
+        string memory json = "local_testing";
+
         vm.startBroadcast(deployerPrivateKey);
+        address mockStorageAddress = address(new MockStorage());
+        vm.serializeString(json, "snMessaging_address", vm.toString(mockStorageAddress));
         MockStorage mockStorage = new MockStorage();
-        mockStorage.setValue(val1);
-        mockStorage.setMapValues(val1, addr);
-        mockStorage.setMapValues(val2, addr2);
-        mockStorage.setArrValues(addr);
-        mockStorage.setArrValues(addr2);
+        // mockStorage.setValue(val1);
+        // mockStorage.setMapValues(val1, addr);
+        // mockStorage.setMapValues(val2, addr2);
+        // mockStorage.setArrValues(addr);
+        // mockStorage.setArrValues(addr2);
         vm.stopBroadcast();
 
         return mockStorage;
