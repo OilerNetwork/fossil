@@ -4,7 +4,17 @@ pragma solidity ^0.8.0;
 contract MockStorage {
     uint256 public value;
     mapping(uint256 => address) public mapValues;
-    address[] public arrValues;
+    uint[] public arrValues;
+
+    constructor() {
+        value = 99;
+        mapValues[99] = msg.sender;
+        arrValues.push(1);
+        arrValues.push(2);
+        arrValues.push(3);
+        arrValues.push(4);
+        arrValues.push(5);
+    }
 
     function setValue(uint256 _value) public {
         value = _value;
@@ -22,11 +32,11 @@ contract MockStorage {
         return mapValues[_value];
     }
 
-    function setArrValues(address _value) public {
+    function setArrValues(uint _value) public {
         arrValues.push(_value);
     }
 
-    function getArrValues(uint256 i) public view returns (address) {
+    function getArrValues(uint256 i) public view returns (uint) {
         return arrValues[i];
     }
 }
