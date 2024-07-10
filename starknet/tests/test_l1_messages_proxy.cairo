@@ -1,7 +1,7 @@
 use fossil::L1_messages_proxy::interface::IL1MessagesProxyDispatcherTrait;
 use snforge_std::start_cheat_caller_address;
 use starknet::EthAddress;
-use super::test_utils::{setup, OWNER, L1_ORIGIN, STARKNET_HANDLER};
+use super::test_utils::{setup, OWNER, STARKNET_HANDLER, L1_ORIGIN};
 
 #[test]
 fn set_l1_headers_store_test_success() {

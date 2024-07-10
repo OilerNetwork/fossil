@@ -19,6 +19,10 @@ pub fn OWNER() -> starknet::ContractAddress {
     starknet::contract_address_const::<'OWNER'>()
 }
 
+pub fn OWNER2() -> starknet::ContractAddress {
+    starknet::contract_address_const::<'OWNER2'>()
+}
+
 pub fn STARKNET_HANDLER() -> starknet::ContractAddress {
     starknet::contract_address_const::<'STARKNET_HANDLER'>()
 }
@@ -39,9 +43,7 @@ pub fn setup() -> Dispatchers {
     let proxy = IL1MessagesProxyDispatcher { contract_address: contract_address_message_proxy };
 
     let contract_header_store = declare("L1HeaderStore").unwrap();
-    let mut constructor_calldata = array![
-        proxy.contract_address.into(), OWNER().into(), STARKNET_HANDLER().into()
-    ];
+    let mut constructor_calldata = array![proxy.contract_address.into(), STARKNET_HANDLER().into()];
     let (contract_address_header_store, _) = contract_header_store
         .deploy(@constructor_calldata)
         .unwrap();

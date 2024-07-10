@@ -12,12 +12,14 @@ pub mod L1HeaderStore {
     use fossil::library::blockheader_rlp_extractor::{
         decode_parent_hash, decode_uncle_hash, decode_beneficiary, decode_state_root,
         decode_transactions_root, decode_receipts_root, decode_difficulty, decode_base_fee,
-        decode_timestamp, decode_gas_used
+        decode_timestamp, decode_gas_used, decode_block_number
     };
+    use fossil::library::keccak256::keccak256;
     use fossil::library::keccak_utils::keccak_words64;
+    use fossil::library::mmr_verifier::{verify_proof, extract_state_root};
     use fossil::library::words64_utils::words64_to_u256;
     use fossil::types::ProcessBlockOptions;
-    use fossil::types::Words64Sequence;
+    use fossil::types::{BlockRLP, MMRProof, Words64Sequence};
     use openzeppelin::access::ownable::OwnableComponent;
     // *************************************************************************
     //                               IMPORTS
@@ -48,19 +50,11 @@ pub mod L1HeaderStore {
         ownable: OwnableComponent::Storage,
         #[substorage(v0)]
         upgradeable: UpgradeableComponent::Storage,
-        starknet_handler_address: ContractAddress,
         l1_messages_origin: ContractAddress,
-        latest_l1_block: u64,
-        block_parent_hash: LegacyMap::<u64, u256>,
+        latest_l1_block_number: u64,
+        mmr_root_hash: u256,
+        latest_l1_block_hash: LegacyMap::<u64, u256>,
         block_state_root: LegacyMap::<u64, u256>,
-        block_transactions_root: LegacyMap::<u64, u256>,
-        block_receipts_root: LegacyMap::<u64, u256>,
-        block_uncles_hash: LegacyMap::<u64, u256>,
-        block_beneficiary: LegacyMap::<u64, EthAddress>,
-        block_difficulty: LegacyMap::<u64, u64>,
-        block_base_fee: LegacyMap::<u64, u64>,
-        block_timestamp: LegacyMap::<u64, u64>,
-        block_gas_used: LegacyMap::<u64, u64>,
     }
 
     // *************************************************************************
@@ -82,17 +76,15 @@ pub mod L1HeaderStore {
     /// 
     /// # Arguments
     /// * `l1_messages_origin` - The address of L1 Message Proxy.
-    /// * `owner` - .
+    /// * `admin` - .
     #[constructor]
     fn constructor(
         ref self: ContractState,
         l1_messages_origin: starknet::ContractAddress,
-        owner: starknet::ContractAddress,
-        starknet_handler_address: starknet::ContractAddress
+        admin: starknet::ContractAddress
     ) {
         self.l1_messages_origin.write(l1_messages_origin);
-        self.ownable.initializer(owner);
-        self.starknet_handler_address.write(starknet_handler_address);
+        self.ownable.initializer(admin);
     }
 
     // *************************************************************************
@@ -115,10 +107,10 @@ pub mod L1HeaderStore {
                 get_caller_address() == self.l1_messages_origin.read(),
                 "L1HeaderStore: unauthorized caller"
             );
-            self.block_parent_hash.write(block_number, parent_hash);
+            self.latest_l1_block_hash.write(block_number, parent_hash);
 
-            if self.latest_l1_block.read() <= block_number {
-                self.latest_l1_block.write(block_number);
+            if self.latest_l1_block_number.read() <= block_number {
+                self.latest_l1_block_number.write(block_number);
             }
         }
 
@@ -133,61 +125,79 @@ pub mod L1HeaderStore {
             self.l1_messages_origin.write(l1_messages_origin);
         }
 
-        fn store_state_root(ref self: ContractState, block_number: u64, state_root: u256) {
-            self.assert_only_starknet_handler();
-            assert!(
-                self.block_state_root.read(block_number) == 0,
-                "L1HeaderStore: state root already exists"
-            );
-            self.block_state_root.write(block_number, state_root);
-        }
-
-        fn store_many_state_roots(
-            ref self: ContractState, start_block: u64, end_block: u64, state_roots: Array<u256>
-        ) {
-            self.assert_only_starknet_handler();
-            assert!(
-                state_roots.len().into() == (end_block - start_block + 1),
-                "L1HeaderStore: invalid state roots length"
-            );
-
-            let mut start = start_block;
-            let mut index = 0;
-
-            while start <= end_block {
-                self.store_state_root(start, *state_roots.at(index));
-                start += 1;
-                index += 1;
-            };
-        }
-
-        /// Retrieves the parent hash of the specified block number.
-        ///
+        /// Change MMR root hash. (Only Owner)
+        /// 
         /// # Arguments
-        /// * `block_number` - The block number for which to retrieve the parent hash.
+        /// * `new_root` - The new MMR root hash.
+        fn set_latest_mmr_root(ref self: ContractState, new_root: u256) {
+            self.ownable.assert_only_owner();
+            self.mmr_root_hash.write(new_root);
+        }
+
+
+        // Verifies the MMR inclusion proof for the block hash.
+        // Processes the block header RLP encoded data to extract block state root.
+        // Hashes the block header RLP encoded data and compare to the block hash provided.
+        // Save the block state root in the contract storage.
+        fn verify_mmr_inclusion(
+            ref self: ContractState,
+            block_number: u64,
+            block_hash: u256,
+            mmr_proof: MMRProof,
+            encoded_block: BlockRLP
+        ) -> Result<bool, felt252> {
+            let result = verify_proof(block_hash, mmr_proof);
+
+            match result {
+                Result::Ok(result) => {
+                    let encoded_block_hash = keccak256(encoded_block);
+                    let is_encoded_hash_matched = encoded_block_hash == block_hash;
+
+                    match is_encoded_hash_matched {
+                        true => {},
+                        false => { return Result::Err('block hash mismatch'); }
+                    }
+
+                    let state_root = extract_state_root(encoded_block);
+
+                    self.block_state_root.write(block_number, state_root);
+
+                    Result::Ok(result)
+                },
+                Result::Err(e) => Result::Err(e)
+            }
+        }
+
+        /// Retrieves the latest block hash stored in the contract.
         ///
         /// # Returns
-        /// * `u256` - The parent hash.
-        fn get_parent_hash(self: @ContractState, block_number: u64) -> u256 {
-            self.block_parent_hash.read(block_number)
+        /// * `u256` - The latest block hash.
+        fn get_latest_block_hash(self: @ContractState) -> u256 {
+            self.latest_l1_block_hash.read(self.latest_l1_block_number.read())
         }
 
         /// Retrieves the latest L1 block number stored in the contract.
         ///
         /// # Returns
         /// * `u64` - The latest L1 block number.
-        fn get_latest_l1_block(self: @ContractState) -> u64 {
-            self.latest_l1_block.read()
+        fn get_latest_l1_block_number(self: @ContractState) -> u64 {
+            self.latest_l1_block_number.read()
         }
 
-        /// Retrieves the state root of the specified block number.
-        ///
-        /// # Arguments
-        /// * `block_number` - The block number for which to retrieve the state root.
+        /// Retrieves the MMR root hash stored in the contract.
         ///
         /// # Returns
-        /// * `u256` - The state root.
-        fn get_state_root(self: @ContractState, block_number: u64) -> u256 {
+        /// * `u256` - The MMR root hash.
+        fn get_mmr_root(self: @ContractState) -> u256 {
+            self.mmr_root_hash.read()
+        }
+
+        /// Retrieves the block state root for specific block number stored in 
+        /// the contract.
+        ///
+        /// # Returns
+        /// * `u256` - The block state root.
+        fn get_block_state_root(self: @ContractState, block_number: u64) -> u256 {
             self.block_state_root.read(block_number)
         }
     }
@@ -243,13 +253,6 @@ pub mod L1HeaderStore {
             );
 
             (block_header_rlp, block_header_rlp_bytes_len)
-        }
-
-        fn assert_only_starknet_handler(self: @ContractState) {
-            let caller = get_caller_address();
-            assert(
-                caller == self.starknet_handler_address.read(), 'Caller is not starknet handler'
-            );
         }
     }
 }

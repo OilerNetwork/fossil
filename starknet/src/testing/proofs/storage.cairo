@@ -1027,3 +1027,25 @@ pub fn PROOF_2() -> StorageProof {
         value: 0x07a8f1298f7eaa479401,
     }
 }
+
+pub fn PROOF_anvil() -> StorageProof {
+    StorageProof {
+        key: 0x0,
+        bytes: array![36],
+        data: array![
+            16402426678559430996, 10043775756120992136, 4066689215784326472, 4614208530827908622, 4091896618
+        ],
+        value: 0x2a,
+    }
+}
+
+pub fn PROOF_anvil_1() -> StorageProof {
+    StorageProof {
+        key: 0x0,
+        bytes: array![36],
+        data: array![
+            16402426678559430996, 10043775756120992136, 4066689215784326472, 4614208530827908622, 4091896618
+        ],
+        value: 0x0,
+    }
+}

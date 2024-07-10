@@ -112,7 +112,7 @@ pub mod FactRegistry {
             proof_sizes_bytes: Array<usize>,
             proofs_concat: Array<u64>,
         ) -> Result<bool, felt252> {
-            let state_root = self.l1_headers_store.read().get_state_root(block);
+            let state_root = self.l1_headers_store.read().get_block_state_root(block);
             assert!(state_root != 0, "FactRegistry: block state root not found");
             let proof = self
                 .reconstruct_ints_sequence_list(proofs_concat.span(), proof_sizes_bytes.span());
@@ -205,7 +205,8 @@ pub mod FactRegistry {
             );
 
             match result {
-                Result::Err => Result::Err('Error'),
+                // Result::Err => Result::Err('Error'),
+                Result::Err(e) => { Result::Err(e) },
                 Result::Ok(result) => {
                     if !result.is_some() {
                         Result::Err('Result is None')

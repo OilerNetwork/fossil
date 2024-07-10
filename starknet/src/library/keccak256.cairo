@@ -2,6 +2,7 @@
 // make auditing easier. The original code can be found at https://github.com/keep-starknet-strange/alexandria/blob/main/src/math/src/keccak256.cairo
 
 use core::integer::u128_byte_reverse;
+use fossil::library::bitshift::BitShift;
 use keccak::cairo_keccak;
 
 #[generate_trait]
@@ -60,4 +61,34 @@ pub fn keccak256(mut self: Span<u8>) -> u256 {
     // handle last word specifically 
     let (last_word, last_word_bytes) = U64Trait::from_le_bytes(self);
     reverse_endianness(cairo_keccak(ref words64, last_word, last_word_bytes))
+}
+
+pub fn hash_2(a: u256, b: u256) -> u256 {
+    let a_array = u256_to_big_endian_bytes(a);
+    let b_array = u256_to_big_endian_bytes(b);
+    let mut combined = array![];
+    let mut i = 0;
+    while i < a_array.len() {
+        combined.append(*a_array.at(i));
+        i += 1;
+    };
+    i = 0;
+    while i < b_array.len() {
+        combined.append(*b_array.at(i));
+        i += 1;
+    };
+    keccak256(combined.span())
+}
+
+fn u256_to_big_endian_bytes(num: u256) -> Array<u8> {
+    let mut out = array![];
+
+    let mut i = 0_u32;
+    while i < 32 {
+        let byte: u8 = (BitShift::shr(num, ((31 - i) * 8).into()) & 0xFF).try_into().unwrap();
+        out.append(byte);
+        i += 1;
+    };
+
+    out
 }
