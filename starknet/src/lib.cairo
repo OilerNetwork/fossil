@@ -37,7 +37,7 @@ pub mod testing {
     pub mod proofs {
         pub mod account;
         pub mod blocks;
-        pub mod storage;
         pub mod mmr;
+        pub mod storage;
     }
 }

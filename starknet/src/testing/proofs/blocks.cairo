@@ -39,7 +39,6 @@ pub fn BLOCK_4() -> Block {
 
 pub fn BLOCK_anvil() -> Block {
     Block {
-        number: 5,
-        state_root: 0xaee164c0e4900ba3ab6447e077b2744e1e2c2fd539dcb5465e7812643468b56a,
+        number: 5, state_root: 0xaee164c0e4900ba3ab6447e077b2744e1e2c2fd539dcb5465e7812643468b56a,
     }
 }

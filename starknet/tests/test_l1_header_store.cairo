@@ -1,4 +1,5 @@
 use fossil::L1_headers_store::interface::IL1HeadersStoreDispatcherTrait;
+use fossil::library::keccak256::keccak256;
 use fossil::library::words64_utils::{words64_to_nibbles, Words64Trait};
 use fossil::testing::proofs;
 use fossil::testing::rlp;
@@ -6,7 +7,6 @@ use fossil::types::ProcessBlockOptions;
 use snforge_std::start_cheat_caller_address;
 use starknet::EthAddress;
 use super::test_utils::{setup, OWNER, STARKNET_HANDLER};
-use fossil::library::keccak256::keccak256;
 
 #[test]
 fn receive_from_l1_success_test() {
@@ -20,7 +20,7 @@ fn receive_from_l1_success_test() {
 
     assert_eq!(dsp.store.get_latest_l1_block_number(), block.number.try_into().unwrap());
     assert_eq!(dsp.store.get_latest_block_hash(), parent_hash);
-    // assert_eq!(dsp.store.get_parent_hash(block.number), parent_hash);
+// assert_eq!(dsp.store.get_parent_hash(block.number), parent_hash);
 }
 
 #[test]
@@ -88,7 +88,6 @@ fn test_verify_mmr_inclusion() {
     let block_rlp = proofs::mmr::block_rlp_anvil();
 
     let block_number: u64 = proof.element_index.try_into().unwrap();
-    
     let result = dsp.store.verify_mmr_inclusion(block_number, proof.element_hash, proof, block_rlp);
     println!("result: {:?}", result);
     assert_eq!(result, Result::Ok(true));
@@ -106,7 +105,6 @@ fn test_verify_mmr_inclusion_fail() {
     let proof = proofs::mmr::proof_1();
     let block_rlp = proofs::mmr::block_rlp_3();
     let block_number: u64 = proof.element_index.try_into().unwrap();
-    
     let result = dsp.store.verify_mmr_inclusion(block_number, proof.element_hash, proof, block_rlp);
     assert_eq!(result, Result::Ok(true));
 }

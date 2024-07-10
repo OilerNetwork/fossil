@@ -17,9 +17,10 @@ fn prove_account_test_success_code_hash() {
     let block_rlp = proofs::mmr::block_rlp_anvil();
     let block_number: u64 = mmr_proof.element_index.try_into().unwrap();
 
-
     start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
-    let result = dsp.store.verify_mmr_inclusion(block_number, mmr_proof.element_hash, mmr_proof, block_rlp);
+    let result = dsp
+        .store
+        .verify_mmr_inclusion(block_number, mmr_proof.element_hash, mmr_proof, block_rlp);
     assert_eq!(result, Result::Ok(true));
 
     let state_root = dsp.store.get_block_state_root(block_number);
@@ -28,17 +29,23 @@ fn prove_account_test_success_code_hash() {
     let account_proof = proofs::account::PROOF_anvil();
     let result = dsp
         .registry
-        .prove_account(OptionsSet::CodeHash, account_proof.address, block.number, account_proof.bytes, account_proof.data);
+        .prove_account(
+            OptionsSet::CodeHash,
+            account_proof.address,
+            block.number,
+            account_proof.bytes,
+            account_proof.data
+        );
 
     assert_eq!(result, Result::Ok(true));
 
-    let code_hash = dsp.registry.get_verified_account_code_hash(account_proof.address, block.number);
+    let code_hash = dsp
+        .registry
+        .get_verified_account_code_hash(account_proof.address, block.number);
     println!("      code_hash: {:?}", code_hash);
     println!("proof.code_hash: {:?}", account_proof.code_hash);
-    // assert_eq!(code_hash, proof.code_hash);
+// assert_eq!(code_hash, proof.code_hash);
 }
-
-
 
 #[test]
 fn prove_account_test_success_balance() {
@@ -49,9 +56,10 @@ fn prove_account_test_success_balance() {
     let block_rlp = proofs::mmr::block_rlp_anvil();
     let block_number: u64 = mmr_proof.element_index.try_into().unwrap();
 
-
     start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
-    let result = dsp.store.verify_mmr_inclusion(block_number, mmr_proof.element_hash, mmr_proof, block_rlp);
+    let result = dsp
+        .store
+        .verify_mmr_inclusion(block_number, mmr_proof.element_hash, mmr_proof, block_rlp);
     assert_eq!(result, Result::Ok(true));
 
     let state_root = dsp.store.get_block_state_root(block_number);
@@ -60,7 +68,13 @@ fn prove_account_test_success_balance() {
     let account_proof = proofs::account::PROOF_anvil();
     let result = dsp
         .registry
-        .prove_account(OptionsSet::Balance, account_proof.address, block.number, account_proof.bytes, account_proof.data);
+        .prove_account(
+            OptionsSet::Balance,
+            account_proof.address,
+            block.number,
+            account_proof.bytes,
+            account_proof.data
+        );
     assert_eq!(result, Result::Ok(true));
 
     let balance = dsp.registry.get_verified_account_balance(account_proof.address, block.number);
@@ -76,9 +90,10 @@ fn prove_account_test_success_nonce() {
     let block_rlp = proofs::mmr::block_rlp_anvil();
     let block_number: u64 = mmr_proof.element_index.try_into().unwrap();
 
-
     start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
-    let result = dsp.store.verify_mmr_inclusion(block_number, mmr_proof.element_hash, mmr_proof, block_rlp);
+    let result = dsp
+        .store
+        .verify_mmr_inclusion(block_number, mmr_proof.element_hash, mmr_proof, block_rlp);
     assert_eq!(result, Result::Ok(true));
 
     let state_root = dsp.store.get_block_state_root(block_number);
@@ -87,7 +102,13 @@ fn prove_account_test_success_nonce() {
     let account_proof = proofs::account::PROOF_anvil();
     let result = dsp
         .registry
-        .prove_account(OptionsSet::Nonce, account_proof.address, block.number, account_proof.bytes, account_proof.data);
+        .prove_account(
+            OptionsSet::Nonce,
+            account_proof.address,
+            block.number,
+            account_proof.bytes,
+            account_proof.data
+        );
     assert_eq!(result, Result::Ok(true));
 
     let nonce = dsp.registry.get_verified_account_nonce(account_proof.address, block.number);
@@ -103,9 +124,10 @@ fn prove_account_test_success_storage_hash() {
     let block_rlp = proofs::mmr::block_rlp_anvil();
     let block_number: u64 = mmr_proof.element_index.try_into().unwrap();
 
-
     start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
-    let result = dsp.store.verify_mmr_inclusion(block_number, mmr_proof.element_hash, mmr_proof, block_rlp);
+    let result = dsp
+        .store
+        .verify_mmr_inclusion(block_number, mmr_proof.element_hash, mmr_proof, block_rlp);
     assert_eq!(result, Result::Ok(true));
 
     let state_root = dsp.store.get_block_state_root(block_number);
@@ -114,10 +136,18 @@ fn prove_account_test_success_storage_hash() {
     let account_proof = proofs::account::PROOF_anvil();
     let result = dsp
         .registry
-        .prove_account(OptionsSet::StorageHash, account_proof.address, block.number, account_proof.bytes, account_proof.data);
+        .prove_account(
+            OptionsSet::StorageHash,
+            account_proof.address,
+            block.number,
+            account_proof.bytes,
+            account_proof.data
+        );
     assert_eq!(result, Result::Ok(true));
 
-    let storage_hash = dsp.registry.get_verified_account_storage_hash(account_proof.address, block.number);
+    let storage_hash = dsp
+        .registry
+        .get_verified_account_storage_hash(account_proof.address, block.number);
     assert_eq!(storage_hash, account_proof.storage_hash);
 }
 
@@ -130,9 +160,10 @@ fn prove_account_test_success_save_all() {
     let block_rlp = proofs::mmr::block_rlp_anvil();
     let block_number: u64 = mmr_proof.element_index.try_into().unwrap();
 
-
     start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
-    let result = dsp.store.verify_mmr_inclusion(block_number, mmr_proof.element_hash, mmr_proof, block_rlp);
+    let result = dsp
+        .store
+        .verify_mmr_inclusion(block_number, mmr_proof.element_hash, mmr_proof, block_rlp);
     assert_eq!(result, Result::Ok(true));
 
     let state_root = dsp.store.get_block_state_root(block_number);
@@ -144,10 +175,14 @@ fn prove_account_test_success_save_all() {
         .prove_account(OptionsSet::All, account_proof.address, block.number, account_proof.bytes, account_proof.data);
     assert_eq!(result, Result::Ok(true));
 
-    let storage_hash = dsp.registry.get_verified_account_storage_hash(account_proof.address, block.number);
+    let storage_hash = dsp
+        .registry
+        .get_verified_account_storage_hash(account_proof.address, block.number);
     assert_eq!(storage_hash, account_proof.storage_hash);
 
-    let _code_hash = dsp.registry.get_verified_account_code_hash(account_proof.address, block.number);
+    let _code_hash = dsp
+        .registry
+        .get_verified_account_code_hash(account_proof.address, block.number);
     // assert_eq!(code_hash, proof.code_hash);
 
     let balance = dsp.registry.get_verified_account_balance(account_proof.address, block.number);
@@ -164,11 +199,13 @@ fn prove_account_test_fail_state_root_not_found() {
 
     let block = proofs::blocks::BLOCK_3();
 
-    let proof = proofs::account::PROOF_1();
+    let account_proof = proofs::account::PROOF_1();
 
     let _output = dsp
         .registry
-        .prove_account(OptionsSet::All, proof.address, block.number, proof.bytes, proof.data);
+        .prove_account(
+            OptionsSet::All, account_proof.address, block.number, account_proof.bytes, account_proof.data
+        );
 }
 
 #[test]
@@ -180,9 +217,10 @@ fn prove_storage_test_success_with_some_data() {
     let block_rlp = proofs::mmr::block_rlp_anvil();
     let block_number: u64 = mmr_proof.element_index.try_into().unwrap();
 
-
     start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
-    let result = dsp.store.verify_mmr_inclusion(block_number, mmr_proof.element_hash, mmr_proof, block_rlp);
+    let result = dsp
+        .store
+        .verify_mmr_inclusion(block_number, mmr_proof.element_hash, mmr_proof, block_rlp);
     assert_eq!(result, Result::Ok(true));
 
     let state_root = dsp.store.get_block_state_root(block_number);
@@ -191,7 +229,13 @@ fn prove_storage_test_success_with_some_data() {
     let account_proof = proofs::account::PROOF_anvil();
     let result = dsp
         .registry
-        .prove_account(OptionsSet::All, account_proof.address, block.number, account_proof.bytes, account_proof.data);
+        .prove_account(
+            OptionsSet::All,
+            account_proof.address,
+            block.number,
+            account_proof.bytes,
+            account_proof.data
+        );
     assert_eq!(result, Result::Ok(true));
 
     let storage_proof = proofs::storage::PROOF_anvil();
@@ -251,7 +295,9 @@ fn get_storage_test_success_with_no_data() {
     let block_rlp = proofs::mmr::block_rlp_anvil();
 
     start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
-    let result = dsp.store.verify_mmr_inclusion(block.number, mmr_proof.element_hash, mmr_proof, block_rlp);
+    let result = dsp
+        .store
+        .verify_mmr_inclusion(block.number, mmr_proof.element_hash, mmr_proof, block_rlp);
     assert_eq!(result, Result::Ok(true));
 
     let state_root = dsp.store.get_block_state_root(block.number);
@@ -260,7 +306,13 @@ fn get_storage_test_success_with_no_data() {
     let account_proof = proofs::account::PROOF_anvil();
     let result = dsp
         .registry
-        .prove_account(OptionsSet::All, account_proof.address, block.number, account_proof.bytes, account_proof.data);
+        .prove_account(
+            OptionsSet::All,
+            account_proof.address,
+            block.number,
+            account_proof.bytes,
+            account_proof.data
+        );
     assert_eq!(result, Result::Ok(true));
 
     let storage_proof = proofs::storage::PROOF_1();
@@ -276,72 +328,5 @@ fn get_storage_test_success_with_no_data() {
         );
 
     println!("Result: {:?}", result);
-
-    // assert!(result == Result::Err('Result is None'));
+// assert!(result == Result::Err('Result is None'));
 }
-
-// #[test]
-// #[should_panic(expected: "FactRegistry: block state root not found")]
-// fn prove_storage_test_state_root_not_found() {
-//     let dsp = setup();
-
-//     let block = proofs::blocks::BLOCK_3();
-//     let account_proof = proofs::account::PROOF_1();
-//     let storage_proof = proofs::storage::PROOF_1();
-
-//     start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
-//     dsp.store.store_state_root(block.number, block.state_root);
-
-//     let _ = dsp
-//         .registry
-//         .prove_storage(
-//             block.number,
-//             account_proof.address,
-//             storage_proof.key,
-//             storage_proof.bytes,
-//             storage_proof.data
-//         );
-// }
-
-
-// #[test]
-// fn get_l1_headers_store_addr_test() {
-//     let dsp = setup();
-
-//     assert_eq!(dsp.store.contract_address, dsp.registry.get_l1_headers_store_addr());
-// }
-
-// #[test]
-// fn prove_account_test_error_invalid_children_length() {
-//     let dsp = setup();
-
-//     let block = proofs::blocks::BLOCK_3();
-
-//     start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
-//     dsp.store.store_state_root(block.number, block.state_root);
-
-//     let proof = proofs::account::PROOF_invalid_children_length();
-
-//     let output = dsp
-//         .registry
-//         .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
-
-//     assert_eq!(output.unwrap_err(), 'invalid children length');
-// }
-
-// #[test]
-// fn prove_account_test_error_root_hash_mismatch() {
-//     let dsp = setup();
-
-//     let block = proofs::blocks::BLOCK_4();
-
-//     start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
-//     dsp.store.store_state_root(block.number, block.state_root);
-
-//     let proof = proofs::account::PROOF_4();
-
-//     let output = dsp
-//         .registry
-//         .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
-//     assert_eq!(output.unwrap_err(), 'Root hash mismatch');
-// }
