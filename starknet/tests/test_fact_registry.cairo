@@ -276,7 +276,7 @@ fn prove_storage_test_fail_state_root_not_found() {
 
     start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
 
-    let result = dsp
+    let _result = dsp
         .registry
         .prove_storage(
             block.number,
@@ -373,7 +373,7 @@ fn prove_storage_test_state_root_not_found() {
     assert_eq!(result, Result::Ok(true));
     let storage_proof = proofs::storage::PROOF_1();
 
-    let result = dsp
+    let _result = dsp
         .registry
         .prove_storage(
             1, account_proof.address, storage_proof.key, storage_proof.bytes, storage_proof.data

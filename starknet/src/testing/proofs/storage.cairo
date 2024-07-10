@@ -1044,13 +1044,7 @@ pub fn PROOF_anvil() -> StorageProof {
 }
 
 pub fn PROOF_anvil_1() -> StorageProof {
-    StorageProof {
-        key: 0x0,
-        bytes: array![36],
-        data: array![
-        ],
-        value: 0x0,
-    }
+    StorageProof { key: 0x0, bytes: array![36], data: array![], value: 0x0, }
 }
 
 pub fn PROOF_anvil_2() -> StorageProof {
