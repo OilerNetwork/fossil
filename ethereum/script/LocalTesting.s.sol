@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@forge-std/src/Script.sol";
-import "@forge-std/src/console.sol";
+import "forge-std/src/Script.sol";
+import "forge-std/src/console.sol";
 
 import "src/ContractMsg.sol";
 import "src/L1MessageSender.sol";

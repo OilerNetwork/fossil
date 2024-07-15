@@ -1,21 +1,21 @@
 #!/bin/bash
 
-# Load the addresses from the deployed-contracts.txt file
-declare -A class_hashes
-declare -A addresses
-
+# Load the addresses from the declared-classes.txt file
 while IFS= read -r line; do
     contract_name=$(echo "$line" | cut -d ':' -f 1 | xargs)
     class_hash=$(echo "$line" | cut -d ' ' -f 2 | xargs)
-
-    class_hashes["$contract_name"]=$class_hash
+    echo "Contract Name: $contract_name"
+    echo "Class Hash: $class_hash"
+    if [ "$contract_name" = "messages-proxy" ]; then
+        messages_proxy_class_hash=$class_hash
+    elif [ "$contract_name" = "headers-store" ]; then
+        headers_store_class_hash=$class_hash
+    elif [ "$contract_name" = "fact-registry" ]; then
+        fact_registry_class_hash=$class_hash
+    fi
 done < katana/declared-classes.txt
 
-messages_proxy_class_hash=${class_hashes["messages-proxy"]}
-headers_store_class_hash=${class_hashes["headers-store"]}
-fact_registry_class_hash=${class_hashes["fact-registry"]}
-
-# Debug: Print the class_hashes
+# Debug: Print the class hashes
 echo "Fact Registry Class hash: $fact_registry_class_hash"
 echo "Headers Store Class hash: $headers_store_class_hash"
 echo "Messages Proxy Class hash: $messages_proxy_class_hash"
@@ -31,14 +31,13 @@ if [ -z "$l1_message_sender_address" ]; then
     exit 1
 fi
 
-# Remove existing declared-classes.txt file if it exists
+# Remove existing deployed-contracts.txt file if it exists
 rm -f katana/deployed-contracts.txt
 
 # Perform Deployment
 # Message Proxy Deployment
 echo "Deploying messages-proxy with L1_MESSAGE_SENDER_ADDRESS and owner address..."
 output=$(starkli deploy "$messages_proxy_class_hash" "$l1_message_sender_address" "$owner_address" --salt 0x1 -w)
-# output=$(starkli deploy "$messages_proxy_class_hash" "$l1_message_sender_address" katana-1 --salt 0x1 -w)
 echo "messages-proxy: $output" >> katana/deployed-contracts.txt
 messages_proxy=$output
 echo "Messages Proxy address: $messages_proxy"
@@ -63,11 +62,9 @@ echo "Fact Registry address: $fact_registry"
 echo "Deployment address for fact-registry saved to deployed-contracts.txt"
 
 echo "Deployment complete."
-
 echo " "
 
-#Set l1_headers_store_address for messages-proxy
+# Set l1_headers_store_address for messages-proxy
 echo "Setting headers-store for messages-proxy contract..."
 output=$(starkli invoke "$messages_proxy" set_l1_headers_store "$headers_store" --account katana-0 -w)
-
 echo "l1_headers_store_address set complete."
