@@ -20,7 +20,6 @@ fn receive_from_l1_success_test() {
 
     assert_eq!(dsp.store.get_latest_l1_block_number(), block.number.try_into().unwrap());
     assert_eq!(dsp.store.get_latest_block_hash(), parent_hash);
-// assert_eq!(dsp.store.get_parent_hash(block.number), parent_hash);
 }
 
 #[test]
