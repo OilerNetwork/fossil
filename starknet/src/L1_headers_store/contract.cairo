@@ -14,10 +14,10 @@ pub mod L1HeaderStore {
         decode_transactions_root, decode_receipts_root, decode_difficulty, decode_base_fee,
         decode_timestamp, decode_gas_used, decode_block_number
     };
-    use fossil::library::keccak256::keccak256;
-    use fossil::library::keccak_utils::keccak_words64;
-    use fossil::library::mmr_verifier::{verify_proof, extract_state_root};
-    use fossil::library::words64_utils::words64_to_u256;
+    use fossil::library::{
+        keccak256::keccak256, keccak_utils::keccak_words64,
+        mmr_verifier::{verify_proof, extract_state_root}, words64_utils::words64_to_u256
+    };
     use fossil::types::ProcessBlockOptions;
     use fossil::types::{BlockRLP, MMRProof, Words64Sequence};
     use openzeppelin::access::ownable::OwnableComponent;

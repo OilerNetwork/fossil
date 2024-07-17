@@ -4,7 +4,6 @@ pub struct Block {
     pub state_root: u256,
 }
 
-
 pub fn BLOCK_0() -> Block {
     Block {
         number: 11456152,
@@ -37,8 +36,8 @@ pub fn BLOCK_4() -> Block {
     }
 }
 
-pub fn BLOCK_anvil() -> Block {
+pub fn BLOCK_5() -> Block {
     Block {
-        number: 5, state_root: 0xaee164c0e4900ba3ab6447e077b2744e1e2c2fd539dcb5465e7812643468b56a,
+        number: 4, state_root: 0x2045bf4ea5561e88a4d0d9afbc316354e49fe892ac7e961a5e68f1f4b9561152,
     }
 }

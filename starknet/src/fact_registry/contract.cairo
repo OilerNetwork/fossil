@@ -117,6 +117,7 @@ pub mod FactRegistry {
             let proof = self
                 .reconstruct_ints_sequence_list(proofs_concat.span(), proof_sizes_bytes.span());
             let result = verify_proof(account.to_words64(), state_root.to_words64(), proof.span());
+
             match result {
                 Result::Err(e) => { Result::Err(e) },
                 Result::Ok(result) => {

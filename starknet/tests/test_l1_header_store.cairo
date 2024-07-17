@@ -84,17 +84,15 @@ fn test_set_latest_mmr_root_fail() {
 fn test_verify_mmr_inclusion() {
     let dsp = setup();
 
-    let proof = proofs::mmr::proof_anvil();
-    let block_rlp = proofs::mmr::block_rlp_anvil();
+    let block_rlp = proofs::mmr::block_rlp_4();
+    let proof = proofs::mmr::proof_4();
 
     let block_number: u64 = proof.element_index.try_into().unwrap();
     let result = dsp.store.verify_mmr_inclusion(block_number, proof.element_hash, proof, block_rlp);
-    println!("result: {:?}", result);
     assert_eq!(result, Result::Ok(true));
 
     let state_root = dsp.store.get_block_state_root(block_number);
-    println!("state root {:?}", state_root);
-    assert_eq!(state_root, 0xaee164c0e4900ba3ab6447e077b2744e1e2c2fd539dcb5465e7812643468b56a);
+    assert_eq!(state_root, 0x2045bf4ea5561e88a4d0d9afbc316354e49fe892ac7e961a5e68f1f4b9561152);
 }
 
 #[test]
