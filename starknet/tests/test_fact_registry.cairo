@@ -160,12 +160,11 @@ fn prove_storage_test_success_with_some_data() {
             storage_proof.bytes,
             storage_proof.data
         );
-    let storage_result = dsp.registry.get_storage(block.number, account_proof.address, storage_proof.key);
+    let storage_result = dsp
+        .registry
+        .get_storage(block.number, account_proof.address, storage_proof.key);
     let result: u256 = result.into();
-    assert_eq!(
-        result,
-        storage_result.unwrap()
-    );
+    assert_eq!(result, storage_result.unwrap());
 }
 
 #[test]
