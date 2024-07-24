@@ -30,7 +30,7 @@ impl U256Words64 of Words64Trait<u256> {
 
     /// `from_words64` converts a `Words64Sequence` back into an `u256`.
     fn from_words64(self: Words64Sequence) -> u256 {
-        words64_to_u256(self.values)
+        words64_to_u256(self.values, self.len_bytes)
     }
 }
 
@@ -67,6 +67,7 @@ impl EthAddressWords64 of Words64Trait<EthAddress> {
 ///
 /// # Arguments
 /// * `input` - A `Span<u64>` containing up to four 64-bit words to be converted into a `u256`.
+/// * `len_bytes` - The length of the `input` in bytes.
 ///
 /// # Returns
 /// * `u256` - A value representing the combination of the input words.
@@ -76,18 +77,34 @@ impl EthAddressWords64 of Words64Trait<EthAddress> {
 /// 
 /// This function takes a `Span<u64>` representing a `Words64Sequence` i.e sequence of up to four 64-bit words,
 /// and combines them into a single `u256` value by using the shift and bitwise operator.
-pub fn words64_to_u256(input: Span<u64>) -> u256 {
+pub fn words64_to_u256(input: Span<u64>, len_bytes: usize) -> u256 {
     assert!(input.len() <= 4, "input length must be less than or equal to 4");
     if input.len() == 0 {
         return 0;
     }
 
-    let l0: u256 = BitShift::shl((*input.at(0)).into(), 192_u256);
-    let l1 = BitShift::shl((*input.at(1)).into(), 128);
-    let l2 = BitShift::shl((*input.at(2)).into(), 64);
-    let l3 = (*input.at(3)).into();
+    if input.len() == 1 {
+        return (*input.at(0)).into();
+    } else if input.len() == 2 {
+        let extraBitOffset: u256 = (16 - len_bytes.into()) * 8;
+        let l0: u256 = BitShift::shl((*input.at(0)).into(), 64_u256 - extraBitOffset);
+        let l1 = (*input.at(1)).into();
+        return BitOr::bitor(l0, l1);
+    } else if input.len() == 3 {
+        let extraBitOffset: u256 = (24 - len_bytes.into()) * 8;
+        let l0: u256 = BitShift::shl((*input.at(0)).into(), 128_u256 - extraBitOffset);
+        let l1 = BitShift::shl((*input.at(1)).into(), 64 - extraBitOffset);
+        let l2 = (*input.at(2)).into();
+        return BitOr::bitor(BitOr::bitor(l0, l1), l2);
+    } else {
+        let extraBitOffset: u256 = (32 - len_bytes.into()) * 8;
+        let l0: u256 = BitShift::shl((*input.at(0)).into(), 192_u256 - extraBitOffset);
+        let l1 = BitShift::shl((*input.at(1)).into(), 128 - extraBitOffset);
+        let l2 = BitShift::shl((*input.at(2)).into(), 64 - extraBitOffset);
+        let l3 = (*input.at(3)).into();
 
-    return (BitOr::bitor(BitOr::bitor(BitOr::bitor(l0, l1), l2), l3)).into();
+        return (BitOr::bitor(BitOr::bitor(BitOr::bitor(l0, l1), l2), l3)).into();
+    }
 }
 
 /// Converts a `Words64Sequence` into a `u256` value.
@@ -224,14 +241,24 @@ fn words64_to_nibbles_rec(word: u64, nibbles_len: usize, mut acc: Array<u64>) ->
 #[cfg(test)]
 mod tests {
     #[test]
-    fn test_words64_to_u256() {
+    fn test_words64_to_u256_default_size() {
         let input = array![
             0xFFFFFFFFFFFFFFFF, 0xAAAAAAAAAAAAAAAA, 0xBBBBBBBBBBBBBBBB, 0xCCCCCCCCCCCCCCCC
         ];
 
-        let result = super::words64_to_u256(input.span());
+        let result = super::words64_to_u256(input.span(), 32);
 
         assert_eq!(result, 0xffffffffffffffffaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbcccccccccccccccc);
+    }
+    #[test]
+    fn test_words64_to_u256_different_size() {
+        let input = array![
+            0xFFFFFFFFFFFFFFFF, 0xAAAAAAAAAAAAAAAA, 0xBBBBBBBBBBBBBBBB, 0xCCCCCCCCCCCC
+        ];
+
+        let result = super::words64_to_u256(input.span(), 30);
+
+        assert_eq!(result, 0xffffffffffffffffaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbcccccccccccc);
     }
 
     #[test]
