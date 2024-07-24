@@ -160,10 +160,11 @@ fn prove_storage_test_success_with_some_data() {
             storage_proof.bytes,
             storage_proof.data
         );
-    assert_eq!(
-        result.unwrap(),
-        dsp.registry.get_storage(block.number, account_proof.address, storage_proof.key).unwrap()
-    );
+    let storage_result = dsp
+        .registry
+        .get_storage(block.number, account_proof.address, storage_proof.key);
+    let result: u256 = result.into();
+    assert_eq!(result, storage_result.unwrap());
 }
 
 #[test]
@@ -232,7 +233,7 @@ fn get_storage_test_success_with_no_data() {
             storage_proof.bytes,
             storage_proof.data
         );
-    assert!(result == Result::Err('Result is None'));
+    assert!(result == 'Result Found No Value');
 }
 
 #[test]
@@ -281,7 +282,7 @@ fn prove_account_test_error_invalid_children_length() {
         .registry
         .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
 
-    assert_eq!(output.unwrap_err(), 'invalid children length');
+    assert_eq!(output, 'invalid children length');
 }
 
 #[test]
@@ -298,5 +299,5 @@ fn prove_account_test_error_root_hash_mismatch() {
     let output = dsp
         .registry
         .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
-    assert_eq!(output.unwrap_err(), 'Root hash mismatch');
+    assert_eq!(output, 'Root hash mismatch');
 }
