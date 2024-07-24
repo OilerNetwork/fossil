@@ -2313,17 +2313,7 @@ pub fn PROOF_mainnet_weth() -> AccountProof {
         code_hash: 0xd0a06b12ac47863b5c7be4185c2deaad1c61557033f56c7d4ea74429cbb25e23,
         nonce: 0x1,
         storage_hash: 0x4417357b33abc601987a849c678edeadb670c824198aeb000b2d02a47b278b2e,
-        bytes: array![
-            532,
-            532,
-            532,
-            532,
-            532,
-            532,
-            276,
-            83,
-            115
-        ],
+        bytes: array![532, 532, 532, 532, 532, 532, 276, 83, 115],
         data: array![
             17942923244466733886,
             1143347056447862615,

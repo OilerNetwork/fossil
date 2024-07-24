@@ -1031,15 +1031,7 @@ pub fn PROOF_2() -> StorageProof {
 pub fn PROOF_mainnet_weth() -> StorageProof {
     StorageProof {
         key: 0x0,
-        bytes: array![
-            532,
-            532,
-            532,
-            532,
-            532,
-            179,
-            67
-        ],
+        bytes: array![532, 532, 532, 532, 532, 179, 67],
         data: array![
             17942923245390246106,
             12837577508730496814,
