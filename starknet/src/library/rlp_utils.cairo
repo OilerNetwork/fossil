@@ -190,12 +190,12 @@ pub fn extract_data(rlp: Words64Sequence, start: usize, size: u64) -> Words64Seq
                 if lastword_right_shift < left_shift {
                     right_part =
                         BitShift::shl(
-                            value_at_end_word, (left_shift - lastword_right_shift).into() * 8
+                            value_at_end_word, (left_shift - lastword_right_shift + 1).into() * 8
                         );
                 } else {
                     right_part =
-                        BitShift::shr(
-                            value_at_end_word, (lastword_right_shift - left_shift).into() * 8
+                        BitShift::shl(
+                            value_at_end_word, (lastword_right_shift - left_shift + 1).into() * 8
                         );
                 }
             } else {

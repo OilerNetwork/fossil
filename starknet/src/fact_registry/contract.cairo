@@ -192,7 +192,7 @@ pub mod FactRegistry {
             slot: u256,
             proof_sizes_bytes: Array<usize>,
             proofs_concat: Array<u64>,
-        ) -> felt252 {
+        ) -> Result<u256, felt252> {
             let account_state_root = self.verified_account_storage_hash.read((account, block));
             assert!(account_state_root != 0, "FactRegistry: block state root not found");
 
@@ -205,15 +205,14 @@ pub mod FactRegistry {
             );
 
             match result {
-                Result::Err(e) => { e },
+                Result::Err(e) => { Result::Err(e) },
                 Result::Ok(result) => {
                     if !result.is_some() {
-                        'Result Found No Value'
+                        Result::Err('Result is None')
                     } else {
                         let result_value = words64_to_int(result.unwrap());
                         self.verified_storage.write((account, block, slot), (true, result_value));
-                        let res: felt252 = result_value.try_into().unwrap();
-                        res
+                        Result::Ok(result_value)
                     }
                 }
             }

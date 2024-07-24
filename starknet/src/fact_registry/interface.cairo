@@ -17,7 +17,7 @@ pub trait IFactRegistry<TState> {
         slot: u256,
         proof_sizes_bytes: Array<usize>,
         proofs_concat: Array<u64>,
-    ) -> felt252;
+    ) -> Result<u256, felt252>;
     fn get_storage(
         ref self: TState, block: u64, account: starknet::EthAddress, slot: u256,
     ) -> Option<u256>;
