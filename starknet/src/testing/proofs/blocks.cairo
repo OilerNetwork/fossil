@@ -37,3 +37,10 @@ pub fn BLOCK_4() -> Block {
         state_root: 0x2045bf4ea5561e88a4d0d9afbc316354e49fe892ac7e961a5e68f1f4b9561158,
     }
 }
+
+pub fn BLOCK_mainnet_weth() -> Block {
+    Block {
+        number: 20376807,
+        state_root: 0x70048fdb62caf4fedbd4f3bd6fd3e57778c0036ecd6b98ae23d05dc8d811fb1f,
+    }
+}
