@@ -34,6 +34,10 @@ pub mod FactRegistry {
     // Upgradeable 
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
+    const SUCCESS: felt252 = 'Proof verified successfully';
+    const ALREADY_VERIFIED: felt252 = 'Proof already verified';
+    const EMPTY_SLOT: felt252 = 'Empty slot';
+
     // *************************************************************************
     //                              STORAGE
     // *************************************************************************
@@ -44,6 +48,7 @@ pub mod FactRegistry {
         #[substorage(v0)]
         upgradeable: UpgradeableComponent::Storage,
         l1_headers_store: IL1HeadersStoreDispatcher,
+        verified_account: LegacyMap::<(EthAddress, u64), bool>,
         verified_account_storage_hash: LegacyMap::<(EthAddress, u64), u256>,
         verified_account_code_hash: LegacyMap::<(EthAddress, u64), u256>,
         verified_account_balance: LegacyMap::<(EthAddress, u64), u256>,
@@ -111,14 +116,14 @@ pub mod FactRegistry {
             block: u64,
             proof_sizes_bytes: Array<usize>,
             proofs_concat: Array<u64>,
-        ) -> felt252 {
+        ) -> (bool, felt252) {
             let state_root = self.l1_headers_store.read().get_state_root(block);
             assert!(state_root != 0, "FactRegistry: block state root not found");
             let proof = self
                 .reconstruct_ints_sequence_list(proofs_concat.span(), proof_sizes_bytes.span());
             let result = verify_proof(account.to_words64(), state_root.to_words64(), proof.span());
             match result {
-                Result::Err(e) => { e },
+                Result::Err(e) => { (false, e) },
                 Result::Ok(result) => {
                     let result = result.unwrap();
                     let result_items = to_rlp_array(result);
@@ -163,7 +168,7 @@ pub mod FactRegistry {
                                 .write((account, block), code_hash.from_words64());
                         },
                     };
-                    return 'Result Found';
+                    return (true, SUCCESS);
                 }
             }
         }
@@ -192,9 +197,14 @@ pub mod FactRegistry {
             slot: u256,
             proof_sizes_bytes: Array<usize>,
             proofs_concat: Array<u64>,
-        ) -> Result<u256, felt252> {
+        ) -> (bool, u256, felt252) {
             let account_state_root = self.verified_account_storage_hash.read((account, block));
             assert!(account_state_root != 0, "FactRegistry: block state root not found");
+
+            let (already_proved, value) = self.verified_storage.read((account, block, slot));
+            if already_proved {
+                return (true, value, ALREADY_VERIFIED);
+            }
 
             let result = verify_proof(
                 keccak_words64(slot.to_words64()),
@@ -205,14 +215,14 @@ pub mod FactRegistry {
             );
 
             match result {
-                Result::Err(e) => { Result::Err(e) },
+                Result::Err(e) => { return (false, 0, e); },
                 Result::Ok(result) => {
                     if !result.is_some() {
-                        Result::Err('Result is None')
+                        return (true, 0, EMPTY_SLOT);
                     } else {
                         let result_value = words64_to_int(result.unwrap());
                         self.verified_storage.write((account, block, slot), (true, result_value));
-                        Result::Ok(result_value)
+                        return (true, result_value, SUCCESS);
                     }
                 }
             }
@@ -234,12 +244,12 @@ pub mod FactRegistry {
         /// * `u256` - The storage value at the given slot.
         fn get_storage(
             ref self: ContractState, block: u64, account: starknet::EthAddress, slot: u256,
-        ) -> Option<u256> {
+        ) -> (bool, u256) {
             let (verified, value) = self.verified_storage.read((account, block, slot));
             if verified {
-                return Option::Some(value);
+                return (true, value);
             } else {
-                return Option::None;
+                return (false, 0);
             }
         }
 

@@ -47,7 +47,7 @@ fn prove_all_test_success_mainnet_weth() {
 
     let storage_proof = proofs::storage::PROOF_mainnet_weth();
 
-    let result = dsp
+    let (proved, value, result) = dsp
         .registry
         .prove_storage(
             block.number,
@@ -62,7 +62,7 @@ fn prove_all_test_success_mainnet_weth() {
     let storage_result = dsp
         .registry
         .get_storage(block.number, account_proof.address, storage_proof.key);
-    assert_eq!(result.unwrap(), storage_result.unwrap());
+    assert_eq!((proved, value), storage_result);
 }
 
 #[test]
@@ -208,7 +208,7 @@ fn prove_storage_test_success_with_some_data() {
 
     let storage_proof = proofs::storage::PROOF_2();
 
-    let result = dsp
+    let (proved, value, _) = dsp
         .registry
         .prove_storage(
             block.number,
@@ -220,7 +220,7 @@ fn prove_storage_test_success_with_some_data() {
     let storage_result = dsp
         .registry
         .get_storage(block.number, account_proof.address, storage_proof.key);
-    assert_eq!(result.unwrap(), storage_result.unwrap());
+    assert_eq!((proved, value), storage_result);
 }
 
 #[test]
@@ -254,7 +254,7 @@ fn test_get_storage_not_verified() {
 
     let result = dsp.registry.get_storage(0, 0_u256.into(), 0);
 
-    assert!(result == Option::None);
+    assert!(result == (false, 0));
 }
 
 #[test]
@@ -289,7 +289,7 @@ fn get_storage_test_success_with_no_data() {
             storage_proof.bytes,
             storage_proof.data
         );
-    assert!(result == Result::Err('Result is None'));
+    assert!(result == (true, 0, 'Empty slot'));
 }
 
 #[test]
@@ -338,7 +338,7 @@ fn prove_account_test_error_invalid_children_length() {
         .registry
         .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
 
-    assert_eq!(output, 'invalid children length');
+    assert_eq!(output, (false, 'invalid children length'));
 }
 
 #[test]
@@ -355,5 +355,5 @@ fn prove_account_test_error_root_hash_mismatch() {
     let output = dsp
         .registry
         .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
-    assert_eq!(output, 'Root hash mismatch');
+    assert_eq!(output, (false, 'Root hash mismatch'));
 }

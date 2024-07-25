@@ -9,7 +9,7 @@ pub trait IFactRegistry<TState> {
         block: u64,
         proof_sizes_bytes: Array<usize>,
         proofs_concat: Array<u64>,
-    ) -> felt252;
+    ) -> (bool, felt252);
     fn prove_storage(
         ref self: TState,
         block: u64,
@@ -17,10 +17,10 @@ pub trait IFactRegistry<TState> {
         slot: u256,
         proof_sizes_bytes: Array<usize>,
         proofs_concat: Array<u64>,
-    ) -> Result<u256, felt252>;
+    ) -> (bool, u256, felt252);
     fn get_storage(
         ref self: TState, block: u64, account: starknet::EthAddress, slot: u256,
-    ) -> Option<u256>;
+    ) -> (bool, u256);
     fn get_l1_headers_store_addr(self: @TState) -> starknet::ContractAddress;
     fn get_verified_account_storage_hash(
         self: @TState, account: starknet::EthAddress, block: u64
