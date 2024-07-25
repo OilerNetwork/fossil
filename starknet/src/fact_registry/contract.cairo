@@ -119,6 +119,11 @@ pub mod FactRegistry {
         ) -> (bool, felt252) {
             let state_root = self.l1_headers_store.read().get_state_root(block);
             assert!(state_root != 0, "FactRegistry: block state root not found");
+
+            if self.verified_account.read((account, block)) {
+                return (true, ALREADY_VERIFIED);
+            }
+
             let proof = self
                 .reconstruct_ints_sequence_list(proofs_concat.span(), proof_sizes_bytes.span());
             let result = verify_proof(account.to_words64(), state_root.to_words64(), proof.span());
@@ -168,6 +173,7 @@ pub mod FactRegistry {
                                 .write((account, block), code_hash.from_words64());
                         },
                     };
+                    self.verified_account.write((account, block), true);
                     return (true, SUCCESS);
                 }
             }
