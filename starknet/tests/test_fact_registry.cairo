@@ -9,6 +9,63 @@ use snforge_std::start_cheat_caller_address;
 use super::test_utils::{setup, OWNER, STARKNET_HANDLER};
 
 #[test]
+fn prove_all_test_success_mainnet_weth() {
+    let dsp = setup();
+
+    let block = proofs::blocks::BLOCK_mainnet_weth();
+
+    start_cheat_caller_address(dsp.store.contract_address, STARKNET_HANDLER());
+    dsp.store.store_state_root(block.number, block.state_root);
+
+    let account_proof = proofs::account::PROOF_mainnet_weth();
+
+    let _output = dsp
+        .registry
+        .prove_account(
+            OptionsSet::All,
+            account_proof.address,
+            block.number,
+            account_proof.bytes,
+            account_proof.data
+        );
+
+    let storage_hash = dsp
+        .registry
+        .get_verified_account_storage_hash(account_proof.address, block.number);
+    assert_eq!(storage_hash, account_proof.storage_hash);
+
+    let code_hash = dsp
+        .registry
+        .get_verified_account_code_hash(account_proof.address, block.number);
+    assert_eq!(code_hash, account_proof.code_hash);
+
+    let balance = dsp.registry.get_verified_account_balance(account_proof.address, block.number);
+    assert_eq!(balance, account_proof.balance);
+
+    let nonce = dsp.registry.get_verified_account_nonce(account_proof.address, block.number);
+    assert_eq!(nonce, account_proof.nonce);
+
+    let storage_proof = proofs::storage::PROOF_mainnet_weth();
+
+    let result = dsp
+        .registry
+        .prove_storage(
+            block.number,
+            account_proof.address,
+            storage_proof.key,
+            storage_proof.bytes,
+            storage_proof.data
+        );
+
+    println!("result: {:?}", result);
+
+    let storage_result = dsp
+        .registry
+        .get_storage(block.number, account_proof.address, storage_proof.key);
+    assert_eq!(result.unwrap(), storage_result.unwrap());
+}
+
+#[test]
 fn prove_account_test_success_code_hash() {
     let dsp = setup();
 
@@ -160,10 +217,10 @@ fn prove_storage_test_success_with_some_data() {
             storage_proof.bytes,
             storage_proof.data
         );
-    assert_eq!(
-        result.unwrap(),
-        dsp.registry.get_storage(block.number, account_proof.address, storage_proof.key).unwrap()
-    );
+    let storage_result = dsp
+        .registry
+        .get_storage(block.number, account_proof.address, storage_proof.key);
+    assert_eq!(result.unwrap(), storage_result.unwrap());
 }
 
 #[test]
@@ -281,7 +338,7 @@ fn prove_account_test_error_invalid_children_length() {
         .registry
         .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
 
-    assert_eq!(output.unwrap_err(), 'invalid children length');
+    assert_eq!(output, 'invalid children length');
 }
 
 #[test]
@@ -298,5 +355,5 @@ fn prove_account_test_error_root_hash_mismatch() {
     let output = dsp
         .registry
         .prove_account(OptionsSet::CodeHash, proof.address, block.number, proof.bytes, proof.data);
-    assert_eq!(output.unwrap_err(), 'Root hash mismatch');
+    assert_eq!(output, 'Root hash mismatch');
 }

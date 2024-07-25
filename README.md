@@ -11,7 +11,7 @@ Start Anvil in a new terminal with the command `anvil`.
 
 Install dependencies:
    ```bash 
-    dojoup -v 0.7.0-alpha.4
+   dojoup -v v1.0.0-alpha.1
     ```
 
    ```bash
