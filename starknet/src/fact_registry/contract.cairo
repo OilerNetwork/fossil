@@ -16,7 +16,7 @@ pub mod FactRegistry {
         trie_proof::verify_proof, words64_utils::{Words64Trait, words64_to_int},
         rlp_utils::{to_rlp_array, extract_data, extract_element}, keccak_utils::keccak_words64
     };
-    use fossil::types::{OptionsSet, Words64Sequence, RLPItem};
+    use fossil::types::{Words64Sequence, RLPItem};
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::upgrades::UpgradeableComponent;
     use openzeppelin::upgrades::interface::IUpgradeable;
@@ -111,63 +111,36 @@ pub mod FactRegistry {
         /// in the contract state.
         fn prove_account(
             ref self: ContractState,
-            option: OptionsSet,
             account: starknet::EthAddress,
             block: u64,
             proof_sizes_bytes: Array<usize>,
             proofs_concat: Array<u64>,
         ) -> (bool, felt252) {
             let state_root = self.l1_headers_store.read().get_state_root(block);
+
             assert!(state_root != 0, "FactRegistry: block state root not found");
             let proof = self
                 .reconstruct_ints_sequence_list(proofs_concat.span(), proof_sizes_bytes.span());
             let result = verify_proof(account.to_words64(), state_root.to_words64(), proof.span());
             match result {
-                Result::Err(e) => { (false, e) },
-                Result::Ok(result) => {
-                    let result = result.unwrap();
+                Option::None => { (false, EMPTY_SLOT) },
+                Option::Some(result) => {
                     let result_items = to_rlp_array(result);
                     let result_values = self.extract_list_values(result, result_items.span());
-                    match option {
-                        OptionsSet::CodeHash => {
-                            let code_hash = *result_values.at(3);
-                            self
-                                .verified_account_code_hash
-                                .write((account, block), code_hash.from_words64());
-                        },
-                        OptionsSet::Balance => {
-                            let balance = *result_values.at(1);
-                            self
-                                .verified_account_balance
-                                .write((account, block), balance.from_words64());
-                        },
-                        OptionsSet::Nonce => {
-                            let nonce = *(*result_values.at(0)).values.at(0);
-                            self.verified_account_nonce.write((account, block), nonce);
-                        },
-                        OptionsSet::StorageHash => {
-                            let storage_hash = *result_values.at(2);
-                            self
-                                .verified_account_storage_hash
-                                .write((account, block), storage_hash.from_words64());
-                        },
-                        OptionsSet::All => {
-                            let nonce = *(*result_values.at(0)).values.at(0);
-                            let balance = *result_values.at(1);
-                            let storage_hash = *result_values.at(2);
-                            let code_hash = *result_values.at(3);
-                            self.verified_account_nonce.write((account, block), nonce);
-                            self
-                                .verified_account_balance
-                                .write((account, block), balance.from_words64());
-                            self
-                                .verified_account_storage_hash
-                                .write((account, block), storage_hash.from_words64());
-                            self
-                                .verified_account_code_hash
-                                .write((account, block), code_hash.from_words64());
-                        },
-                    };
+
+                    let nonce = *(*result_values.at(0)).values.at(0);
+                    let balance = *result_values.at(1);
+                    let storage_hash = *result_values.at(2);
+                    let code_hash = *result_values.at(3);
+                    self.verified_account_nonce.write((account, block), nonce);
+                    self.verified_account_balance.write((account, block), balance.from_words64());
+                    self
+                        .verified_account_storage_hash
+                        .write((account, block), storage_hash.from_words64());
+                    self
+                        .verified_account_code_hash
+                        .write((account, block), code_hash.from_words64());
+
                     return (true, SUCCESS);
                 }
             }
@@ -199,7 +172,7 @@ pub mod FactRegistry {
             proofs_concat: Array<u64>,
         ) -> (bool, u256, felt252) {
             let account_state_root = self.verified_account_storage_hash.read((account, block));
-            assert!(account_state_root != 0, "FactRegistry: block state root not found");
+            assert!(account_state_root != 0, "FactRegistry: account state root not found");
 
             let (already_proved, value) = self.verified_storage.read((account, block, slot));
             if already_proved {
@@ -215,15 +188,11 @@ pub mod FactRegistry {
             );
 
             match result {
-                Result::Err(e) => { return (false, 0, e); },
-                Result::Ok(result) => {
-                    if !result.is_some() {
-                        return (true, 0, EMPTY_SLOT);
-                    } else {
-                        let result_value = words64_to_int(result.unwrap());
-                        self.verified_storage.write((account, block, slot), (true, result_value));
-                        return (true, result_value, SUCCESS);
-                    }
+                Option::None => { return (true, 0, EMPTY_SLOT); },
+                Option::Some(result) => {
+                    let result_value = words64_to_int(result);
+                    self.verified_storage.write((account, block, slot), (true, result_value));
+                    return (true, result_value, SUCCESS);
                 }
             }
         }

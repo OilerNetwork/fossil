@@ -12,6 +12,7 @@ use fossil::library::{
 use fossil::types::Words64Sequence;
 use starknet::EthAddress;
 
+const U32_MASK: u256 = 0xFFFFFFFF;
 const U64_MASK: u256 = 0xFFFFFFFFFFFFFFFF;
 const U64_MASK_FELT: felt252 = 0xFFFFFFFFFFFFFFFF;
 
@@ -42,10 +43,11 @@ impl EthAddressWords64 of Words64Trait<EthAddress> {
         let address_felt: felt252 = self.into();
         let l0: u64 = (BitShift::shr(address_felt.into(), 96) & U64_MASK).try_into().unwrap();
         let l1: u64 = (BitShift::shr(address_felt.into(), 32) & U64_MASK).try_into().unwrap();
-        let l2: u64 = (address_felt.into() & U64_MASK).try_into().unwrap();
+        let l2: u64 = (address_felt.into() & U32_MASK).try_into().unwrap();
 
-        keccak_words64(Words64Sequence { values: array![l0, l1, l2].span(), len_bytes: 20, })
+        keccak_words64(Words64Sequence { values: array![l0, l1, l2].span(), len_bytes: 20 })
     }
+
 
     /// `from_words64` converts a `Words64Sequence` back into an `EthAddress`.
     /// Note: The `Words64Sequence` input to `from_words64` must have a length of 3 or less.
@@ -240,6 +242,15 @@ fn words64_to_nibbles_rec(word: u64, nibbles_len: usize, mut acc: Array<u64>) ->
 
 #[cfg(test)]
 mod tests {
+    use super::{Words64Trait, EthAddress};
+
+    #[test]
+    fn test_eth_addreess_to_words() {
+        let address: EthAddress = 0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9.try_into().unwrap();
+        let result = address.to_words64();
+        println!("result: {:?}", result);
+    }
+
     #[test]
     fn test_words64_to_u256_default_size() {
         let input = array![

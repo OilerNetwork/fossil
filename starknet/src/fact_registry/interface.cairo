@@ -1,10 +1,9 @@
-use fossil::types::{OptionsSet, Words64Sequence};
+use fossil::types::Words64Sequence;
 
 #[starknet::interface]
 pub trait IFactRegistry<TState> {
     fn prove_account(
         ref self: TState,
-        option: OptionsSet,
         account: starknet::EthAddress,
         block: u64,
         proof_sizes_bytes: Array<usize>,

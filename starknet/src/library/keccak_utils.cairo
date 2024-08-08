@@ -91,6 +91,39 @@ fn u64_to_big_endian_bytes(num: u64, len: u32) -> Array<u8> {
 #[cfg(test)]
 mod tests {
     #[test]
+    fn test_keccak_words64() {
+        let input = super::Words64Sequence {
+            values: array![
+                17893224083919773945,
+                13135060841128972854,
+                7916313373805331188,
+                7448579461331849594,
+                16081673001799608960,
+                9259542123273814144,
+                11556784118908757093,
+                2485209825384507840,
+                8852124926135473986,
+                14848727627625325413,
+                4292736
+            ]
+                .span(),
+            len_bytes: 83
+        };
+        let res = super::keccak_words64(input);
+        assert_eq!(res.len_bytes, 32);
+        assert_eq!(
+            res.values,
+            array![
+                10683081066937797427,
+                10597605121640654315,
+                1635833378625414949,
+                12742188449158472601
+            ]
+                .span()
+        );
+    }
+
+    #[test]
     fn test_u64_to_big_endian_bytes() {
         let res = super::u64_to_big_endian_bytes(17942923244738002036, 8);
         assert_eq!(res, array![249, 2, 17, 160, 26, 181, 60, 116]);
