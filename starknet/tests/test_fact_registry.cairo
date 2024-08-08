@@ -21,10 +21,7 @@ fn prove_all_test_success_mainnet_weth() {
     let _output = dsp
         .registry
         .prove_account(
-            account_proof.address,
-            block.number,
-            account_proof.bytes,
-            account_proof.data
+            account_proof.address, block.number, account_proof.bytes, account_proof.data
         );
 
     let storage_hash = dsp
@@ -73,9 +70,7 @@ fn prove_account_test_success_save_all() {
 
     let proof = proofs::account::PROOF_1();
 
-    let _output = dsp
-        .registry
-        .prove_account(proof.address, block.number, proof.bytes, proof.data);
+    let _output = dsp.registry.prove_account(proof.address, block.number, proof.bytes, proof.data);
 
     let storage_hash = dsp.registry.get_verified_account_storage_hash(proof.address, block.number);
     assert_eq!(storage_hash, proof.storage_hash);
@@ -99,9 +94,7 @@ fn prove_account_test_fail_state_root_not_found() {
 
     let proof = proofs::account::PROOF_1();
 
-    let _output = dsp
-        .registry
-        .prove_account(proof.address, block.number, proof.bytes, proof.data);
+    let _output = dsp.registry.prove_account(proof.address, block.number, proof.bytes, proof.data);
 }
 
 #[test]
@@ -118,10 +111,7 @@ fn prove_storage_test_success_with_some_data() {
     let _output = dsp
         .registry
         .prove_account(
-            account_proof.address,
-            block.number,
-            account_proof.bytes,
-            account_proof.data
+            account_proof.address, block.number, account_proof.bytes, account_proof.data
         );
 
     let storage_proof = proofs::storage::PROOF_2();
@@ -189,10 +179,7 @@ fn get_storage_test_success_with_no_data() {
     let _output = dsp
         .registry
         .prove_account(
-            account_proof.address,
-            block.number,
-            account_proof.bytes,
-            account_proof.data
+            account_proof.address, block.number, account_proof.bytes, account_proof.data
         );
 
     let storage_proof = proofs::storage::PROOF_1();
@@ -252,10 +239,7 @@ fn prove_account_test_error_invalid_children_length() {
 
     let proof = proofs::account::PROOF_invalid_children_length();
 
-    dsp
-        .registry
-        .prove_account(proof.address, block.number, proof.bytes, proof.data);
-
+    dsp.registry.prove_account(proof.address, block.number, proof.bytes, proof.data);
 }
 
 #[test]
@@ -270,8 +254,6 @@ fn prove_account_test_error_root_hash_mismatch() {
 
     let proof = proofs::account::PROOF_4();
 
-    let output = dsp
-        .registry
-        .prove_account(proof.address, block.number, proof.bytes, proof.data);
+    let output = dsp.registry.prove_account(proof.address, block.number, proof.bytes, proof.data);
     assert_eq!(output, (false, 'Root hash mismatch'));
 }
