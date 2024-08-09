@@ -42,7 +42,7 @@ Deploy the Cairo contracts:
 
 In a New Terminal Set up local Ethereum testing:
    ```bash
-   cd ../ethereum
+   cd ethereum
    cp anvil.env .env
    source .env
    forge script script/LocalTesting.s.sol:LocalSetup --broadcast --rpc-url ${ETH_RPC_URL} 
