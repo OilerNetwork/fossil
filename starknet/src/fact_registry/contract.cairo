@@ -17,11 +17,12 @@ pub mod FactRegistry {
         rlp_utils::{to_rlp_array, extract_data, extract_element}, keccak_utils::keccak_words64
     };
     use fossil::types::{Words64Sequence, RLPItem};
-    use openzeppelin::access::ownable::OwnableComponent;
-    use openzeppelin::upgrades::UpgradeableComponent;
-    use openzeppelin::upgrades::interface::IUpgradeable;
+    use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_upgrades::UpgradeableComponent;
+    use openzeppelin_upgrades::interface::IUpgradeable;
     // Core lib imports 
     use starknet::{ContractAddress, EthAddress, contract_address_const, ClassHash};
+    use starknet::storage::Map;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: UpgradeableComponent, storage: upgradeable, event: upgradeableEvent);
@@ -48,12 +49,12 @@ pub mod FactRegistry {
         #[substorage(v0)]
         upgradeable: UpgradeableComponent::Storage,
         l1_headers_store: IL1HeadersStoreDispatcher,
-        verified_account: LegacyMap::<(EthAddress, u64), bool>,
-        verified_account_storage_hash: LegacyMap::<(EthAddress, u64), u256>,
-        verified_account_code_hash: LegacyMap::<(EthAddress, u64), u256>,
-        verified_account_balance: LegacyMap::<(EthAddress, u64), u256>,
-        verified_account_nonce: LegacyMap::<(EthAddress, u64), u64>,
-        verified_storage: LegacyMap::<(EthAddress, u64, u256), (bool, u256)>,
+        verified_account: Map<(EthAddress, u64), bool>,
+        verified_account_storage_hash: Map<(EthAddress, u64), u256>,
+        verified_account_code_hash: Map<(EthAddress, u64), u256>,
+        verified_account_balance: Map<(EthAddress, u64), u256>,
+        verified_account_nonce: Map<(EthAddress, u64), u64>,
+        verified_storage: Map<(EthAddress, u64, u256), (bool, u256)>,
     }
     // *************************************************************************
     //                             EVENTS
@@ -293,7 +294,7 @@ pub mod FactRegistry {
         /// This may only be called by the contract owner.
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             self.ownable.assert_only_owner();
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
     }
 

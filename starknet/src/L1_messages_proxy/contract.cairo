@@ -8,9 +8,9 @@ pub mod L1MessagesProxy {
     };
     use fossil::L1_messages_proxy::interface::IL1MessagesProxy;
     use fossil::library::words64_utils::words64_to_u256;
-    use openzeppelin::access::ownable::OwnableComponent;
-    use openzeppelin::upgrades::UpgradeableComponent;
-    use openzeppelin::upgrades::interface::IUpgradeable;
+    use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_upgrades::UpgradeableComponent;
+    use openzeppelin_upgrades::interface::IUpgradeable;
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
@@ -166,7 +166,7 @@ pub mod L1MessagesProxy {
         /// This may only be called by the contract owner.
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             self.ownable.assert_only_owner();
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
     }
 }

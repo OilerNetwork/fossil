@@ -30,12 +30,3 @@ pub mod library {
     pub mod words64_utils;
 }
 
-#[cfg(test)]
-pub mod testing {
-    pub mod rlp;
-    pub mod proofs {
-        pub mod account;
-        pub mod blocks;
-        pub mod storage;
-    }
-}

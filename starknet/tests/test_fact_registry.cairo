@@ -1,11 +1,11 @@
 use fossil::library::words64_utils::Words64Trait;
-use fossil::testing::proofs;
+use super::utils::proofs;
 use fossil::{
     L1_headers_store::interface::IL1HeadersStoreDispatcherTrait,
     fact_registry::interface::IFactRegistryDispatcherTrait
 };
 use snforge_std::start_cheat_caller_address;
-use super::test_utils::{setup, OWNER, STARKNET_HANDLER};
+use super::utils::test_utils::{setup, OWNER, STARKNET_HANDLER};
 
 #[test]
 fn prove_all_test_success_mainnet_weth() {
