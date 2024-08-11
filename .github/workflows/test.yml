@@ -10,5 +10,5 @@ jobs:
       - uses: foundry-rs/setup-snfoundry@v3
       - uses: software-mansion/setup-scarb@v1
         with:
-          scarb-version: "2.6.4"
+          scarb-version: "2.7.0"
       - run: cd starknet && snforge test
