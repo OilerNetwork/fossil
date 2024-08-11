@@ -1,6 +1,7 @@
-// The following code was taken from the Alexandria library and added as internal library to 
-// make auditing easier. The original code can be found at https://github.com/keep-starknet-strange/alexandria/blob/main/src/math/src/lib.cairo
-use core::num::traits::{Bounded, OverflowingMul,WideMul};
+// The following code was taken from the Alexandria library and added as internal library to
+// make auditing easier. The original code can be found at
+// https://github.com/keep-starknet-strange/alexandria/blob/main/src/math/src/lib.cairo
+use core::num::traits::{Bounded, OverflowingMul, WideMul};
 use fossil::library::math_utils::pow;
 
 pub trait BitShift<T> {
@@ -62,7 +63,7 @@ pub impl U128BitShift of BitShift<u128> {
 pub impl U256BitShift of BitShift<u256> {
     fn shl(x: u256, n: u256) -> u256 {
         let res = WideMul::wide_mul(x, pow(2, n));
-        u256{low: res.limb0, high: res.limb1}
+        u256 { low: res.limb0, high: res.limb1 }
     }
 
     fn shr(x: u256, n: u256) -> u256 {

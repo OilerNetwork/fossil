@@ -19,8 +19,9 @@ use fossil::types::{Words64Sequence, Words64, RLPItem};
 /// nibbles based on the first nibble value.
 ///
 /// # Panics
-/// If the first nibble of the input is not one of the expected values (0, 1, 2, or 3). Hex Prefix for MPT in Ethereum.
-/// 
+/// If the first nibble of the input is not one of the expected values (0, 1, 2, or 3). Hex Prefix
+/// for MPT in Ethereum.
+///
 /// In the context of Merkle Patricia Trees, the input data is prefixed with a specific pattern
 /// of nibbles (4-bit values) that indicate the type of the node. This function decodes the input
 /// by skipping the appropriate number of nibbles based on the first nibble value, and returns
@@ -74,7 +75,8 @@ pub fn count_shared_prefix_len(
     }
 }
 
-/// Retrieves the next hash value from an RLP (Recursive Length Prefix) data associated with the given node.
+/// Retrieves the next hash value from an RLP (Recursive Length Prefix) data associated with the
+/// given node.
 ///
 /// # Arguments
 /// * `rlp` - The `Words64Sequence` representing the RLP-encoded data structure.
@@ -94,7 +96,7 @@ pub fn get_next_hash(rlp: Words64Sequence, node: RLPItem) -> Words64Sequence {
 }
 
 /// Extracts a single nibble from a `Words64Sequence` at a given position.
-/// 
+///
 /// # Arguments
 /// * `input` - The `Words64Sequence` from which to extract the nibble.
 /// * `position` - The position (index) within the `Words64Sequence` to extract the nibble from.
@@ -103,7 +105,8 @@ pub fn get_next_hash(rlp: Words64Sequence, node: RLPItem) -> Words64Sequence {
 /// * `u32` - The nibble at the specified position.
 ///
 /// # Panics
-/// If the provided `position` is greater than or equal to two times the length of the `Words64Sequence`(in bytes).
+/// If the provided `position` is greater than or equal to two times the length of the
+/// `Words64Sequence`(in bytes).
 pub fn extract_nibble(input: Words64Sequence, position: usize) -> u32 {
     assert!(position < input.len_bytes * 2, "Invalid position");
     let (target_word, index) = u32_safe_divmod(position, 16);

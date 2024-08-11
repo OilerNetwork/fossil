@@ -19,7 +19,7 @@ const TRANSACTIONS_ROOT_START: usize = 4 + 32 + 1 + 32 + 1 + 20 + 1 + 32 + 1;
 const RECEIPTS_ROOT_START: usize = 4 + 32 + 1 + 32 + 1 + 20 + 1 + 32 + 1 + 32 + 1;
 
 /// Constants for decoding specific fields from RLP-encoded block headers.
-/// 
+///
 /// # Constants
 /// * `DIFFICULTY` - The index for the difficulty field in the RLP-encoded block header.
 /// * `BLOCK_NUMBER` - The index for the block number field in the RLP-encoded block header.
@@ -43,11 +43,11 @@ mod decoder {
 }
 
 /// Extracts the parent hash from a given RLP-encoded block header.
-/// 
+///
 /// This function extracts the parent hash from the RLP-encoded block header sequence
 /// starting at a predefined offset and converts it from a sequence of 64-bit words
 /// into a `u256` value.
-/// 
+///
 /// # Arguments
 /// * `block_rlp` - A `Words64Sequence` containing the RLP-encoded block header data.
 ///
@@ -58,11 +58,11 @@ pub fn decode_parent_hash(block_rlp: Words64Sequence) -> u256 {
 }
 
 /// Extracts the uncle hash from a given RLP-encoded block header.
-/// 
+///
 /// This function extracts the uncle hash from the RLP-encoded block header sequence
 /// starting at a predefined offset and converts it from a sequence of 64-bit words
 /// into a `u256` value.
-/// 
+///
 /// # Arguments
 /// * `block_rlp` - A `Words64Sequence` containing the RLP-encoded block header data.
 ///
@@ -73,11 +73,11 @@ pub fn decode_uncle_hash(block_rlp: Words64Sequence) -> u256 {
 }
 
 /// Extracts the beneficiary from a given RLP-encoded block header.
-/// 
+///
 /// This function extracts the beneficiary from the RLP-encoded block header sequence
 /// starting at a predefined offset and converts it from a sequence of 64-bit words
 /// into a `u256` value.
-/// 
+///
 /// # Arguments
 /// * `block_rlp` - A `Words64Sequence` containing the RLP-encoded block header data.
 ///
@@ -88,11 +88,11 @@ pub fn decode_beneficiary(block_rlp: Words64Sequence) -> EthAddress {
 }
 
 /// Extracts the state root from a given RLP-encoded block header.
-/// 
+///
 /// This function extracts the beneficiary from the RLP-encoded block header sequence
 /// starting at a predefined offset and converts it from a sequence of 64-bit words
 /// into a `u256` value.
-/// 
+///
 /// # Arguments
 /// * `block_rlp` - A `Words64Sequence` containing the RLP-encoded block header data.
 ///
@@ -103,11 +103,11 @@ pub fn decode_state_root(block_rlp: Words64Sequence) -> u256 {
 }
 
 /// Extracts the transaction root from a given RLP-encoded block header.
-/// 
+///
 /// This function extracts the transaction root from the RLP-encoded block header sequence
 /// starting at a predefined offset and converts it from a sequence of 64-bit words
 /// into a `u256` value.
-/// 
+///
 /// # Arguments
 /// * `block_rlp` - A `Words64Sequence` containing the RLP-encoded block header data.
 ///
@@ -118,11 +118,11 @@ pub fn decode_transactions_root(block_rlp: Words64Sequence) -> u256 {
 }
 
 /// Extracts the beneficiary from a given RLP-encoded block header.
-/// 
+///
 /// This function extracts the beneficiary from the RLP-encoded block header sequence
 /// starting at a predefined offset and converts it from a sequence of 64-bit words
 /// into a `u256` value.
-/// 
+///
 /// # Arguments
 /// * `block_rlp` - A `Words64Sequence` containing the RLP-encoded block header data.
 ///
@@ -134,11 +134,11 @@ pub fn decode_receipts_root(block_rlp: Words64Sequence) -> u256 {
 
 
 /// Extracts the difficulty from a given RLP-encoded block header.
-/// 
+///
 /// This function extracts the difficulty value from the RLP-encoded block header sequence.
 /// It asserts that the block RLP contains enough elements to access the difficulty value
 /// and then extracts and returns the difficulty as a `u64`.
-/// 
+///
 /// # Arguments
 /// * `block_rlp` - A `Words64Sequence` containing the RLP-encoded block header data.
 ///
@@ -157,7 +157,7 @@ pub fn decode_difficulty(block_rlp: Words64Sequence) -> u64 {
 }
 
 /// Extracts the block number from a given RLP-encoded block header.
-/// 
+///
 /// # Arguments
 /// * `block_rlp` - A `Words64Sequence` containing the RLP-encoded block header data.
 ///
@@ -176,7 +176,7 @@ pub fn decode_block_number(block_rlp: Words64Sequence) -> u64 {
 }
 
 /// Extracts the gas limit from a given RLP-encoded block header.
-/// 
+///
 /// # Arguments
 /// * `block_rlp` - A `Words64Sequence` containing the RLP-encoded block header data.
 ///
@@ -195,7 +195,7 @@ pub fn decode_gas_limit(block_rlp: Words64Sequence) -> u64 {
 }
 
 /// Extracts the gas used from a given RLP-encoded block header.
-/// 
+///
 /// # Arguments
 /// * `block_rlp` - A `Words64Sequence` containing the RLP-encoded block header data.
 ///
@@ -214,7 +214,7 @@ pub fn decode_gas_used(block_rlp: Words64Sequence) -> u64 {
 }
 
 /// Extracts the timestamp from a given RLP-encoded block header.
-/// 
+///
 /// # Arguments
 /// * `block_rlp` - A `Words64Sequence` containing the RLP-encoded block header data.
 ///
@@ -233,7 +233,7 @@ pub fn decode_timestamp(block_rlp: Words64Sequence) -> u64 {
 }
 
 /// Extracts the base fee from a given RLP-encoded block header.
-/// 
+///
 /// # Arguments
 /// * `block_rlp` - A `Words64Sequence` containing the RLP-encoded block header data.
 ///

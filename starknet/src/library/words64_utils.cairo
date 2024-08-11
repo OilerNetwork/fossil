@@ -36,7 +36,8 @@ impl U256Words64 of Words64Trait<u256> {
 }
 
 /// Implementation of `EthAddressWords64` for `Words64Trait`.
-/// `EthAddressWords64` trait provides conversion functions between `EthAddress` and `Words64Sequence`.
+/// `EthAddressWords64` trait provides conversion functions between `EthAddress` and
+/// `Words64Sequence`.
 impl EthAddressWords64 of Words64Trait<EthAddress> {
     /// `to_words64` converts an `EthAddress` into a `Words64Sequence` .
     fn to_words64(self: EthAddress) -> Words64Sequence {
@@ -76,9 +77,10 @@ impl EthAddressWords64 of Words64Trait<EthAddress> {
 ///
 /// # Panics
 /// If the input `Span<u64>` has a length greater than 4.
-/// 
-/// This function takes a `Span<u64>` representing a `Words64Sequence` i.e sequence of up to four 64-bit words,
-/// and combines them into a single `u256` value by using the shift and bitwise operator.
+///
+/// This function takes a `Span<u64>` representing a `Words64Sequence` i.e sequence of up to four
+/// 64-bit words, and combines them into a single `u256` value by using the shift and bitwise
+/// operator.
 pub fn words64_to_u256(input: Span<u64>, len_bytes: usize) -> u256 {
     assert!(input.len() <= 4, "input length must be less than or equal to 4");
     if input.len() == 0 {
@@ -112,11 +114,12 @@ pub fn words64_to_u256(input: Span<u64>, len_bytes: usize) -> u256 {
 /// Converts a `Words64Sequence` into a `u256` value.
 ///
 /// # Arguments
-/// * `input` - A `Words64Sequence` containing the 64-bit words and the length in bytes to be converted.
+/// * `input` - A `Words64Sequence` containing the 64-bit words and the length in bytes to be
+/// converted.
 ///
 /// # Returns
 /// A `u256` value representing the combination of the input bytes.
-/// 
+///
 /// This function takes a `Words64Sequence` as input, which represents a sequence of 64-bit words
 /// and a length in bytes. It converts the sequence of words into an array of bytes, and then
 /// combines these bytes into a single `u256` value.
@@ -144,7 +147,7 @@ pub fn words64_to_int(input: Words64Sequence) -> u256 {
 /// # Returns
 /// * `Span<u64>` - Four `u64` elements, representing the input `u256` value split into
 /// four 64-bit words.
-/// 
+///
 /// This function takes a `u256` value as input and splits it into four 64-bit words (elements).
 /// The splitting is done by shifting the input value right by 192, 128, 64, and 0 bits, and then
 /// masking the result with `U64_MASK` to extract the corresponding 64-bit word.
@@ -182,9 +185,9 @@ pub fn split_u256_to_u64_array_no_span(value: u256) -> Array<u64> {
 ///
 /// # Returns
 /// * `Array<u64>` - The nibbles representing the input `Words64Sequence`.
-/// 
-/// The resulting nibble arrays are then concatenated into a single `Array<u64>`, representing the entire
-/// `Words64Sequence` in nibble form.
+///
+/// The resulting nibble arrays are then concatenated into a single `Array<u64>`, representing the
+/// entire `Words64Sequence` in nibble form.
 pub fn words64_to_nibbles(input: Words64Sequence, skip_nibbles: usize) -> Array<u64> {
     let (_, remainder) = u32_safe_divmod(input.len_bytes * 2, 16);
     let mut acc = array![];
@@ -217,15 +220,17 @@ pub fn words64_to_nibbles(input: Words64Sequence, skip_nibbles: usize) -> Array<
 ///
 /// # Arguments
 /// * `word` - The 64-bit word to be converted into an array of nibbles.
-/// * `nibbles_len` - The number of nibbles to be extracted from the word. This value must be greater than 0.
-/// * `acc` - An `Array<u64>` to accumulate the extracted nibbles. This is used for the recursive calls.
+/// * `nibbles_len` - The number of nibbles to be extracted from the word. This value must be
+/// greater than 0.
+/// * `acc` - An `Array<u64>` to accumulate the extracted nibbles. This is used for the recursive
+/// calls.
 ///
 /// # Returns
 /// * `Array<u64>` - The extracted nibbles in little-endian order.
 ///
 /// # Panics
 /// Panics ff `nibbles_len` is 0.
-/// 
+///
 /// This function takes a 64-bit word (`u64`) and recursively converts it into an array of nibbles.
 /// The conversion is done by repeatedly shifting the input word right by 4 bits and extracting the
 /// least significant nibble (4 bits) until all nibbles have been extracted.
@@ -248,7 +253,17 @@ mod tests {
     fn test_eth_addreess_to_words() {
         let address: EthAddress = 0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9.try_into().unwrap();
         let result = address.to_words64();
-        println!("result: {:?}", result);
+        let expected = super::Words64Sequence {
+            values: array![
+                18302765068955940618,
+                12587956436486716937,
+                4480421445994798380,
+                11730699817693045862
+            ]
+                .span(),
+            len_bytes: 32
+        };
+        assert_eq!(result, expected);
     }
 
     #[test]

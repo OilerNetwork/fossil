@@ -20,9 +20,9 @@ pub mod FactRegistry {
     use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_upgrades::UpgradeableComponent;
     use openzeppelin_upgrades::interface::IUpgradeable;
-    // Core lib imports 
-    use starknet::{ContractAddress, EthAddress, contract_address_const, ClassHash};
     use starknet::storage::Map;
+    // Core lib imports
+    use starknet::{ContractAddress, EthAddress, contract_address_const, ClassHash};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: UpgradeableComponent, storage: upgradeable, event: upgradeableEvent);
@@ -32,7 +32,7 @@ pub mod FactRegistry {
     impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
-    // Upgradeable 
+    // Upgradeable
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     const SUCCESS: felt252 = 'Proof verified successfully';
@@ -72,7 +72,7 @@ pub mod FactRegistry {
     //                              CONSTRUCTOR
     // *************************************************************************
     /// Contract Constructor.
-    /// 
+    ///
     /// # Arguments
     /// * `l1_headers_store_addr` - The address of L1 Header Store contract.
     #[constructor]
@@ -93,7 +93,8 @@ pub mod FactRegistry {
     // Implementation of IFactRegistry interface
     #[abi(embed_v0)]
     impl FactRegistry of IFactRegistry<ContractState> {
-        /// Verifies the account information for a given Ethereum address  at a given block using a provided state root proof and stores the verified value.
+        /// Verifies the account information for a given Ethereum address  at a given block using a
+        /// provided state root proof and stores the verified value.
         ///
         /// # Arguments
         /// * `option` - An enum specifying which part of the account state to verify and store.
@@ -105,10 +106,13 @@ pub mod FactRegistry {
         /// # Panics
         /// - The state root for the given block is not found.
         /// - The account is not found in the proof verification.
-        /// 
-        /// This function takes an account address, block number, proof sizes, and concatenated proofs to verify the account state.
-        /// It retrieves the state root for the given block, reconstructs the proof, and verifies it.
-        /// Depending on the `option` provided, it stores the corresponding verified values (code hash, balance, nonce, storage hash)
+        ///
+        /// This function takes an account address, block number, proof sizes, and concatenated
+        /// proofs to verify the account state.
+        /// It retrieves the state root for the given block, reconstructs the proof, and verifies
+        /// it.
+        /// Depending on the `option` provided, it stores the corresponding verified values (code
+        /// hash, balance, nonce, storage hash)
         /// in the contract state.
         fn prove_account(
             ref self: ContractState,
@@ -152,23 +156,27 @@ pub mod FactRegistry {
             }
         }
 
-        /// Retrieves the storage hash value at a given slot for an Ethereum account and block number given a state root proof.
+        /// Retrieves the storage hash value at a given slot for an Ethereum account and block
+        /// number given a state root proof.
         ///
         /// # Arguments
         /// * `block` - The block number at which to fetch the storage value.
         /// * `account` - The Ethereum address of the account whose storage is being queried.
         /// * `slot` - The storage slot whose value is being retrieved.
         /// * `proof_sizes_bytes` - An array of sizes for the proof elements in bytes.
-        /// * `proofs_concat` - An array containing the concatenated proofs for storage verification.
+        /// * `proofs_concat` - An array containing the concatenated proofs for storage
+        /// verification.
         ///
         /// # Returns
-        /// * `Words64Sequence` - A sequence of 64-bit words containing the storage value at the given slot, or empty if the proof is invalid.
+        /// * `Words64Sequence` - A sequence of 64-bit words containing the storage value at the
+        /// given slot, or empty if the proof is invalid.
         ///
         /// # Panics
         /// Panics if the storage hash for the given account and block is not found.
-        /// 
-        /// This function is responsible for retrieving the storage value at a specific slot for an Ethereum account and block number
-        /// using StarkNet state root proofs. It verifies the proof and returns the storage value if the proof is valid.
+        ///
+        /// This function is responsible for retrieving the storage value at a specific slot for an
+        /// Ethereum account and block number using StarkNet state root proofs. It verifies the
+        /// proof and returns the storage value if the proof is valid.
         fn prove_storage(
             ref self: ContractState,
             block: u64,
@@ -203,17 +211,21 @@ pub mod FactRegistry {
             }
         }
 
-        /// Retrieves the storage value at a given slot for an Ethereum account and block number as an unsigned 256-bit integer.
+        /// Retrieves the storage value at a given slot for an Ethereum account and block number as
+        /// an unsigned 256-bit integer.
         ///
         /// # Arguments
         /// - `block`: The block number for which the storage value is to be retrieved.
         /// - `account`: The Ethereum address of the account.
         /// - `slot`: The storage slot for which the value is to be retrieved.
-        /// - `proof_sizes_bytes`: An array containing the sizes (in bytes) of the individual proofs in the concatenated proof.
+        /// - `proof_sizes_bytes`: An array containing the sizes (in bytes) of the individual proofs
+        /// in the concatenated proof.
         /// - `proofs_concat`: An array containing the concatenated proof data.
         ///
-        /// This function is a wrapper around `get_storage` that specifically returns the storage value as an unsigned 256-bit integer.
-        /// It is useful when working with storage values that represent unsigned integers, such as balances or other numerical values.
+        /// This function is a wrapper around `get_storage` that specifically returns the storage
+        /// value as an unsigned 256-bit integer.
+        /// It is useful when working with storage values that represent unsigned integers, such as
+        /// balances or other numerical values.
         ///
         /// Returns:
         /// * `u256` - The storage value at the given slot.
@@ -308,11 +320,13 @@ pub mod FactRegistry {
     // *************************************************************************
     #[generate_trait]
     impl Private of PrivateTrait {
-        /// Reconstructs a list of integer sequences from a concatenated byte sequence and an array of byte sizes.
+        /// Reconstructs a list of integer sequences from a concatenated byte sequence and an array
+        /// of byte sizes.
         ///
         /// # Arguments
         /// * `sequence`: A span of 64-bit words representing the concatenated byte sequence.
-        /// * `sizes_bytes`: A span of sizes (in bytes) for each integer sequence in the concatenated byte sequence.
+        /// * `sizes_bytes`: A span of sizes (in bytes) for each integer sequence in the
+        /// concatenated byte sequence.
         ///
         /// Returns:
         /// * `Array<Words64Sequence>` - The reconstructed sequences.
@@ -372,7 +386,8 @@ pub mod FactRegistry {
         /// # Returns
         /// * ` Array<Words64Sequence>` - each values extracted from the RLP list.
         ///
-        /// This function iterates through the provided `rlp_list` and extracts data from the `words64`
+        /// This function iterates through the provided `rlp_list` and extracts data from the
+        /// `words64`
         /// sequence based on the position and length of each `RLPItem` in the list. The extracted
         /// data is appended to an array and returned.
         fn extract_list_values(

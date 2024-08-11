@@ -1,5 +1,6 @@
-// The following code was taken from the Alexandria library and added as internal library to 
-// make auditing easier. The original code can be found at https://github.com/keep-starknet-strange/alexandria/blob/main/src/data_structures/src/array_ext.cairo
+// The following code was taken from the Alexandria library and added as internal library to
+// make auditing easier. The original code can be found at
+// https://github.com/keep-starknet-strange/alexandria/blob/main/src/data_structures/src/array_ext.cairo
 
 pub trait ArrayTraitExt<T> {
     fn append_all(ref self: Array<T>, ref arr: Array<T>);
@@ -213,14 +214,13 @@ impl SpanImpl<T, +Copy<T>, +Drop<T>> of SpanTraitExt<T> {
             Option::Some(item) => *item,
             Option::None => { return Option::None; },
         };
-        while let Option::Some(item) = self
-            .pop_front() {
-                if *item < min {
-                    index_of_min = index + 1;
-                    min = *item;
-                }
-                index += 1;
-            };
+        while let Option::Some(item) = self.pop_front() {
+            if *item < min {
+                index_of_min = index + 1;
+                min = *item;
+            }
+            index += 1;
+        };
         Option::Some(index_of_min)
     }
 
@@ -244,14 +244,13 @@ impl SpanImpl<T, +Copy<T>, +Drop<T>> of SpanTraitExt<T> {
             Option::Some(item) => *item,
             Option::None => { return Option::None; },
         };
-        while let Option::Some(item) = self
-            .pop_front() {
-                if *item > max {
-                    index_of_max = index + 1;
-                    max = *item
-                }
-                index += 1;
-            };
+        while let Option::Some(item) = self.pop_front() {
+            if *item > max {
+                index_of_max = index + 1;
+                max = *item
+            }
+            index += 1;
+        };
         Option::Some(index_of_max)
     }
 
@@ -263,13 +262,12 @@ impl SpanImpl<T, +Copy<T>, +Drop<T>> of SpanTraitExt<T> {
         let mut last_value = self.pop_front().unwrap();
         let mut ret = array![*last_value];
 
-        while let Option::Some(v) = self
-            .pop_front() {
-                if (last_value != v) {
-                    last_value = v;
-                    ret.append(*v);
-                }
-            };
+        while let Option::Some(v) = self.pop_front() {
+            if (last_value != v) {
+                last_value = v;
+                ret.append(*v);
+            }
+        };
 
         ret
     }

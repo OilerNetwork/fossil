@@ -18,7 +18,7 @@ use fossil::types::Words64Sequence;
 /// # Returns
 /// * `Words64Sequence`: The resulting Keccak-256 hash represented as a sequence of 64-bit words,
 ///   with a length of 32 bytes.
-/// 
+///
 /// This function takes an input `Words64Sequence`, converts it to a byte array,
 /// computes the Keccak-256 hash of the byte array, and returns the hash as a new `Words64Sequence`.
 pub fn keccak_words64(input: Words64Sequence) -> Words64Sequence {
@@ -28,7 +28,8 @@ pub fn keccak_words64(input: Words64Sequence) -> Words64Sequence {
     Words64Sequence { values: values_u64, len_bytes: 32 }
 }
 
-/// Converts a span of 64-bit unsigned integers to an array of u8 with a length specified by the `len_bytes` parameter.
+/// Converts a span of 64-bit unsigned integers to an array of u8 with a length specified by the
+/// `len_bytes` parameter.
 ///
 /// # Arguments
 /// * `input` - The span of 64-bit unsigned integers to convert.

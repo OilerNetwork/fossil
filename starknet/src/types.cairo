@@ -10,7 +10,7 @@ pub struct Keccak256Hash {
 /// # Fields
 /// * `values` - The sequence of 64-bit words (`Words64`).
 /// * `len_bytes` - The length of the sequence in bytes.
-/// 
+///
 /// `Words64Sequence` is used to encapsulate a sequence of `Words64`
 /// along with the length of the sequence in bytes.
 #[derive(Copy, Debug, Drop, Serde)]
@@ -25,7 +25,7 @@ pub struct Words64Sequence {
 /// * `first_byte`- The first byte of the RLP item.
 /// * `position` - The position of the RLP item within the encoded sequence.
 /// * `length` - The length of the RLP item in bytes.
-/// 
+///
 /// This struct is used to store metadata about a specific item within an RLP-encoded sequence,
 /// including its first byte, position within the sequence, and length.
 #[derive(Debug, Copy, Default, Drop, Serde)]

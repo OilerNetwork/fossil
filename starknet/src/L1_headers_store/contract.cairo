@@ -19,14 +19,14 @@ pub mod L1HeaderStore {
     use fossil::types::ProcessBlockOptions;
     use fossil::types::Words64Sequence;
     use openzeppelin_access::ownable::OwnableComponent;
-    use starknet::storage::Map;
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
-    // Core lib imports 
+    // Core lib imports
     use openzeppelin_access::ownable::ownable::OwnableComponent::InternalTrait;
     use openzeppelin_upgrades::UpgradeableComponent;
     use openzeppelin_upgrades::interface::IUpgradeable;
+    use starknet::storage::Map;
     use starknet::{ContractAddress, EthAddress, get_caller_address, ClassHash};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -37,7 +37,7 @@ pub mod L1HeaderStore {
     impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
-    // Upgradeable 
+    // Upgradeable
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     // *************************************************************************
@@ -80,7 +80,7 @@ pub mod L1HeaderStore {
     //                              CONSTRUCTOR
     // *************************************************************************
     /// Contract Constructor.
-    /// 
+    ///
     /// # Arguments
     /// * `l1_messages_origin` - The address of L1 Message Proxy.
     /// * `owner` - .
@@ -103,7 +103,7 @@ pub mod L1HeaderStore {
     #[abi(embed_v0)]
     impl L1HeaderStoreImpl of IL1HeadersStore<ContractState> {
         /// Receives `block_number` and `parent_hash` from L1 Message Proxy for processing.
-        /// 
+        ///
         /// # Arguments
         /// * `parent_hash` - reference to the hash of the previous block's header.
         /// * `block_number` - unique identifier for each block.
@@ -124,7 +124,7 @@ pub mod L1HeaderStore {
         }
 
         /// Change L1 Message Proxy address. (Only Owner)
-        /// 
+        ///
         /// # Arguments
         /// * `l1_messages_origin` - The address of L1 Message Proxy.
         fn change_l1_messages_origin(
@@ -208,10 +208,12 @@ pub mod L1HeaderStore {
     // *************************************************************************
     #[generate_trait]
     impl Private of PrivateTrait {
-        /// Validates the provided RLP-encoded block header `block_header_rlp` against the expected parent hash `child_block_parent_hash`.
-        /// 
+        /// Validates the provided RLP-encoded block header `block_header_rlp` against the expected
+        /// parent hash `child_block_parent_hash`.
+        ///
         /// # Arguments
-        /// * `child_block_parent_hash` - The expected parent hash of the child block. The parent hash of the next block i.e The hash of block `block_number`
+        /// * `child_block_parent_hash` - The expected parent hash of the child block. The parent
+        /// hash of the next block i.e The hash of block `block_number`
         /// * `block_number` - The block number of the child block.
         /// * `block_header_rlp_bytes_len` - The length of the RLP-encoded block header.
         /// * `block_header_rlp` - An array of u64 representing the RLP-encoded block header.
@@ -220,9 +222,10 @@ pub mod L1HeaderStore {
         /// A tuple containing:
         /// * `block_header_rlp` The RLP-encoded block header.
         /// * `block_header_rlp_bytes_len` The length of the RLP-encoded block header.
-        /// 
+        ///
         /// # Panics
-        /// This function panics if the calculated hash from `block_header_rlp` which is `provided_rlp_hash_u256` 
+        /// This function panics if the calculated hash from `block_header_rlp` which is
+        /// `provided_rlp_hash_u256`
         /// does not match the expected parent hash `child_block_parent_hash`.
         fn validate_provided_header_rlp(
             self: @ContractState,

@@ -17,7 +17,8 @@ const EMPTY_TRIE_ROOT_HASH: u256 =
 
 /// Verifies a Merkle Patricia Tree proof against a given path and root hash.
 ///
-/// This function takes a `Words64Sequence` representing the path to be verified, a `Words64Sequence`
+/// This function takes a `Words64Sequence` representing the path to be verified, a
+/// `Words64Sequence`
 /// representing the expected root hash, and a `Span<Words64Sequence>` containing the proof data. It
 /// iterates through the proof data and verifies that the provided path matches the proof, and that
 /// the root hash matches the calculated root hash based on the proof.
@@ -30,8 +31,9 @@ const EMPTY_TRIE_ROOT_HASH: u256 =
 ///
 /// # Returns
 ///
-/// An ` Result<Option<Words64Sequence>>` containing the data associated with the verified path, or `Result<felt252>` if
-/// the proof is invalid or the path does not exist in the Merkle Patricia Tree.
+/// An ` Result<Option<Words64Sequence>>` containing the data associated with the verified path, or
+/// `Result<felt252>` if the proof is invalid or the path does not exist in the Merkle Patricia
+/// Tree.
 ///
 /// # Error(Result<felt252>)
 ///

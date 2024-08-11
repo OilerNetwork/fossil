@@ -14,7 +14,7 @@ pub mod L1MessagesProxy {
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
-    // Core lib imports   
+    // Core lib imports
     use starknet::{ContractAddress, EthAddress, ClassHash};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -25,7 +25,7 @@ pub mod L1MessagesProxy {
     impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
-    // Upgradeable 
+    // Upgradeable
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     /// Struct to receive message (parentHash_, blockNumber_) from L1.
@@ -67,7 +67,7 @@ pub mod L1MessagesProxy {
     //                              CONSTRUCTOR
     // *************************************************************************
     /// Contract Constructor.
-    /// 
+    ///
     /// # Arguments
     /// * `l1_messages_sender` - The address of the L1 solidity contract.
     /// * `owner` - The owner address.
@@ -84,7 +84,7 @@ pub mod L1MessagesProxy {
     //                     L1 HANDLER FUNCTION
     // *************************************************************************
     /// Receive `message` from L1 which is deserialized as L1Payload.
-    /// 
+    ///
     /// # Arguments
     /// * `from_address` - The contract address on L1 to receive messages from.
     /// * `data` - The payload from L1, an array of 'parent_hash' and 'block_number'.
@@ -114,7 +114,7 @@ pub mod L1MessagesProxy {
     #[abi(embed_v0)]
     impl L1MessagesProxyImpl of IL1MessagesProxy<ContractState> {
         /// Set the Header Store Address. (Only Owner)
-        /// 
+        ///
         /// # Arguments
         /// * `l1_headers_store_address` - The address of the header store cairo contract.
         fn set_l1_headers_store(
@@ -127,7 +127,7 @@ pub mod L1MessagesProxy {
         }
 
         /// Change contract address. (Only Owner)
-        /// 
+        ///
         /// # Arguments
         /// * `l1_messages_sender` - The address of the L1 solidity contract.
         /// * `l1_headers_store_address` - The address of the header store cairo contract.
