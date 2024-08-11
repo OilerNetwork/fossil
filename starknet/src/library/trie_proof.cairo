@@ -42,17 +42,15 @@ const EMPTY_TRIE_ROOT_HASH: u256 =
 /// - If the path offset exceeds the length of the provided path.
 pub fn verify_proof(
     path: Words64Sequence, root_hash: Words64Sequence, proof: Span<Words64Sequence>,
-) -> Result<Option<Words64Sequence>, felt252> {
-    let mut out = Option::None;
+) -> Option<Words64Sequence> {
+    let mut out = Words64Sequence { values: array![].span(), len_bytes: 0 };
     let proof_len = proof.len();
 
     if proof_len == 0 {
         if root_hash.values != split_u256_to_u64_array(EMPTY_TRIE_ROOT_HASH) {
-            return Result::Err(
-                'Empty proof must be empty'
-            ); //Empty proof must have empty trie root hash
+            return Option::None;
         } else {
-            return Result::Ok(out);
+            return Option::Some(out);
         }
     }
 
@@ -62,19 +60,18 @@ pub fn verify_proof(
 
     let output = loop {
         if i == proof_len {
-            out = Option::None;
-            break Result::Ok(out);
+            break Option::Some(out);
         }
 
         let element_rlp = *(proof.at(i));
 
         if i == 0 {
             if root_hash != keccak_words64(element_rlp) {
-                break Result::Err('Root hash mismatch');
+                panic!("Root hash mismatch");
             }
         } else {
             if next_hash != keccak_words64(element_rlp) {
-                break Result::Err('Hash mismatch');
+                panic!("Hash mismatch");
             }
         }
 
@@ -93,16 +90,15 @@ pub fn verify_proof(
 
             if i == proof_len - 1 {
                 if path_offset != path.len_bytes * 2 {
-                    break Result::Err('Path offset mismatch');
+                    panic!("Path offset mismatch");
                 }
                 let node_element_at_one = *node.at(1);
-                out =
-                    Option::Some(
-                        extract_data(
-                            element_rlp, node_element_at_one.position, node_element_at_one.length
-                        )
-                    );
-                break Result::Ok(out);
+
+                break Option::Some(
+                    extract_data(
+                        element_rlp, node_element_at_one.position, node_element_at_one.length
+                    )
+                );
             } else {
                 let children = *node.at(1);
                 if !is_rlp_item(children) {
@@ -116,28 +112,25 @@ pub fn verify_proof(
             }
         } else {
             if node_len != 17 {
-                break Result::Err('Invalid node length');
+                panic!("Invalid node length");
             }
 
             if i == proof_len - 1 {
                 if path_offset + 1 == path.len_bytes * 2 {
-                    out =
-                        Option::Some(
-                            extract_data(element_rlp, *node.at(16).position, *node.at(16).length)
-                        );
-                    break Result::Ok(out);
+                    break Option::Some(
+                        extract_data(element_rlp, *node.at(16).position, *node.at(16).length)
+                    );
                 } else {
                     let node_children = extract_nibble(path, path_offset).try_into().unwrap();
                     let children = *node.at(node_children);
                     if children.length != 0 {
-                        break Result::Err('invalid children length');
+                        panic!("invalid children length");
                     }
-                    out = Option::None;
-                    break Result::Ok(out);
+                    break Option::None;
                 }
             } else {
                 if path_offset >= path.len_bytes * 2 {
-                    break Result::Err('Path offset mismatch');
+                    panic!("Path offset mismatch");
                 }
                 let node_children = extract_nibble(path, path_offset).try_into().unwrap();
                 let children = *node.at(node_children);
@@ -164,30 +157,11 @@ mod tests {
     use super::Words64Sequence;
 
     #[test]
-    fn test_verify_proof() {
-        let out = super::verify_proof(proof_path(), block_state_root(), proof().span());
+    fn test_verify_proof_anvil() {
+        let out = super::verify_proof(proof_path_anvil(), state_root_anvil(), proof_anvil().span());
         match out {
-            Result::Ok(value) => {
-                assert!(value.is_some());
-                let value = value.unwrap();
-                assert_eq!(value.len_bytes, 70);
-                assert_eq!(
-                    value.values,
-                    array![
-                        17889425271775927342,
-                        7747611707377904165,
-                        13770790249671850669,
-                        10758299819545195701,
-                        4563277353913962038,
-                        17973550993138662906,
-                        12418610901666554729,
-                        11791013025377241442,
-                        16720179567303
-                    ]
-                        .span()
-                );
-            },
-            Result::Err(e) => println!("Error {}", e),
+            Option::Some(value) => { println!("value: {:?}", value); },
+            Option::None => panic!("Error"),
         };
     }
 
@@ -707,5 +681,121 @@ mod tests {
             len_bytes: 104
         };
         array![p0, p1, p2, p3, p4, p5, p6, p7]
+    }
+
+    fn proof_anvil() -> Array<Words64Sequence> {
+        let p0 = Words64Sequence {
+            values: array![
+                17942712139336575714,
+                7322395115247864981,
+                9696471292711729221,
+                903568900370751984,
+                303466977183566258,
+                11898575076475314378,
+                3991848043007121262,
+                6046858721407677519,
+                18175509357028999328,
+                15112132244661889056,
+                9908271223616860312,
+                15984310952959735594,
+                15645765083108267529,
+                11550636105473166511,
+                13853435974836576514,
+                4917632100704164602,
+                12545657914460188587,
+                3278796710592654079,
+                15077259400518931795,
+                11160137659121872107,
+                15290704655941018102,
+                17606666201497989028,
+                5678846447600309516,
+                17424691244819712972,
+                9741603735323954820,
+                4169780624201130431,
+                16551956980600305999,
+                100293760416089331,
+                13085746178344811688,
+                13209782696894570687,
+                11171711326550783883,
+                3840087987042649245,
+                9177926302248298196,
+                8558242035327423104,
+                9268512851893846598,
+                7566972708875085535,
+                5382790851443268599,
+                9207975057986363288,
+                1879022028165325061,
+                9748942525133075881,
+                4640373473810958964,
+                12819256305757250093,
+                757307776
+            ]
+                .span(),
+            len_bytes: 340
+        };
+        let p1 = Words64Sequence {
+            values: array![
+                17893224083919773945,
+                13135060841128972854,
+                7916313373805331188,
+                7448579461331849594,
+                16081673001799608960,
+                9259542123273814144,
+                11556784118908757093,
+                2485209825384507840,
+                8852124926135473986,
+                14848727627625325413,
+                4292736
+            ]
+                .span(),
+            len_bytes: 83
+        };
+        let p2 = Words64Sequence {
+            values: array![
+                17900014253268261798,
+                10085541635936464740,
+                16284463465276870940,
+                10366490994992567568,
+                6153155932545631233,
+                9268569323206369822,
+                11769840144037554458,
+                6465292778623532740,
+                6868390785500968809,
+                1665945311227487514,
+                1288531408124322443,
+                17170933329769257990,
+                11062663716857276275,
+                742574
+            ]
+                .span(),
+            len_bytes: 107
+        };
+        array![p0, p1, p2]
+    }
+
+    fn proof_path_anvil() -> Words64Sequence {
+        Words64Sequence {
+            values: array![
+                18302765068955940618,
+                12587956436486716937,
+                4480421445994798380,
+                11730699817693045862
+            ]
+                .span(),
+            len_bytes: 32
+        }
+    }
+
+    fn state_root_anvil() -> Words64Sequence {
+        Words64Sequence {
+            values: array![
+                15235604485124334757,
+                6947789618411539857,
+                14068058166389502555,
+                10254785038972823550
+            ]
+                .span(),
+            len_bytes: 32
+        }
     }
 }

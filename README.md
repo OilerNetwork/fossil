@@ -42,13 +42,18 @@ Deploy the Cairo contracts:
 
 In a New Terminal Set up local Ethereum testing:
    ```bash
-   cd ../ethereum
+   cd ethereum
    cp anvil.env .env
    source .env
    forge script script/LocalTesting.s.sol:LocalSetup --broadcast --rpc-url ${ETH_RPC_URL} 
    ```
 
-Send a message:
-   ```bash
-   forge script script/SendMessage.s.sol:Value --broadcast --rpc-url ${ETH_RPC_URL}
-   ```
+Generate the proof for the mock account and storage:
+```
+cast proof 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9 0 --block 3
+```
+
+The script `starknet/katana/prove_sto.sh` is a wrapper to store the state root and verify account first and then storage proof for the slot 0x0 in `MockStorage.sol`.
+```
+starknet/katana/verify_proofs.sh
+```

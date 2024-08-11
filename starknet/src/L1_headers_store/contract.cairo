@@ -18,14 +18,15 @@ pub mod L1HeaderStore {
     use fossil::library::words64_utils::words64_to_u256;
     use fossil::types::ProcessBlockOptions;
     use fossil::types::Words64Sequence;
-    use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin_access::ownable::OwnableComponent;
+    use starknet::storage::Map;
     // *************************************************************************
     //                               IMPORTS
     // *************************************************************************
     // Core lib imports 
-    use openzeppelin::access::ownable::ownable::OwnableComponent::InternalTrait;
-    use openzeppelin::upgrades::UpgradeableComponent;
-    use openzeppelin::upgrades::interface::IUpgradeable;
+    use openzeppelin_access::ownable::ownable::OwnableComponent::InternalTrait;
+    use openzeppelin_upgrades::UpgradeableComponent;
+    use openzeppelin_upgrades::interface::IUpgradeable;
     use starknet::{ContractAddress, EthAddress, get_caller_address, ClassHash};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -51,16 +52,16 @@ pub mod L1HeaderStore {
         starknet_handler_address: ContractAddress,
         l1_messages_origin: ContractAddress,
         latest_l1_block: u64,
-        block_parent_hash: LegacyMap::<u64, u256>,
-        block_state_root: LegacyMap::<u64, u256>,
-        block_transactions_root: LegacyMap::<u64, u256>,
-        block_receipts_root: LegacyMap::<u64, u256>,
-        block_uncles_hash: LegacyMap::<u64, u256>,
-        block_beneficiary: LegacyMap::<u64, EthAddress>,
-        block_difficulty: LegacyMap::<u64, u64>,
-        block_base_fee: LegacyMap::<u64, u64>,
-        block_timestamp: LegacyMap::<u64, u64>,
-        block_gas_used: LegacyMap::<u64, u64>,
+        block_parent_hash: Map<u64, u256>,
+        block_state_root: Map<u64, u256>,
+        block_transactions_root: Map<u64, u256>,
+        block_receipts_root: Map<u64, u256>,
+        block_uncles_hash: Map<u64, u256>,
+        block_beneficiary: Map<u64, EthAddress>,
+        block_difficulty: Map<u64, u64>,
+        block_base_fee: Map<u64, u64>,
+        block_timestamp: Map<u64, u64>,
+        block_gas_used: Map<u64, u64>,
     }
 
     // *************************************************************************
@@ -198,7 +199,7 @@ pub mod L1HeaderStore {
         /// This may only be called by the contract owner.
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             self.ownable.assert_only_owner();
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
     }
 

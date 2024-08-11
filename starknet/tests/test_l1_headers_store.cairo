@@ -1,11 +1,10 @@
 use fossil::L1_headers_store::interface::IL1HeadersStoreDispatcherTrait;
 use fossil::library::words64_utils::{words64_to_nibbles, Words64Trait};
-use fossil::testing::proofs;
-use fossil::testing::rlp;
+use super::utils::{proofs, rlp};
 use fossil::types::ProcessBlockOptions;
 use snforge_std::start_cheat_caller_address;
 use starknet::EthAddress;
-use super::test_utils::{setup, OWNER, STARKNET_HANDLER};
+use super::utils::test_utils::{setup, OWNER, STARKNET_HANDLER};
 
 #[test]
 fn receive_from_l1_success_test() {

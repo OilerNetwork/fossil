@@ -5,19 +5,6 @@ pub struct Keccak256Hash {
     pub value: u256
 }
 
-/// An enum representing the different options for processing account data.
-///
-/// `OptionsSet` is used to specify which aspect of the account data should be processed or verified.
-/// This enum is utilized in functions that handle account proofs and storage data.
-#[derive(Drop, Serde)]
-pub enum OptionsSet {
-    All,
-    StorageHash,
-    CodeHash,
-    Nonce,
-    Balance,
-}
-
 /// Struct representing a sequence of 64-bit words with a specified length in bytes.
 ///
 /// # Fields
@@ -26,7 +13,7 @@ pub enum OptionsSet {
 /// 
 /// `Words64Sequence` is used to encapsulate a sequence of `Words64`
 /// along with the length of the sequence in bytes.
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Debug, Drop, Serde)]
 pub struct Words64Sequence {
     pub values: Words64,
     pub len_bytes: usize,

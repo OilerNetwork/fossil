@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import "@forge-std/src/Script.sol";
-import "@forge-std/src/console.sol";
+import "forge-std/Script.sol";
+import "forge-std/console.sol";
 
-import "src/ContractMsg.sol";
-import "src/L1MessageSender.sol";
-import "src/StarknetMessagingLocal.sol";
-import "src/Mock/MockStorage.sol";
+import "../src/ContractMsg.sol";
+import "../src/L1MessageSender.sol";
+import "../src/StarknetMessagingLocal.sol";
+import "../src/Mock/MockStorage.sol";
 
 contract LocalSetup is Script {
     function setUp() public {}
