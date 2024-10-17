@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {Uint256Splitter} from "lib/Uint256Splitter.sol";
+import {Uint256Splitter} from "./lib/Uint256Splitter.sol";
 
-import "starknet/IStarknetMessaging.sol";
+import "./lib/starknet/IStarknetMessaging.sol";
 
 contract L1MessagesSender {
     IStarknetMessaging private _snMessaging;
