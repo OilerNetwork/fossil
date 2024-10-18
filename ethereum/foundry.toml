@@ -10,3 +10,4 @@ libs = ["dependencies"]
 fs_permissions = [{ access = "read-write", path = "./logs" }]
 
 [dependencies]
+forge-std = "1.9.3"
