@@ -10,4 +10,3 @@ libs = ["dependencies"]
 fs_permissions = [{ access = "read-write", path = "./logs" }]
 
 [dependencies]
-forge-std = { version = "1.8.2", url = "https://github.com/foundry-rs/foundry.git" }
