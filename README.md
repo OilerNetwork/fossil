@@ -15,12 +15,13 @@
    ```
 2. New terminal:
 ```bash
+   foundryup
    dojoup -v v1.0.0-alpha.16
    asdf plugin add starknet-foundry
    asdf plugin add scarb
    asdf plugin add starkli
-   cd starknet; asdf install
-   cd ../ethereum; forge soldeer install
+   asdf install
+   cd ethereum; forge soldeer install
 ```
 
 ### Testing
