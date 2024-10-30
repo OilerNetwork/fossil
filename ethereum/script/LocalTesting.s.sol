@@ -29,7 +29,9 @@ contract LocalSetup is Script {
         vm.serializeString(json, "contractMsg_address", vm.toString(address(contractMsg)));
 
         // Deploy L1MessagesSender
-        L1MessagesSender l1MessageSender = new L1MessagesSender(address(snLocal), vm.envUint("L2_CONTRACT_ADDRESS"));
+        // Locally the latest block is always finalized
+        uint16 FINALIZED_OFFSET = 1;
+        L1MessagesSender l1MessageSender = new L1MessagesSender(address(snLocal), vm.envUint("L2_CONTRACT_ADDRESS"), FINALIZED_OFFSET);
         console.log("L1MessagesSender deployed at:", address(l1MessageSender));
         vm.serializeString(json, "l1MessageSender_address", vm.toString(address(l1MessageSender)));
 

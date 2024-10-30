@@ -8,6 +8,7 @@ import "./lib/starknet/IStarknetMessaging.sol";
 contract L1MessagesSender {
     IStarknetMessaging private _snMessaging;
     uint256 public immutable l2RecipientAddr;
+    uint16 public immutable finalizedBlockOffset;
 
     using Uint256Splitter for uint256;
 
@@ -16,9 +17,10 @@ contract L1MessagesSender {
         598342674068027518481179578557554850038206119856216505601406522348670006916;
 
     // TODO - describe
-    constructor(address snMessaging, uint256 l2RecipientAddr_) {
+    constructor(address snMessaging, uint256 l2RecipientAddr_, uint16 finalizedBlockOffset_) {
         _snMessaging = IStarknetMessaging(snMessaging);
         l2RecipientAddr = l2RecipientAddr_;
+        finalizedBlockOffset = finalizedBlockOffset_;
     }
 
     // TODO - natspec
@@ -28,9 +30,9 @@ contract L1MessagesSender {
         _sendBlockHashToL2(parentHash, blockNumber_);
     }
 
-    function sendLatestParentHashToL2() external payable {
-        bytes32 parentHash = blockhash(block.number - 1);
-        _sendBlockHashToL2(parentHash, block.number);
+    function sendFinalizedBlockHashToL2() external payable {
+        bytes32 finalizedBlockHash = blockhash(block.number - finalizedBlockOffset);
+        _sendBlockHashToL2(finalizedBlockHash, block.number);
     }
 
     function _sendBlockHashToL2(bytes32 parentHash_, uint256 blockNumber_) internal {
